@@ -14,3 +14,7 @@ class LangOpsProductResponse(BaseModel):
     trello_data: Optional[TrelloData]
     youtube_data: Optional[YouTubeData]
     crowdin_data: Optional[CrowdinData]
+
+class LangOpsProductError(BaseModel):
+    status_code: int
+    detail: str

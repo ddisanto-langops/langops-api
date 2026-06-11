@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import Column, String, Float, Integer, DateTime, ARRAY
+from sqlalchemy import Column, String, Float, Integer, DateTime
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import DeclarativeBase
 
 class Base(DeclarativeBase):
