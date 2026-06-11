@@ -3,3 +3,4 @@ fastapi[standard]
 sqlalchemy
 starlette
 asyncpg
+iso639-lang

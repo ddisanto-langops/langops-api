@@ -2,6 +2,7 @@ from datetime import datetime
 from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -10,7 +11,7 @@ from typing import Annotated
 
 from schemas import LangOpsProductResponse, LangOpsProductError, CheckHealthResponse
 from models import LangOpsProductORM, orm_to_langops_product
-from enums import MediaGroupEnum, ProductCodeEnum, SupportedLanguageEnum
+from enums import MediaGroups, ProductCodes
 from db import get_db
 
 app = FastAPI()
@@ -24,13 +25,14 @@ async def check_health(db: AsyncSession = Depends(get_db)):
             "status": "OK",
             "database_version": db_version
         }
-    except HTTPException as e:
-        raise HTTPException(status_code=500, detail="Unable to get Postgres version: check that database is online.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unable to get Postgres version: check that database is online. Message: {e}")
     
 
-# GET: /api/products 
-# is a simple endpoint to return all LangOps products. 
-# Limited to max 500 per request.
+
+# Can return all LangOps products up to a limit of 500 per request.
+# Will add filtering as required
+# TODO: Add offset and anything else needed for pagination
 @app.get(
         "/api/products", 
         response_model=list[LangOpsProductResponse], 
@@ -41,12 +43,13 @@ async def check_health(db: AsyncSession = Depends(get_db)):
             }
         )
 async def get_all_products(
-    target_language: Annotated[SupportedLanguageEnum | None, Query()] = None,
-    date_from: datetime = None, 
-    date_to: datetime = None,
-    product_code: Annotated[ProductCodeEnum | None, Query()] = None, 
-    media_groups: Annotated[list[MediaGroupEnum] | None, Query()] = None, 
-    limit: int = 500, 
+    language: Annotated[str | None, Query(description="The target language of the product in ISO-639-1 format")] = None,
+    date_from: Annotated[datetime | None, Query(description="Date the product was published")] = None,
+    date_to: Annotated[datetime | None, Query(description="Date the product was published")] = None,
+    product_code: Annotated[ProductCodes | None, Query(description="The prefixed code indicating type of product, e.g. 'PT'")] = None, 
+    media_groups: Annotated[list[MediaGroups] | None, Query(description="The general category of the product, e.g. website")] = None, 
+    limit: Annotated[int, Query(ge=1, le=500)] = 500,
+    published_only: Annotated[bool, Query(description="Whether to return only products where date published is not null")] = False, 
     db: AsyncSession = Depends(get_db)
     ):
     if limit > 500 or limit < 1:
@@ -54,8 +57,8 @@ async def get_all_products(
     
     statement = select(LangOpsProductORM).limit(limit)
 
-    if target_language:
-        statement = statement.where(LangOpsProductORM.trello_target_language == target_language)
+    if language:
+        statement = statement.where(LangOpsProductORM.trello_target_language == language)
 
     if product_code:
         statement = statement.where(LangOpsProductORM.trello_product_code == product_code)
@@ -69,6 +72,9 @@ async def get_all_products(
            or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values])
         )
     
+    if published_only:
+        statement = statement.where(LangOpsProductORM.trello_date_published.is_not(None))
+    
     result = await db.execute(statement)
     rows = result.scalars().all()
 
@@ -79,14 +85,28 @@ async def get_all_products(
 
 
 
+
+
+# -------------------
+# EXCEPTION HANDLERS
+# -------------------
+
+
+@app.exception_handler(RequestValidationError)
+def validation_exception_handler(request: Request, exception: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={"status_code": 422, "detail": exception.errors()[0]["msg"]}
+    )
+
 @app.exception_handler(StarletteHTTPException)
 def general_exception_handler(request: Request, exception: StarletteHTTPException):
-    message = (
-        exception.detail
-        if exception.detail
-        else "An unknown error occurred."
-    )
     return JSONResponse(
-        status_code=exception.status_code,
-        content={"detail": message}
+        status_code= exception.status_code,
+        content = {
+            "status_code": exception.status_code,
+            "detail": exception.detail or "An unknown error has occurred",
+            "path": str(request.url.path),
+            "timestamp": datetime.utcnow().isoformat()
+        }
     )

@@ -5,6 +5,8 @@ from sqlalchemy import Column, String, Float, Integer, DateTime
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import DeclarativeBase
 
+from enums import ProductCodes, MediaGroups, Languages
+
 class Base(DeclarativeBase):
     pass
 
@@ -14,12 +16,12 @@ class TrelloData(BaseModel):
     id: str
     url: str
     title: str
-    product_code: str 
-    target_language: str
+    product_code: ProductCodes 
+    target_language: Languages
     due_date: Optional[datetime]
     date_published: Optional[datetime]
     date_last_activity: datetime
-    media_groups: list[str]
+    media_groups: list[MediaGroups]
     editor_url: Optional[str]
     article_url: Optional[str]
     word_count: Optional[int]

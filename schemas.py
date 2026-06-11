@@ -18,3 +18,5 @@ class LangOpsProductResponse(BaseModel):
 class LangOpsProductError(BaseModel):
     status_code: int
     detail: str
+    path: str
+    timestamp: datetime
