@@ -85,3 +85,17 @@ class DeleteResponse(BaseModel):
 class RestoreResponse(BaseModel):
     id: UUID
     restored_at: datetime
+
+
+class WordcountResponse(BaseModel):
+    total_words: int
+
+
+class CountedProduct(BaseModel):
+    product_code: str
+    count: int
+
+class ProductCountResponse(BaseModel):
+    total_products: int
+    products: list[CountedProduct]
+    

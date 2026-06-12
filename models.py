@@ -9,9 +9,6 @@ class Base(DeclarativeBase):
     pass
 
 
-
-
-
 class LangOpsProductORM(Base):
     __tablename__ = "langops_products"
     
