@@ -1,76 +1,23 @@
-from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import Column, String, Float, Integer, DateTime
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, UUID as SA_UUID
+import uuid
 from sqlalchemy.orm import DeclarativeBase
+from schemas import TrelloData, YouTubeData, CrowdinData, ProductResponse
 
-from enums import ProductCodes, MediaGroups, Languages
 
 class Base(DeclarativeBase):
     pass
 
-class TrelloData(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: str
-    url: str
-    title: str
-    product_code: ProductCodes 
-    target_language: Languages
-    due_date: Optional[datetime]
-    date_published: Optional[datetime]
-    date_last_activity: datetime
-    media_groups: list[MediaGroups]
-    editor_url: Optional[str]
-    article_url: Optional[str]
-    word_count: Optional[int]
-
-
-class YouTubeData(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: str
-    localized_title: str
-    url: str
-    duration_seconds: int
-
-
-class CrowdinData(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    crowdin_id: Optional[str]
-    translation_progress: Optional[float]
-    approval_progress: Optional[float]
-    crowdin_url: Optional[str]
 
 
 
-class LangOpsProduct(BaseModel):
-    """Represents a product taken from any source of truth,
-
-    across various states (Trello active or archived, YouTube
-    published/unpublished).
-    Note: the dicts containing Trello, YouTube and Crowdin data
-    do not represent raw fetched data, but rather the synthesized and
-    aggregated data after fetching has already been performed. A LangOps
-    product is the shape that is stored in the database and that the frontend
-    sees.
-    A LangOps API can be supported in the future if required.
-    """
-    model_config = ConfigDict(from_attributes=True)
-
-    id: str
-    date_created: datetime = Field(alias="dateCreated")
-    trello_data: Optional[TrelloData]
-    youtube_data: Optional[YouTubeData]
-    crowdin_data: Optional[CrowdinData]
 
 class LangOpsProductORM(Base):
     __tablename__ = "langops_products"
-
-    id = Column(String, primary_key=True)
+    
+    id = Column(SA_UUID(as_uuid=True), primary_key=True, default=uuid.UUID)
     date_created = Column(DateTime(timezone=True), nullable=False)
+    date_deleted = Column(DateTime(timezone=True), nullable=True)
 
     trello_id = Column(String)
     trello_url = Column(String)
@@ -96,7 +43,7 @@ class LangOpsProductORM(Base):
     crowdin_url = Column(String)
 
 
-def orm_to_langops_product(row: LangOpsProductORM) -> LangOpsProduct:
+def orm_to_langops_product(row: LangOpsProductORM) :
     trello = TrelloData(
         id=row.trello_id,
         url=row.trello_url,
@@ -126,9 +73,10 @@ def orm_to_langops_product(row: LangOpsProductORM) -> LangOpsProduct:
         crowdin_url=row.crowdin_url,
     ) if row.crowdin_id else None
 
-    return LangOpsProduct(
+    return ProductResponse(
         id=row.id,
-        dateCreated=row.date_created,
+        date_created=row.date_created,
+        date_deleted=row.date_deleted,
         trello_data=trello,
         youtube_data=youtube,
         crowdin_data=crowdin,

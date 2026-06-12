@@ -1,13 +1,15 @@
--- This is the source of truth for table creation or regeneration 
--- within the LangOps database which the API will query.
+-- This is the source of truth for table creation or regeneration. 
+-- Currently there is a unified products table, and a deletions table.
+-- They are identical except that deletions will have date_deleted.
 
 CREATE TABLE langops_products (
     -- LangOpsProduct fields
-    id              TEXT PRIMARY KEY,
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     date_created    TIMESTAMPTZ NOT NULL,
+    date_deleted    TIMESTAMPTZ,
 
     -- TrelloData fields
-    trello_id               TEXT,
+    trello_id               TEXT UNIQUE,
     trello_url              TEXT,
     trello_title            TEXT,
     trello_product_code     TEXT,
