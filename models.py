@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Float, Integer, DateTime
 from sqlalchemy.dialects.postgresql import ARRAY, UUID as SA_UUID
 import uuid
 from sqlalchemy.orm import DeclarativeBase
-from schemas import TrelloData, YouTubeData, CrowdinData, ProductResponse
+from schemas import TrelloData, YouTubeData, CrowdinData, GetProductResponse
 
 
 class Base(DeclarativeBase):
@@ -12,7 +12,7 @@ class Base(DeclarativeBase):
 class LangOpsProductORM(Base):
     __tablename__ = "langops_products"
     
-    id = Column(SA_UUID(as_uuid=True), primary_key=True, default=uuid.UUID)
+    id = Column(SA_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     date_created = Column(DateTime(timezone=True), nullable=False)
     date_deleted = Column(DateTime(timezone=True), nullable=True)
 
@@ -70,7 +70,7 @@ def orm_to_langops_product(row: LangOpsProductORM) :
         crowdin_url=row.crowdin_url,
     ) if row.crowdin_id else None
 
-    return ProductResponse(
+    return GetProductResponse(
         id=row.id,
         date_created=row.date_created,
         date_deleted=row.date_deleted,
