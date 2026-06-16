@@ -70,7 +70,7 @@ async def get_all_products(
     limit: Annotated[int, Query(ge=1, le=500)] = 500,
     offset: Annotated[int, Query(ge=0, description="Number of records to skip")] = 0,
     published_only: Annotated[bool, Query(description="Whether to return only products where date published is not null")] = False,
-    deleted_only: Annotated[bool, Query(description="Whether to return deleted products only (where date deleted is not null)")] = False,
+    exclude_deleted: Annotated[bool, Query(description="Whether to exclude deleted products (where date deleted is not null). If set to false, deleted products will be returned along with active ones.")] = True,
     db: AsyncSession = Depends(get_db)
     ):
     try:
@@ -78,8 +78,14 @@ async def get_all_products(
             raise HTTPException(status_code=400, detail="Limit must be between 1 and 500.")
         
         
-
-        statement = select(LangOpsProductORM).order_by(asc(LangOpsProductORM.date_created)).limit(limit).offset(offset)
+        # Default behavior: select all products within limit and offset, order ascending.
+        # NOTE: Excludes deleted products by default, unless exclude_deleted is set to True
+        statement = (
+            select(LangOpsProductORM)
+            .order_by(asc(LangOpsProductORM.date_created))
+            .limit(limit)
+            .offset(offset)
+        )
         count_statement = select(func.count()).select_from(LangOpsProductORM)
         
 
@@ -108,9 +114,9 @@ async def get_all_products(
             statement = statement.where(LangOpsProductORM.trello_date_published.is_not(None))
             count_statement = count_statement.where(LangOpsProductORM.trello_date_published.is_not(None))
 
-        if deleted_only:
-            statement =  statement.where(LangOpsProductORM.date_deleted.is_not(None))
-            count_statement = count_statement.where(LangOpsProductORM.date_deleted.is_not(None))
+        if exclude_deleted:
+            statement = statement.where(LangOpsProductORM.date_deleted.is_(None))
+            count_statement = count_statement.where(LangOpsProductORM.date_deleted.is_(None))
         
         result = await db.execute(statement)
         rows = result.scalars().all()
@@ -275,6 +281,7 @@ async def get_product_count(
         raise HTTPException(status_code=500, detail=f"Unable to get product count: {e}")
 
 
+
 @app.post(
     "/api/products/add",
     description="Add a product or multiple products to the database",
@@ -301,36 +308,6 @@ async def add_products(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unable to add products: {e}")
 
-
-@app.patch(
-    "/api/products/restore/{id}",
-    description="Restore a soft-deleted product",
-    response_model=RestoreResponse,
-    responses={
-        400: { "model": ProductError, "response_description": "Bad request" },
-        404: { "model": ProductError, "response_description": "Record not found" },
-        500: { "model": ProductError, "response_description": "Internal server error" }
-    }
-)
-async def restore_product(
-    id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
-    db: AsyncSession = Depends(get_db)
-):
-    try:
-        statement = update(LangOpsProductORM).where(LangOpsProductORM.id == id).values(date_deleted=None).returning(LangOpsProductORM.id)
-        result = await db.execute(statement)
-        await db.commit()
-
-        if result.scalar_one_or_none() is None:
-            raise HTTPException(status_code=404, detail="Product not found")
-
-
-        return RestoreResponse(
-            id=id,
-            restored_at=datetime.now(timezone.utc)
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to restore record: {e}")
 
 
 @app.patch(
@@ -366,6 +343,37 @@ async def edit_product(
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to edit record: {e}")
+
+
+@app.patch(
+    "/api/products/restore/{id}",
+    description="Restore a soft-deleted product",
+    response_model=RestoreResponse,
+    responses={
+        400: { "model": ProductError, "response_description": "Bad request" },
+        404: { "model": ProductError, "response_description": "Record not found" },
+        500: { "model": ProductError, "response_description": "Internal server error" }
+    }
+)
+async def restore_product(
+    id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        statement = update(LangOpsProductORM).where(LangOpsProductORM.id == id).values(date_deleted=None).returning(LangOpsProductORM.id)
+        result = await db.execute(statement)
+        await db.commit()
+
+        if result.scalar_one_or_none() is None:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+
+        return RestoreResponse(
+            id=id,
+            restored_at=datetime.now(timezone.utc)
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to restore record: {e}")
 
 
 @app.delete(

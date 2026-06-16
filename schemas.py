@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from pydantic import BaseModel
 from uuid import UUID
 from enums import ProductCodes, MediaGroups, Languages
@@ -18,13 +17,13 @@ class TrelloData(BaseModel):
     title: str
     product_code: ProductCodes 
     target_language: Languages
-    due_date: Optional[datetime]
-    date_published: Optional[datetime]
+    due_date: datetime | None
+    date_published: datetime | None
     date_last_activity: datetime
     media_groups: list[MediaGroups]
-    editor_url: Optional[str]
-    article_url: Optional[str]
-    word_count: Optional[int]
+    editor_url: str | None
+    article_url: str | None
+    word_count: int | None
 
 
 class YouTubeData(BaseModel):
@@ -39,10 +38,10 @@ class YouTubeData(BaseModel):
 class CrowdinData(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    crowdin_id: Optional[str]
-    translation_progress: Optional[float]
-    approval_progress: Optional[float]
-    crowdin_url: Optional[str]
+    crowdin_id: str | None
+    translation_progress: float | None
+    approval_progress: float | None
+    crowdin_url: str | None
 
 
 class ProductCodeCount(BaseModel):
@@ -57,28 +56,28 @@ class ProductCodeCount(BaseModel):
 
 class EditProductRequest(BaseModel):
     # trello
-    trello_title: Optional[str] = None
-    trello_url: Optional[str] = None
-    trello_product_code: Optional[ProductCodes] = None
-    trello_target_language: Optional[Languages] = None
-    trello_due_date: Optional[datetime] = None
-    trello_date_published: Optional[datetime] = None
-    trello_media_groups: Optional[list[MediaGroups]] = None
-    trello_editor_url: Optional[str] = None
-    trello_article_url: Optional[str] = None
-    trello_word_count: Optional[int] = None
+    trello_title: str | None = None
+    trello_url: str | None = None
+    trello_product_code: ProductCodes | None = None
+    trello_target_language: Languages | None = None
+    trello_due_date: datetime | None = None
+    trello_date_published: datetime | None  = None
+    trello_media_groups: list[MediaGroups] | None = None
+    trello_editor_url: str | None = None
+    trello_article_url: str | None = None
+    trello_word_count: int | None = None
     # youtube
-    youtube_id: Optional[str] = None
-    youtube_localized_title: Optional[str] = None
-    youtube_url: Optional[str] = None
-    youtube_duration_seconds: Optional[int] = None
+    youtube_id: str | None = None
+    youtube_localized_title: str | None = None
+    youtube_url: str | None = None
+    youtube_duration_seconds: int | None = None
     # crowdin
-    crowdin_id: Optional[str] = None
-    crowdin_translation_progress: Optional[float] = None
-    crowdin_approval_progress: Optional[float] = None
-    crowdin_url: Optional[str] = None
+    crowdin_id: str | None = None
+    crowdin_translation_progress: float | None = None
+    crowdin_approval_progress: float | None = None
+    crowdin_url: str | None = None
     # soft delete
-    date_deleted: Optional[datetime] = None
+    date_deleted: datetime | None = None
 
 
 
@@ -94,10 +93,10 @@ class CheckHealthResponse(BaseModel):
 class GetProductResponse(BaseModel):
     id: UUID
     date_created: datetime
-    date_deleted: Optional[datetime]
-    trello_data: Optional[TrelloData]
-    youtube_data: Optional[YouTubeData]
-    crowdin_data: Optional[CrowdinData]
+    date_deleted: datetime | None
+    trello_data: TrelloData | None
+    youtube_data: YouTubeData | None
+    crowdin_data: CrowdinData | None
 
 
 class AddProductResponse(BaseModel):
@@ -115,28 +114,28 @@ class PaginatedProductResponse(BaseModel):
 class EditProductResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     # trello
-    trello_title: Optional[str] = None
-    trello_url: Optional[str] = None
-    trello_product_code: Optional[ProductCodes] = None
-    trello_target_language: Optional[Languages] = None
-    trello_due_date: Optional[datetime] = None
-    trello_date_published: Optional[datetime] = None
-    trello_media_groups: Optional[list[MediaGroups]] = None
-    trello_editor_url: Optional[str] = None
-    trello_article_url: Optional[str] = None
-    trello_word_count: Optional[int] = None
+    trello_title: str | None = None
+    trello_url: str | None = None
+    trello_product_code: ProductCodes | None = None
+    trello_target_language: Languages | None = None
+    trello_due_date: datetime | None = None
+    trello_date_published: datetime | None = None
+    trello_media_groups: list[MediaGroups] | None = None
+    trello_editor_url: str | None = None
+    trello_article_url: str | None = None
+    trello_word_count: int | None = None
     # youtube
-    youtube_id: Optional[str] = None
-    youtube_localized_title: Optional[str] = None
-    youtube_url: Optional[str] = None
-    youtube_duration_seconds: Optional[int] = None
+    youtube_id: str | None = None
+    youtube_localized_title: str | None = None
+    youtube_url: str | None = None
+    youtube_duration_seconds: int | None = None
     # crowdin
-    crowdin_id: Optional[str] = None
-    crowdin_translation_progress: Optional[float] = None
-    crowdin_approval_progress: Optional[float] = None
-    crowdin_url: Optional[str] = None
+    crowdin_id: str | None = None
+    crowdin_translation_progress: float | None = None
+    crowdin_approval_progress: float | None = None
+    crowdin_url: str | None = None
     # soft delete
-    date_deleted: Optional[datetime] = None
+    date_deleted: datetime | None = None
 
 
 
