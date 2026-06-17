@@ -383,6 +383,7 @@ async def get_product_count(
     "/api/products/add",
     description="Add a product or multiple products to the database",
     response_model=AddProductResponse,
+    status_code=201,
     responses={
         400: { "model": ProductError, "response_description": "Bad request" },
         404: { "model": ProductError, "response_description": "Record not found" },
