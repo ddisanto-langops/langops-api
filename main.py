@@ -104,7 +104,14 @@ async def get_all_products(
     published_only: Annotated[bool, Query(
         title="Published Only",
         alias="publishedOnly",
-        description="Whether to return only products where date published is not null"
+        description="""Whether to return only products where `date_published` **is not null.**
+        <span style="color:red">If set to true, `unpublished_only` must be set to false.</span>"""
+    )] = False,
+    unpublished_only: Annotated[bool, Query(
+        title="Unpublished Only",
+        alias="unpublishedOnly",
+        description="""Whether to return only products where `date_published` **is null.**
+        <span style="color:red">If set to true, `published_only` must be set to false.</span>"""
     )] = False,
     exclude_deleted: Annotated[bool, Query(
         title="Exclude Deleted",
@@ -156,6 +163,10 @@ async def get_all_products(
         if published_only:
             statement = statement.where(LangOpsProductORM.trello_date_published.is_not(None))
             count_statement = count_statement.where(LangOpsProductORM.trello_date_published.is_not(None))
+        
+        if unpublished_only:
+            statement = statement.where(LangOpsProductORM.trello_date_published.is_(None))
+            count_statement = count_statement.where(LangOpsProductORM.trello_date_published.is_(None))
 
         if exclude_deleted:
             statement = statement.where(LangOpsProductORM.date_deleted.is_(None))
