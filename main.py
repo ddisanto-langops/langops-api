@@ -26,6 +26,7 @@ from schemas import (
 
 from models import LangOpsProductORM, orm_to_langops_product
 from enums import MediaGroups, ProductCodes
+from constants import *
 from db import get_db
 
 app = FastAPI(title="PCG LangOps API")
@@ -62,10 +63,10 @@ async def check_health(db: AsyncSession = Depends(get_db)):
             }
         )
 async def get_all_products(
-    language: Annotated[str | None, Query(description="The target language of the product in ISO-639-1 format")] = None,
+    language: Annotated[str | None, Query(description="The target language of the product in ISO-639-1 format", min_length=2, max_length=2)] = None,
     date_from: Annotated[datetime | None, Query(description="Date the product was published")] = None,
     date_to: Annotated[datetime | None, Query(description="Date the product was published")] = None,
-    product_code: Annotated[ProductCodes | None, Query(description="The prefixed code indicating type of product, e.g. 'PT'")] = None, 
+    product_code: Annotated[ProductCodes | None, Query(description="The prefixed code indicating type of product, e.g. 'PT'", max_length=MAX_PRODUCT_CODE_LEN)] = None, 
     media_groups: Annotated[list[MediaGroups] | None, Query(description="The general category of the product, e.g. website")] = None, 
     limit: Annotated[int, Query(ge=1, le=500)] = 500,
     offset: Annotated[int, Query(ge=0, description="Number of records to skip")] = 0,
@@ -172,10 +173,10 @@ async def get_product_by_id(
         }
 )
 async def get_word_count(
-    language: Annotated[str | None, Query(description="The target language of the product in ISO-639-1 format")] = None,
+    language: Annotated[str | None, Query(description="The target language of the product in ISO-639-1 format", max_length=2, min_length=2)] = None,
     date_from: Annotated[datetime | None, Query(description="Date the product was published")] = None,
     date_to: Annotated[datetime | None, Query(description="Date the product was published")] = None,
-    product_code: Annotated[ProductCodes | None, Query(description="The prefixed code indicating type of product, e.g. 'PT'")] = None, 
+    product_code: Annotated[ProductCodes | None, Query(description="The prefixed code indicating type of product, e.g. 'PT'", max_length=MAX_PRODUCT_CODE_LEN)] = None, 
     media_groups: Annotated[list[MediaGroups] | None, Query(description="The general category of the product, e.g. website")] = None, 
     db: AsyncSession = Depends(get_db)
 ):
@@ -227,10 +228,10 @@ async def get_word_count(
         }
 )
 async def get_product_count(
-    language: Annotated[str | None, Query(description="The target language of the product in ISO-639-1 format")] = None,
+    language: Annotated[str | None, Query(description="The target language of the product in ISO-639-1 format", max_length=2, min_length=2)] = None,
     date_from: Annotated[datetime | None, Query(description="Date the product was published")] = None,
     date_to: Annotated[datetime | None, Query(description="Date the product was published")] = None,
-    product_code: Annotated[ProductCodes | None, Query(description="The prefixed code indicating type of product, e.g. 'PT'")] = None, 
+    product_code: Annotated[ProductCodes | None, Query(description="The prefixed code indicating type of product, e.g. 'PT'", max_length=MAX_PRODUCT_CODE_LEN)] = None, 
     media_groups: Annotated[list[MediaGroups] | None, Query(description="The general category of the product, e.g. website")] = None, 
     db: AsyncSession = Depends(get_db)
 ):
