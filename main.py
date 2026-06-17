@@ -62,15 +62,53 @@ async def check_health(db: AsyncSession = Depends(get_db)):
             }
         )
 async def get_all_products(
-    language: Annotated[str | None, Query(description="The target language of the product in ISO-639-1 format")] = None,
-    date_from: Annotated[datetime | None, Query(description="Date the product was published")] = None,
-    date_to: Annotated[datetime | None, Query(description="Date the product was published")] = None,
-    product_code: Annotated[ProductCodes | None, Query(description="The prefixed code indicating type of product, e.g. 'PT'")] = None, 
-    media_groups: Annotated[list[MediaGroups] | None, Query(description="The general category of the product, e.g. website")] = None, 
-    limit: Annotated[int, Query(ge=1, le=500)] = 500,
-    offset: Annotated[int, Query(ge=0, description="Number of records to skip")] = 0,
-    published_only: Annotated[bool, Query(description="Whether to return only products where date published is not null")] = False,
-    exclude_deleted: Annotated[bool, Query(description="Whether to exclude deleted products (where date deleted is not null). If set to false, deleted products will be returned along with active ones.")] = True,
+    language: Annotated[str | None, Query(
+        title="Target Language", 
+        alias="targetLanguage", 
+        description="The target language of the products in ISO-639-1 format"
+    )] = None,
+    date_from: Annotated[datetime | None, Query(
+        title="Date From", 
+        alias="dateFrom", 
+        description="Return products published on or after this date"
+    )] = None,
+    date_to: Annotated[datetime | None, Query(
+        title="Date To", 
+        alias="dateTo", 
+        description="Return products published on or before this date"
+    )] = None,
+    product_code: Annotated[ProductCodes | None, Query(
+        title="Product Code",
+        alias="productCode",
+        description="The prefixed code indicating type of product, e.g. 'PT'",
+    )] = None, 
+    media_groups: Annotated[list[MediaGroups] | None, Query(
+        title="Media Groups",
+        alias="mediaGroups",
+        description="The general category of the product, e.g. website"
+    )] = None, 
+    limit: Annotated[int, Query(
+        title="Limit",
+        alias="limit",
+        ge=1,
+        le=500
+    )] = 500,
+    offset: Annotated[int, Query(
+         title="Offset",
+         alias="offset",
+        description="Number of records to skip",
+        ge=0
+    )] = 0,
+    published_only: Annotated[bool, Query(
+        title="Published Only",
+        alias="publishedOnly",
+        description="Whether to return only products where date published is not null"
+    )] = False,
+    exclude_deleted: Annotated[bool, Query(
+        title="Exclude Deleted",
+        alias="excludeDeleted",
+        description="Whether to exclude deleted products (where date deleted is not null). If set to false, deleted products will be returned along with active ones."
+    )] = True,
     db: AsyncSession = Depends(get_db)
     ):
     try:
