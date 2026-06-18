@@ -25,8 +25,12 @@ from schemas import (
     RestoreResponse, 
     WordcountResponse, 
     ProductCodeCountResponse,
-    StoreIdmlResponse
+    StoreIdmlResponse,
+    GetIDMLResponse,
+    ReconstructIDMLResponse
 ) 
+
+from functions import get_idml_record
 
 from models import LangOpsProductORM, orm_to_langops_product, IdmlStorageORM
 from enums import MediaGroups, ProductCodes
@@ -382,6 +386,41 @@ async def get_product_count(
         raise HTTPException(status_code=500, detail=f"Unable to get product count: {e}")
 
 
+@app.get(
+    "/api/idml/list",
+    description="Lists the IDMLs present in the LangOps IDML storage table",
+    response_model=list[GetIDMLResponse],
+    responses={
+        400: { "model": ProductError, "response_description": "Bad request" },
+        404: { "model": ProductError, "response_description": "Record not found" },
+        500: { "model": ProductError, "response_description": "Internal server error" }
+    }
+)
+async def list_idmls(
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        statement = select(IdmlStorageORM)
+        result = await db.execute(statement)
+        rows = result.scalars().all()
+        
+        return [
+            {
+                "id": row.id,
+                "file_name": row.file_name,
+                "status": row.status,
+                "created_at": row.created_at,
+                "updated_at": row.updated_at
+            } 
+            for row in rows
+        ]
+    
+    except HTTPException:
+        raise HTTPException(status_code=404, detail="No records found")
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unable to get IDML records: {e}")
+
 
 @app.post(
     "/api/products/add",
@@ -462,6 +501,7 @@ async def parse_idml(
     description="""Stores the parsed XLIFF files and original IDML
     in the LangOps IDML database for future reconstruction""",
     status_code=201,
+    response_model=StoreIdmlResponse,
     responses={
         400: { "model": ProductError, "response_description": "Bad request" },
         500: { "model": ProductError, "response_description": "Internal server error" },
@@ -505,6 +545,41 @@ async def store_idml(
         return {"id": record.id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to store IDML record: {e}")
+
+# TODO: Finish building reconstruct
+@app.post(
+    "/api/idml/reconstruct/{id}",
+    description="""Reconstructs an IDML file from translated XLIFF files,
+    via the LangOps IDML database.""",
+    status_code=201,
+    response_model=ReconstructIDMLResponse,
+    responses={
+        400: { "model": ProductError, "response_description": "Bad request" },
+        500: { "model": ProductError, "response_description": "Internal server error" },
+        502: { "model": ProductError, "response_description": "Upstream error" }
+    }
+)
+async def reconstruct_idml(
+    id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        record = await get_idml_record(id, db)
+
+        if record is None:
+            raise HTTPException(status_code=404, detail="Record not found")
+        
+
+
+        return ReconstructIDMLResponse(
+            id=record.id,
+            file_name=record.file_name,
+            status=record.status,
+            crowdin_file_ids=record.crowdin_file_ids
+        )
+
+    except HTTPException as e:
+        raise HTTPException(status_code=500, detail=f"IDML reconstruct failed: {e}")
 
 
 @app.patch(

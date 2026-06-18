@@ -136,6 +136,28 @@ class ProductCodeCountResponse(BaseModel):
 class StoreIdmlResponse(BaseModel):
     id: int
 
+
+class GetIDMLResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    file_name: str
+    status: str
+    created_at: datetime
+    updated_at: datetime
+    crowdin_file_ids: list[int]
+    crowdin_project_id: str | None
+    target_language: str | None
+    xliff_zip_data: bytes
+    idml_data: bytes
+
+
+class ReconstructIDMLResponse(BaseModel):
+    id: int
+    file_name: str
+    status: str
+    crowdin_file_ids: list[int]
+
 class ProductError(BaseModel):
     status_code: int
     detail: str
