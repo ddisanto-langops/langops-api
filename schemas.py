@@ -133,9 +133,8 @@ class ProductCodeCountResponse(BaseModel):
     data: list[ProductCodeCount]
     
 
-class IDMLParseResponse(BaseModel):
-    file_name: str
-    size: int
+class StoreIdmlResponse(BaseModel):
+    id: int
 
 class ProductError(BaseModel):
     status_code: int

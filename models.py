@@ -1,5 +1,5 @@
-from sqlalchemy import Column, String, Float, Integer, DateTime
-from sqlalchemy.dialects.postgresql import ARRAY, UUID as SA_UUID
+from sqlalchemy import Column, String, Float, Integer, DateTime, LargeBinary, func
+from sqlalchemy.dialects.postgresql import ARRAY, UUID as SA_UUID, JSONB
 import uuid
 from sqlalchemy.orm import DeclarativeBase
 from schemas import TrelloData, YouTubeData, CrowdinData, GetProductResponse
@@ -38,6 +38,24 @@ class LangOpsProductORM(Base):
     crowdin_translation_progress = Column(Float)
     crowdin_approval_progress = Column(Float)
     crowdin_url = Column(String)
+
+
+
+class IdmlStorageORM(Base):
+    __tablename__ = "idml_storage"
+
+    id                   = Column(Integer, primary_key=True, autoincrement=True)
+    file_name            = Column(String, nullable=False)
+    idml_data            = Column(LargeBinary, nullable=False)
+    xliff_zip_data       = Column(LargeBinary, nullable=False)
+    crowdin_project_id   = Column(String, nullable=True)
+    crowdin_project_name = Column(String, nullable=True)
+    target_language      = Column(String, nullable=True)
+    crowdin_file_ids     = Column(JSONB, nullable=False, default=list)
+    status               = Column(String, nullable=False, default="pending")
+    rebuilt_idml_data    = Column(LargeBinary, nullable=True)
+    created_at           = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at           = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
 def orm_to_langops_product(row: LangOpsProductORM) :

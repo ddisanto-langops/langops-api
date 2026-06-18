@@ -1,7 +1,10 @@
+import os
+import json
+import httpx
 from datetime import datetime, timezone
-from fastapi import FastAPI, HTTPException, Depends, Query, Path, Body, File
+from fastapi import FastAPI, HTTPException, Depends, Query, Path, Body, Form, File, UploadFile
 from fastapi.requests import Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response, JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy import asc, func, insert, update, delete, text, or_
@@ -22,10 +25,10 @@ from schemas import (
     RestoreResponse, 
     WordcountResponse, 
     ProductCodeCountResponse,
-    IDMLParseResponse
+    StoreIdmlResponse
 ) 
 
-from models import LangOpsProductORM, orm_to_langops_product
+from models import LangOpsProductORM, orm_to_langops_product, IdmlStorageORM
 from enums import MediaGroups, ProductCodes
 from constants import *
 from db import get_db
@@ -408,6 +411,101 @@ async def add_products(
         raise HTTPException(status_code=500, detail=f"Unable to add products: {e}")
 
 
+@app.post(
+    "/api/idml/parse",
+    description="""Sends an .idml file to be parsed into individual XLIFFs by the LangOps IDML handler service.
+    This returns multiple XLIFF files which correspond to the stories inside the .idml file.""",
+    response_class=Response,
+    status_code=201,
+    responses={
+        400: { "model": ProductError, "response_description": "Bad request" },
+        500: { "model": ProductError, "response_description": "Internal server error" },
+        502: { "model": ProductError, "response_description": "Upstream error" }
+    }
+)
+async def parse_idml(
+    file: UploadFile = File(title="IDML File", alias="idmlFile", description="The inDesign file to be parsed"),
+    source_language: str = Form(default="en", title="Source Language", alias="sourceLanguage")
+    
+):
+    file_bytes = await file.read()
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    cf_client_id = os.environ["CF_ACCESS_CLIENT_ID"]
+    cf_client_secret = os.environ["CF_ACCESS_CLIENT_SECRET"]
+
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        upstream = await client.post(
+            "https://idml.pcglangops.com/parse",
+            headers={
+                "CF-Access-Client-Id": cf_client_id,
+                "CF-Access-Client-Secret": cf_client_secret
+            },
+            files={"idml": (file.filename, file_bytes, "application/octet-stream")},
+            data={"source_lang": source_language}
+        )
+    
+    if not upstream.is_success:
+        raise HTTPException(status_code=502, detail=f"Upstream Status {upstream.status_code}: {upstream.text}")
+
+    return Response(
+        status_code=201,
+        content=upstream.content,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename=parsed.zip"}
+    )
+
+
+@app.post(
+    "/api/idml/store",
+    description="""Stores the parsed XLIFF files and original IDML
+    in the LangOps IDML database for future reconstruction""",
+    status_code=201,
+    responses={
+        400: { "model": ProductError, "response_description": "Bad request" },
+        500: { "model": ProductError, "response_description": "Internal server error" },
+        502: { "model": ProductError, "response_description": "Upstream error" }
+    }
+)
+async def store_idml(
+    idml_file: UploadFile = File(alias="idml"),
+    xliff_zip: UploadFile = File(alias="xliffZip"),
+    file_name: str = Form(alias="fileName"),
+    crowdin_project_id: str | None = Form(default=None, alias="projectId"),
+    crowdin_project_name: str | None = Form(default=None, alias="projectName"),
+    target_language: str | None = Form(default=None, alias="targetLanguage"),
+    crowdin_file_ids: str = Form(default="[]", alias="crowdinFileIds"),
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        parsed_ids = json.loads(crowdin_file_ids)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="crowdinFileIds must be a JSON array")
+
+    idml_bytes = await idml_file.read()
+    zip_bytes = await xliff_zip.read()
+
+    if not idml_bytes or not zip_bytes:
+        raise HTTPException(status_code=400, detail="Both idml and xliffZip files are required")
+
+    try:
+        record = IdmlStorageORM(
+            file_name=file_name,
+            idml_data=idml_bytes,
+            xliff_zip_data=zip_bytes,
+            crowdin_project_id=crowdin_project_id,
+            crowdin_project_name=crowdin_project_name,
+            target_language=target_language,
+            crowdin_file_ids=parsed_ids,
+        )
+        db.add(record)
+        await db.commit()
+        await db.refresh(record)
+        return {"id": record.id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to store IDML record: {e}")
+
 
 @app.patch(
         "/api/products/edit/{id}",
@@ -542,24 +640,6 @@ async def permanently_delete_product(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to permanently delete record: {e}")
 
-
-
-@app.post(
-    "/api/idml/parse",
-    description="""Sends an .idml file to be parsed into individual XLIFFs by the LangOps IDML handler service.
-    This returns multiple XLIFF files which correspond to the stories inside the .idml file.""",
-    response_model=IDMLParseResponse,
-    responses={
-        400: { "model": ProductError, "response_description": "Bad request" },
-        404: { "model": ProductError, "response_description": "Record not found" },
-        500: { "model": ProductError, "response_description": "Internal server error" }
-    }
-)
-async def parse_idml(
-    file: bytes = File(title="IDML File", alias="idmlFile", description="The inDesign file to be parsed"),
-    db: AsyncSession = Depends(get_db)
-):
-    raise HTTPException(status_code=501, detail="Not yet implemented") 
 
 
 # -------------------
