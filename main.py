@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from fastapi import FastAPI, HTTPException, Depends, Query, Path, Body
+from fastapi import FastAPI, HTTPException, Depends, Query, Path, Body, File
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -21,7 +21,8 @@ from schemas import (
     DeleteResponse, 
     RestoreResponse, 
     WordcountResponse, 
-    ProductCodeCountResponse
+    ProductCodeCountResponse,
+    IDMLParseResponse
 ) 
 
 from models import LangOpsProductORM, orm_to_langops_product
@@ -543,10 +544,22 @@ async def permanently_delete_product(
 
 
 
-# TODO:
-# 1. Add edit product endpoint - this should include the ability to update "stale" active products
-# 2. Add IDML endpoints
-
+@app.post(
+    "/api/idml/parse",
+    description="""Sends an .idml file to be parsed into individual XLIFFs by the LangOps IDML handler service.
+    This returns multiple XLIFF files which correspond to the stories inside the .idml file.""",
+    response_model=IDMLParseResponse,
+    responses={
+        400: { "model": ProductError, "response_description": "Bad request" },
+        404: { "model": ProductError, "response_description": "Record not found" },
+        500: { "model": ProductError, "response_description": "Internal server error" }
+    }
+)
+async def parse_idml(
+    file: bytes = File(title="IDML File", alias="idmlFile", description="The inDesign file to be parsed"),
+    db: AsyncSession = Depends(get_db)
+):
+    raise HTTPException(status_code=501, detail="Not yet implemented") 
 
 
 # -------------------
