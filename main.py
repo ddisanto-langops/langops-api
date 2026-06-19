@@ -66,21 +66,6 @@ async def http_exception_handler(request: Request, exception: StarletteHTTPExcep
     )
 
 
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exception: Exception):
-    logger.error(f"Unhandled system error: {exception}", exc_info=True)
-
-    payload = ServerContractViolation(
-        error_code="SERVER_CONTRACT_VIOLATION",
-        message="An unexpected system error occurred on our end.",
-        timestamp=datetime.now(timezone.utc)
-    )
-    
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=payload.model_dump(mode="json")
-    )
-
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exception: RequestValidationError):
@@ -112,6 +97,23 @@ async def response_validation_exception_handler(request: Request, exception: Res
         message="Internal server data configuration error.",
         timestamp=datetime.now(timezone.utc)
     )
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content=payload.model_dump(mode="json")
+    )
+
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exception: Exception):
+    logger.error(f"Unhandled system error: {exception}", exc_info=True)
+
+    payload = ServerContractViolation(
+        error_code="SERVER_CONTRACT_VIOLATION",
+        message="An unexpected system error occurred on our end.",
+        timestamp=datetime.now(timezone.utc)
+    )
+    
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content=payload.model_dump(mode="json")
