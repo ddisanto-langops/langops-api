@@ -1,12 +1,12 @@
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, Depends, Query, Path, Body
+from fastapi import APIRouter, HTTPException, status, Depends, Query, Path, Body
 from sqlalchemy import asc, func, or_, update, insert, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import Annotated
 from uuid import UUID
 
-from schemas import (
+from schemas.response_schemas import (
     GetProductResponse,
     AddProductResponse,
     EditProductResponse,
@@ -15,10 +15,9 @@ from schemas import (
     RestoreProductResponse,
     PaginatedProductResponse,  
     WordcountResponse, 
-    ProductCodeCountResponse,
-    ProductError
+    ProductCodeCountResponse
 ) 
-
+from schemas.error_schemas import ErrorResponses
 from models import LangOpsProductORM, orm_to_langops_product
 from enums import MediaGroups, ProductCodes
 from constants import PRODUCT_CODE_MAX_LEN
@@ -32,9 +31,9 @@ router = APIRouter()
     "", 
     response_model=PaginatedProductResponse, 
     responses={
-        400: { "model": ProductError, "response_description": "Bad request" },
-        404: { "model": ProductError, "response_description": "Record not found" },
-        500: { "model": ProductError, "response_description": "Internal server error" }
+        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+        status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
     }
 )
 async def get_all_products(
@@ -98,74 +97,69 @@ async def get_all_products(
     )] = True,
     db: AsyncSession = Depends(get_db)
     ):
-    try:
-        if limit > 500 or limit < 1:
-            raise HTTPException(status_code=400, detail="Limit must be between 1 and 500.")
-        
-        
-        # Default behavior: select all products within limit and offset, order ascending.
-        # NOTE: Excludes deleted products by default, unless exclude_deleted is set to True
-        statement = (
-            select(LangOpsProductORM)
-            .order_by(asc(LangOpsProductORM.date_created))
-            .limit(limit)
-            .offset(offset)
-        )
-        count_statement = select(func.count()).select_from(LangOpsProductORM)
-        
-
-        if language:
-            statement = statement.where(LangOpsProductORM.trello_target_language == language)
-            count_statement = count_statement.where(LangOpsProductORM.trello_target_language == language)
-
-        if product_code:
-            statement = statement.where(LangOpsProductORM.trello_product_code == product_code)
-            count_statement = count_statement.where(LangOpsProductORM.trello_product_code == product_code)
-        
-        if date_from and date_to:
-            statement = statement.where(LangOpsProductORM.trello_date_published.between(date_from, date_to))
-            count_statement = count_statement.where(LangOpsProductORM.trello_date_published.between(date_from, date_to))
-        
-        if media_groups:
-            values = [g.value for g in media_groups]
-            statement = statement.where(
-                or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values])
-            )
-            count_statement = count_statement.where(
-                or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values])
-            )
-        
-        if published_only:
-            statement = statement.where(LangOpsProductORM.trello_date_published.is_not(None))
-            count_statement = count_statement.where(LangOpsProductORM.trello_date_published.is_not(None))
-        
-        if unpublished_only:
-            statement = statement.where(LangOpsProductORM.trello_date_published.is_(None))
-            count_statement = count_statement.where(LangOpsProductORM.trello_date_published.is_(None))
-
-        if exclude_deleted:
-            statement = statement.where(LangOpsProductORM.date_deleted.is_(None))
-            count_statement = count_statement.where(LangOpsProductORM.date_deleted.is_(None))
-        
-        result = await db.execute(statement)
-        rows = result.scalars().all()
-
-        if not rows:
-            raise HTTPException(status_code=404, detail="No records found")
-        
-
-        total = await db.scalar(count_statement)
-
-        return PaginatedProductResponse(
-            total=total,
-            offset=offset,
-            limit=limit,
-            data=[orm_to_langops_product(r) for r in rows]
-        )
-        
+    if limit > 500 or limit < 1:
+        raise HTTPException(status_code=400, detail="Limit must be between 1 and 500.")
     
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching products: {e}")
+    
+    # Default behavior: select all products within limit and offset, order ascending.
+    # NOTE: Excludes deleted products by default, unless exclude_deleted is set to True
+    statement = (
+        select(LangOpsProductORM)
+        .order_by(asc(LangOpsProductORM.date_created))
+        .limit(limit)
+        .offset(offset)
+    )
+    count_statement = select(func.count()).select_from(LangOpsProductORM)
+    
+
+    if language:
+        statement = statement.where(LangOpsProductORM.trello_target_language == language)
+        count_statement = count_statement.where(LangOpsProductORM.trello_target_language == language)
+
+    if product_code:
+        statement = statement.where(LangOpsProductORM.trello_product_code == product_code)
+        count_statement = count_statement.where(LangOpsProductORM.trello_product_code == product_code)
+    
+    if date_from and date_to:
+        statement = statement.where(LangOpsProductORM.trello_date_published.between(date_from, date_to))
+        count_statement = count_statement.where(LangOpsProductORM.trello_date_published.between(date_from, date_to))
+    
+    if media_groups:
+        values = [g.value for g in media_groups]
+        statement = statement.where(
+            or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values])
+        )
+        count_statement = count_statement.where(
+            or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values])
+        )
+    
+    if published_only:
+        statement = statement.where(LangOpsProductORM.trello_date_published.is_not(None))
+        count_statement = count_statement.where(LangOpsProductORM.trello_date_published.is_not(None))
+    
+    if unpublished_only:
+        statement = statement.where(LangOpsProductORM.trello_date_published.is_(None))
+        count_statement = count_statement.where(LangOpsProductORM.trello_date_published.is_(None))
+
+    if exclude_deleted:
+        statement = statement.where(LangOpsProductORM.date_deleted.is_(None))
+        count_statement = count_statement.where(LangOpsProductORM.date_deleted.is_(None))
+    
+    result = await db.execute(statement)
+    rows = result.scalars().all()
+
+    if not rows:
+        raise HTTPException(status_code=404, detail="No records found")
+    
+
+    total = await db.scalar(count_statement)
+
+    return PaginatedProductResponse(
+        total=total,
+        offset=offset,
+        limit=limit,
+        data=[orm_to_langops_product(r) for r in rows]
+    )
 
 
 @router.get(
@@ -173,9 +167,9 @@ async def get_all_products(
         description="Get a product by its unique ID",
         response_model=GetProductResponse,
         responses={
-            400: { "model": ProductError, "response_description": "Bad request" },
-            404: { "model": ProductError, "response_description": "Record not found" },
-            500: { "model": ProductError, "response_description": "Internal server error" }
+            status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+            status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+            status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
         }
 )
 async def get_product_by_id(
@@ -196,9 +190,9 @@ async def get_product_by_id(
         for published products only. Ignores unpublished and deletions.""",
         response_model=WordcountResponse,
         responses={
-            400: { "model": ProductError, "response_description": "Bad request" },
-            404: { "model": ProductError, "response_description": "Record not found" },
-            500: { "model": ProductError, "response_description": "Internal server error" }
+            status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+            status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+            status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
         }
 )
 async def get_word_count(
@@ -230,41 +224,36 @@ async def get_word_count(
     )] = None, 
     db: AsyncSession = Depends(get_db)
 ):
-    try:
-        statement = (
-            select(
-                func.coalesce(func.sum(LangOpsProductORM.trello_word_count), 0)
-            )
-            .where(LangOpsProductORM.trello_word_count.is_not(None))
-            .where(LangOpsProductORM.trello_date_published.is_not(None))
-            .where(LangOpsProductORM.date_deleted.is_(None))
+    statement = (
+        select(
+            func.coalesce(func.sum(LangOpsProductORM.trello_word_count), 0)
         )
+        .where(LangOpsProductORM.trello_word_count.is_not(None))
+        .where(LangOpsProductORM.trello_date_published.is_not(None))
+        .where(LangOpsProductORM.date_deleted.is_(None))
+    )
 
-        if language:
-            statement = statement.where(LangOpsProductORM.trello_target_language == language)
-        
-        if date_from and date_to:
-            statement = statement.where(LangOpsProductORM.trello_date_published.between(date_from, date_to))
-        
-        if product_code:
-            statement = statement.where(LangOpsProductORM.trello_product_code == product_code)
-        
-        if media_groups:
-            values = [g.value for g in media_groups]
-            statement = statement.where(
-                or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values])
-            )
-        
-
-        total_words = await db.scalar(statement)
-
-        return WordcountResponse(
-            total_words=total_words
+    if language:
+        statement = statement.where(LangOpsProductORM.trello_target_language == language)
+    
+    if date_from and date_to:
+        statement = statement.where(LangOpsProductORM.trello_date_published.between(date_from, date_to))
+    
+    if product_code:
+        statement = statement.where(LangOpsProductORM.trello_product_code == product_code)
+    
+    if media_groups:
+        values = [g.value for g in media_groups]
+        statement = statement.where(
+            or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values])
         )
+    
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unable to get word count: {e}")
+    total_words = await db.scalar(statement)
 
+    return WordcountResponse(
+        total_words=total_words
+    )
 
 
 @router.get(
@@ -272,9 +261,9 @@ async def get_word_count(
         description="Gets the count of each product code in LangOps products for published products only. Ignores unpublished and deletions.",
         response_model=ProductCodeCountResponse,
         responses={
-            400: { "model": ProductError, "response_description": "Bad request" },
-            404: { "model": ProductError, "response_description": "Record not found" },
-            500: { "model": ProductError, "response_description": "Internal server error" }
+            status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+            status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+            status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
         }
 )
 async def get_product_count(
@@ -306,90 +295,84 @@ async def get_product_count(
     )] = None, 
     db: AsyncSession = Depends(get_db)
 ):
-    try:
-        filters = [
-            LangOpsProductORM.trello_product_code.is_not(None),
-            LangOpsProductORM.trello_date_published.is_not(None),
-            LangOpsProductORM.date_deleted.is_(None),
+    filters = [
+        LangOpsProductORM.trello_product_code.is_not(None),
+        LangOpsProductORM.trello_date_published.is_not(None),
+        LangOpsProductORM.date_deleted.is_(None),
+    ]
+
+    if language:
+        filters.append(LangOpsProductORM.trello_target_language == language)
+    
+    if date_from and date_to:
+        filters.append(LangOpsProductORM.trello_date_published.between(date_from, date_to))
+    
+    if product_code:
+        filters.append(LangOpsProductORM.trello_product_code == product_code)
+    
+    if media_groups:
+        values = [g.value for g in media_groups]
+        filters.append(or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values]))
+    
+    total_statement = select(func.count(LangOpsProductORM.trello_product_code)).where(*filters)
+
+    grouped_statement = (
+        select(
+            LangOpsProductORM.trello_product_code.label("product_code"),
+            func.count().label("count")
+        )
+        .where(*filters)
+        .group_by(LangOpsProductORM.trello_product_code)
+        .order_by(LangOpsProductORM.trello_product_code.asc())
+    )
+    
+    total_products = await db.scalar(total_statement)
+    grouped_result = await db.execute(grouped_statement)
+    rows = grouped_result.all()
+
+    return ProductCodeCountResponse(
+        total_products=total_products or 0,
+        count=[
+            {"product_code": row.product_code, "count": row.count} for row in rows
         ]
-
-        if language:
-            filters.append(LangOpsProductORM.trello_target_language == language)
-        
-        if date_from and date_to:
-            filters.append(LangOpsProductORM.trello_date_published.between(date_from, date_to))
-        
-        if product_code:
-            filters.append(LangOpsProductORM.trello_product_code == product_code)
-        
-        if media_groups:
-            values = [g.value for g in media_groups]
-            filters.append(or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values]))
-        
-        total_statement = select(func.count(LangOpsProductORM.trello_product_code)).where(*filters)
-
-        grouped_statement = (
-            select(
-                LangOpsProductORM.trello_product_code.label("product_code"),
-                func.count().label("count")
-            )
-            .where(*filters)
-            .group_by(LangOpsProductORM.trello_product_code)
-            .order_by(LangOpsProductORM.trello_product_code.asc())
-        )
-        
-        total_products = await db.scalar(total_statement)
-        grouped_result = await db.execute(grouped_statement)
-        rows = grouped_result.all()
-
-        return ProductCodeCountResponse(
-            total_products=total_products or 0,
-            count=[
-                {"product_code": row.product_code, "count": row.count} for row in rows
-            ]
-        )
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unable to get product count: {e}")
+    )
 
 
 @router.post(
-    "/api/products/add",
+    "/add",
     description="Add a product or multiple products to the database",
     response_model=AddProductResponse,
     status_code=201,
     responses={
-        400: { "model": ProductError, "response_description": "Bad request" },
-        404: { "model": ProductError, "response_description": "Record not found" },
-        500: { "model": ProductError, "response_description": "Internal server error" }
+        status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
+        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
     }
 )
 async def add_products(
     products: Annotated[list[GetProductResponse], Body(description="The fields for a LangOps product")],
     db: AsyncSession = Depends(get_db)      
 ):
-    try:
-        await db.execute(insert(LangOpsProductORM), products)
-        await db.commit()
-        
-        return AddProductResponse(
-            total_products_added= len(products),
-            data=products
-        )
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unable to add products: {e}")
+    await db.execute(insert(LangOpsProductORM), products)
+    await db.commit()
+    
+    return AddProductResponse(
+        total_products_added= len(products),
+        data=products
+    )
 
 
 
 @router.patch(
-        "/api/products/edit/{id}",
+        "/edit/{id}",
         description="Edit an existing product",
         response_model=EditProductResponse,
         responses={
-            400: { "model": ProductError, "response_description": "Bad request" },
-            404: { "model": ProductError, "response_description": "Record not found" },
-            500: { "model": ProductError, "response_description": "Internal server error" }
+            status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+            status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
+            status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+            status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
         }
 )
 async def edit_product(
@@ -397,120 +380,108 @@ async def edit_product(
     updated_product: Annotated[EditProductRequest, Body(alias="updatedProduct")],
     db: AsyncSession = Depends(get_db)
 ):
-    try:
-        fields = updated_product.model_dump(exclude_unset=True)
-        if not fields:
-            raise HTTPException(status_code=400, detail="Must provide fields to update")
-        
-        statement = update(LangOpsProductORM).where(LangOpsProductORM.id == id).values(**fields).returning(LangOpsProductORM)
-
-        result = await db.execute(statement)
-        await db.commit()
-
-        row = result.scalar_one_or_none() 
-        if row is None:
-            raise HTTPException(status_code=404, detail="Product not found")
-
-        return EditProductResponse.model_validate(row)
+    fields = updated_product.model_dump(exclude_unset=True)
+    if not fields:
+        raise HTTPException(status_code=400, detail="Must provide fields to update")
     
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to edit record: {e}")
+    statement = update(LangOpsProductORM).where(LangOpsProductORM.id == id).values(**fields).returning(LangOpsProductORM)
+
+    result = await db.execute(statement)
+    await db.commit()
+
+    row = result.scalar_one_or_none() 
+    if row is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return EditProductResponse.model_validate(row)
 
 
 @router.patch(
-    "/api/products/restore/{id}",
+    "/restore/{id}",
     description="Restore a soft-deleted product",
     response_model=RestoreProductResponse,
     responses={
-        400: { "model": ProductError, "response_description": "Bad request" },
-        404: { "model": ProductError, "response_description": "Record not found" },
-        500: { "model": ProductError, "response_description": "Internal server error" }
+        status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
+        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
     }
 )
 async def restore_product(
     id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
     db: AsyncSession = Depends(get_db)
 ):
-    try:
-        statement = update(LangOpsProductORM).where(LangOpsProductORM.id == id).values(date_deleted=None).returning(LangOpsProductORM.id)
-        result = await db.execute(statement)
-        await db.commit()
+    statement = update(LangOpsProductORM).where(LangOpsProductORM.id == id).values(date_deleted=None).returning(LangOpsProductORM.id)
+    result = await db.execute(statement)
+    await db.commit()
 
-        if result.scalar_one_or_none() is None:
-            raise HTTPException(status_code=404, detail="Product not found")
+    if result.scalar_one_or_none() is None:
+        raise HTTPException(status_code=404, detail="Product not found")
 
 
-        return RestoreProductResponse(
-            id=id,
-            restored_at=datetime.now(timezone.utc)
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to restore record: {e}")
+    return RestoreProductResponse(
+        id=id,
+        restored_at=datetime.now(timezone.utc)
+    )
 
 
 @router.delete(
-    "/api/products/delete/{id}",
+    "/delete/{id}",
     description="Soft delete of a product",
     response_model=DeleteProductResponse, 
     responses={
-        400: { "model": ProductError, "response_description": "Bad request" },
-        404: { "model": ProductError, "response_description": "Record not found" },
-        500: { "model": ProductError, "response_description": "Internal server error" }
+        status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
+        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
     }
 )
 async def delete_product(
     id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
     db: AsyncSession = Depends(get_db)
 ):
-    try:
-        timestamp = datetime.now(timezone.utc)
-        statement = (
-            update(LangOpsProductORM)
-                .where(LangOpsProductORM.id == id)
-                .values(date_deleted=timestamp)
-        )
+    timestamp = datetime.now(timezone.utc)
+    statement = (
+        update(LangOpsProductORM)
+            .where(LangOpsProductORM.id == id)
+            .values(date_deleted=timestamp)
+    )
 
-        result = await db.execute(statement)
-        await db.commit()
+    result = await db.execute(statement)
+    await db.commit()
 
-        if result.scalar_one_or_none() is None:
-            raise HTTPException(status_code=404, detail="Unable to soft-delete product: not found")
+    if result.scalar_one_or_none() is None:
+        raise HTTPException(status_code=404, detail="Unable to soft-delete product: not found")
 
-        return DeleteProductResponse(
-            id=id,
-            deleted_at=timestamp
-        )
-            
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete record: {e}")
+    return DeleteProductResponse(
+        id=id,
+        deleted_at=timestamp
+    )
 
 
 @router.delete(
-        "/api/products/permanentdelete/{id}",
-        description="**Hard delete** of a product",
-        response_model=DeleteProductResponse,
-        responses={
-            400: { "model": ProductError, "response_description": "Bad request" },
-            404: { "model": ProductError, "response_description": "Record not found" },
-            500: { "model": ProductError, "response_description": "Internal server error" }
-        }
+    "/permanentdelete/{id}",
+    description="**Hard delete** of a product",
+    response_model=DeleteProductResponse,
+    responses={
+        status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
+        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
+    }
 )
 async def permanently_delete_product(
     id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
     db: AsyncSession = Depends(get_db)
 ):
-    try:
-        statement = delete(LangOpsProductORM).where(LangOpsProductORM.id == id).returning(LangOpsProductORM.id)
-        result = await db.execute(statement)
-        await db.commit()
+    statement = delete(LangOpsProductORM).where(LangOpsProductORM.id == id).returning(LangOpsProductORM.id)
+    result = await db.execute(statement)
+    await db.commit()
 
-        if result.scalar_one_or_none() is None:
-            raise HTTPException(status_code=404, detail="Unable to permanently delete product: not found")
+    if result.scalar_one_or_none() is None:
+        raise HTTPException(status_code=404, detail="Unable to permanently delete product: not found")
 
-        return DeleteProductResponse(
-            id=id,
-            deleted_at=datetime.now(timezone.utc)
-        )
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to permanently delete record: {e}")
+    return DeleteProductResponse(
+        id=id,
+        deleted_at=datetime.now(timezone.utc)
+    )

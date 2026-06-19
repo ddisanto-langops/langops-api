@@ -2,7 +2,8 @@ from sqlalchemy import Column, String, Float, Integer, DateTime, LargeBinary, fu
 from sqlalchemy.dialects.postgresql import ARRAY, UUID as SA_UUID, JSONB
 import uuid
 from sqlalchemy.orm import DeclarativeBase
-from schemas import TrelloData, YouTubeData, CrowdinData, GetProductResponse
+from schemas.data_schemas import TrelloData, YouTubeData, CrowdinData
+from schemas.response_schemas import GetProductResponse
 
 
 class Base(DeclarativeBase):

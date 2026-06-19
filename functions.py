@@ -3,7 +3,7 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import IdmlStorageORM
-from schemas import GetIDMLResponse
+from schemas.response_schemas import GetIDMLResponse
 
 async def get_idml_record(id: int, db: AsyncSession) -> GetIDMLResponse:
     """
