@@ -114,12 +114,12 @@ class EditProductResponse(EditProductRequest):
     model_config = ConfigDict(from_attributes=True)
 
 
-class DeleteResponse(BaseModel):
+class DeleteProductResponse(BaseModel):
     id: UUID
     deleted_at: datetime
 
 
-class RestoreResponse(BaseModel):
+class RestoreProductResponse(BaseModel):
     id: UUID
     restored_at: datetime
 
@@ -137,7 +137,7 @@ class StoreIdmlResponse(BaseModel):
     id: int
 
 
-class GetIDMLResponse(BaseModel):
+class ReconstructIDMLResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -152,11 +152,10 @@ class GetIDMLResponse(BaseModel):
     idml_data: bytes
 
 
-class ReconstructIDMLResponse(BaseModel):
+class GetIDMLResponse(BaseModel):
     id: int
     file_name: str
     status: str
-    crowdin_file_ids: list[int]
 
 class ProductError(BaseModel):
     status_code: int
