@@ -31,6 +31,7 @@ router = APIRouter()
     "", 
     response_model=PaginatedProductResponse, 
     responses={
+        status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
         status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
@@ -40,7 +41,9 @@ async def get_all_products(
     language: Annotated[str | None, Query(
         title="Target Language", 
         alias="targetLanguage", 
-        description="The target language of the products in ISO-639-1 format"
+        description="The target language of the products in ISO-639-1 format",
+        min_length=2,
+        max_length=2
     )] = None,
     date_from: Annotated[datetime | None, Query(
         title="Date From", 
@@ -162,25 +165,25 @@ async def get_all_products(
     )
 
 
+
+# TODO: return data
 @router.get(
-        "/{id}",
-        description="Get a product by its unique ID",
-        response_model=GetProductResponse,
-        responses={
-            status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
-            status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
-            status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
-        }
+    "/{id}",
+    description="Get a product by its unique ID",
+    response_model=GetProductResponse,
+    responses={
+        status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
+    }
 )
 async def get_product_by_id(
     id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
     db: AsyncSession = Depends(get_db)
 ):
-    try:
-        statement = select(LangOpsProductORM).where(LangOpsProductORM.id == id)
-        await db.execute(statement)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching product by ID: {e}")
+    statement = select(LangOpsProductORM).where(LangOpsProductORM.id == id)
+    await db.execute(statement)
+
 
 
 
