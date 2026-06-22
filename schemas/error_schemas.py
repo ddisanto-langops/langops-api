@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from datetime import datetime
-from fastapi import status
 
 
 # ----------------------------------------------
@@ -17,6 +16,14 @@ class BadRequestError(BaseModel):
     error_code: str = "BAD_REQUEST"
     message: str = "Bad data sent to server"
     timestamp: datetime
+
+
+class Unauthorized(BaseModel):
+    # 401
+    error_code: str = "Unauthorized"
+    message: str = "Token is missing, expired or incorrect"
+    timestamp: datetime
+
 
 class NotFoundError(BaseModel):
     # 404
@@ -55,6 +62,11 @@ class ErrorResponses:
     _400_BAD_REQUEST = {
         "model": BadRequestError,
         "description": "Data sent to the server was malformed."
+    }
+
+    _401_UNAUTHORIZED = {
+        "model": Unauthorized,
+        "description": "Token missing, expired or incorrect"
     }
 
     _404_NOT_FOUND = {

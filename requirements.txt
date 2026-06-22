@@ -3,3 +3,6 @@ fastapi[standard]
 sqlalchemy
 starlette
 asyncpg
+requests
+pyjwt
+cryptography

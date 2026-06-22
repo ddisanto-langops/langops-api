@@ -8,8 +8,7 @@ from models import IdmlStorageORM
 from schemas.response_schemas import (
     GetIDMLResponse,
     StoreIdmlResponse,
-    ReconstructIDMLResponse,
-    ProductError
+    ReconstructIDMLResponse
 )
 from schemas.error_schemas import ErrorResponses
 from functions import get_idml_record
@@ -23,6 +22,7 @@ router = APIRouter()
     response_model=list[GetIDMLResponse],
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
@@ -50,6 +50,7 @@ async def list_idmls(
     status_code=201,
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
@@ -97,6 +98,7 @@ async def parse_idml(
     response_model=StoreIdmlResponse,
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
@@ -144,6 +146,7 @@ async def store_idml(
     response_model=ReconstructIDMLResponse,
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR

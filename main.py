@@ -1,8 +1,9 @@
+import time
 import logging
 from datetime import datetime, timezone
-from fastapi import FastAPI, status, Request
+from fastapi import FastAPI, status, Request, Depends
 from fastapi.responses import JSONResponse
-from fastapi.exceptions import HTTPException, RequestValidationError, ResponseValidationError
+from fastapi.exceptions import RequestValidationError, ResponseValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from schemas.error_schemas import (
@@ -13,26 +14,49 @@ from schemas.error_schemas import (
     NotFoundError
 )
 from routers import products, idml, apistatus
-
+from auth import verify_jwt
 
 app = FastAPI(title="PCG LangOps API")
-
+logger = logging.getLogger("uvicorn.error")
 
 # -------------------
 # API ROUTES
 # -------------------
 GENERAL_PREFIX = "/api/v1"
 
-app.include_router(apistatus.router, prefix=f"{GENERAL_PREFIX}/status", tags=["API Status"])
-app.include_router(products.router, prefix=f"{GENERAL_PREFIX}/products", tags=["Products"])
-app.include_router(idml.router, prefix=f"{GENERAL_PREFIX}/idml", tags=["IDML Operations"])
+app.include_router(apistatus.router, prefix=f"{GENERAL_PREFIX}/status", tags=["API Status"], dependencies=[Depends(verify_jwt)])
+app.include_router(products.router, prefix=f"{GENERAL_PREFIX}/products", tags=["Products"], dependencies=[Depends(verify_jwt)])
+app.include_router(idml.router, prefix=f"{GENERAL_PREFIX}/idml", tags=["IDML Operations"],dependencies=[Depends(verify_jwt)])
+
+
+
+# -------------------
+# MIDDLEWARE
+# -------------------
+
+@app.middleware("http")
+async def log(request: Request, call_next):
+    start_time = time.time()
+
+    response = await call_next(request)
+
+    process_time = (time.time() - start_time) * 1000
+
+    user = getattr(request.state, "user_email", "Unknown")
+
+    logger.info(
+        f"API_REQUEST | User: {user} | Method: {request.method} | Path: {request.url.path} "
+        f"| Status: {response.status_code} | Duration: {process_time:.2f}ms"
+    )
+    
+    return response
+
 
 
 # -------------------
 # EXCEPTION HANDLERS
 # -------------------
 
-logger = logging.getLogger("uvicorn.error")
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exception: StarletteHTTPException):

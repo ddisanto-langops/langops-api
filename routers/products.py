@@ -32,6 +32,7 @@ router = APIRouter()
     response_model=PaginatedProductResponse, 
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
         status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
@@ -173,6 +174,7 @@ async def get_all_products(
     response_model=GetProductResponse,
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
     }
@@ -194,6 +196,7 @@ async def get_product_by_id(
         response_model=WordcountResponse,
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+            status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
             status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
             status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
         }
@@ -265,6 +268,7 @@ async def get_word_count(
         response_model=ProductCodeCountResponse,
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+            status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
             status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
             status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
         }
@@ -348,6 +352,7 @@ async def get_product_count(
     status_code=201,
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
@@ -373,6 +378,7 @@ async def add_products(
         response_model=EditProductResponse,
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+            status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
             status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
             status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
             status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
@@ -405,6 +411,7 @@ async def edit_product(
     response_model=RestoreProductResponse,
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
@@ -434,6 +441,7 @@ async def restore_product(
     response_model=DeleteProductResponse, 
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
@@ -468,6 +476,7 @@ async def delete_product(
     response_model=DeleteProductResponse,
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
