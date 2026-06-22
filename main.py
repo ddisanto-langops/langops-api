@@ -50,7 +50,7 @@ They can be parsed into XLIFF files for Crowdin upload. Once translated, the XLI
 ---
 """
 
-app = FastAPI(title="PCG LangOps API", description=auth_docs_blurb)
+app = FastAPI(title="PCG LangOps API", description=auth_docs_blurb, version="0.5.0")
 logger = logging.getLogger("uvicorn.error")
 
 # -------------------
