@@ -53,16 +53,28 @@ class WordcountResponse(BaseModel):
 class ProductCodeCountResponse(BaseModel):
     total_products: int
     data: list[ProductCodeCount]
-    
+
+
+class GetIDMLResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+    id: UUID
+    file_name: str
+    project: str = Field(validation_alias="crowdin_project_name")
+    target_language: str
+    status: str
+    crowdin_file_ids: list[int] = Field(default_factory=list)
+    date_created: datetime = Field(validation_alias="created_at")
+
 
 class StoreIdmlResponse(BaseModel):
-    id: int
+    id: UUID
 
 
 class ReconstructIDMLResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: UUID
     file_name: str
     status: str
     created_at: datetime
@@ -70,22 +82,4 @@ class ReconstructIDMLResponse(BaseModel):
     crowdin_file_ids: list[int]
     crowdin_project_id: str | None
     target_language: str | None
-    xliff_zip_data: bytes
-    idml_data: bytes
-
-
-class GetIDMLResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    file_name: str
-    project: str = Field(validation_alias="crowdin_project_name")
-    target_language: str
-    status: str
-    date_created: datetime = Field(validation_alias="created_at")
-
-class ProductError(BaseModel):
-    status_code: int
-    detail: str
-    path: str
-    timestamp: datetime
+    rebuilt_available: bool = False

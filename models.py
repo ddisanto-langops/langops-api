@@ -45,7 +45,7 @@ class LangOpsProductORM(Base):
 class IdmlStorageORM(Base):
     __tablename__ = "idml_storage"
 
-    id                   = Column(Integer, primary_key=True, autoincrement=True)
+    id                   = Column(SA_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     file_name            = Column(String, nullable=False)
     idml_data            = Column(LargeBinary, nullable=False)
     xliff_zip_data       = Column(LargeBinary, nullable=False)
