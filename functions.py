@@ -8,9 +8,7 @@ from collections import defaultdict
 from crowdin_api import CrowdinClient
 from fastapi import HTTPException, status
 
-from schemas.data_schemas import StringMapItem
-
-
+from schemas.data_schemas import StringMapItem, StringMapPayload
 
 def create_crowdin_client(token: str) -> CrowdinClient:
     return CrowdinClient(
@@ -19,10 +17,6 @@ def create_crowdin_client(token: str) -> CrowdinClient:
         max_retries=2
     )
 
-
-from collections import defaultdict
-
-from schemas.data_schemas import StringMapItem, StringMapPayload
 
 
 def create_string_map(
@@ -170,6 +164,9 @@ def label_idml_strings(
     client = create_crowdin_client(token)
 
     for item in labeled_string_data:
+        if not item.map.label_id:
+            continue
+        
         if len(item.map.string_ids) >= 10:
             client.labels.assign_label_to_strings(
                 labelId=item.map.label_id,
