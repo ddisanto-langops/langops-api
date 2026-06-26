@@ -20,7 +20,7 @@ auth_docs_blurb = """
 # 🔐 Authentication & Zero Trust Architecture
 
 This API is protected behind a **Cloudflare Zero Trust** perimeter layer and enforces strict identity verification using asymmetric cryptography. It cannot be accessed anonymously.
-\nSince this API is currently only meant to be accessed by the LangOps Website frontend, and is not meant for public consumption, there is no public-facing URL at this time. 
+\nSince this API is currently only meant to be accessed by the LangOps Website frontend, and is not meant for public consumption, there is no internet-facing URL at this time. 
 Any apps which need access to the API are assumed to be operating on the LangOps Server Cluster, within the same virtual network, and should communicate with the API that way.
 
 ## How Authentication Works  

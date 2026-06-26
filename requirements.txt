@@ -2,6 +2,7 @@ pydantic
 fastapi[standard]
 sqlalchemy
 starlette
+crowdin-api-client
 asyncpg
 requests
 pyjwt

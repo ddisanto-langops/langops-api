@@ -41,3 +41,15 @@ class CrowdinData(BaseModel):
 class ProductCodeCount(BaseModel):
     product_code: str
     count: int
+
+
+class StringMapPayload(BaseModel):
+    string_ids: list[int]
+    strings: list[str]
+    label_id: int | None
+
+
+class StringMapItem(BaseModel):
+    context_identifier: str
+    map: StringMapPayload
+        

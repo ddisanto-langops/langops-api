@@ -2,7 +2,7 @@ from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
-from schemas.data_schemas import TrelloData, YouTubeData, CrowdinData, ProductCodeCount
+from schemas.data_schemas import TrelloData, YouTubeData, CrowdinData, ProductCodeCount, StringMapItem
 from schemas.request_schemas import EditProductRequest
 
 
@@ -55,31 +55,5 @@ class ProductCodeCountResponse(BaseModel):
     data: list[ProductCodeCount]
 
 
-class GetIDMLResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
-
-    id: UUID
-    file_name: str
-    project: str = Field(validation_alias="crowdin_project_name")
-    target_language: str
-    status: str
-    crowdin_file_ids: list[int] = Field(default_factory=list)
-    date_created: datetime = Field(validation_alias="created_at")
-
-
-class StoreIdmlResponse(BaseModel):
-    id: UUID
-
-
-class ReconstructIDMLResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: UUID
-    file_name: str
-    status: str
-    created_at: datetime
-    updated_at: datetime
-    crowdin_file_ids: list[int]
-    crowdin_project_id: str | None
-    target_language: str | None
-    rebuilt_available: bool = False
+class GetStringMapResponse(BaseModel):
+    data: list[StringMapItem]
