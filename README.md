@@ -9,11 +9,11 @@ The API is designed for translation teams, localization engineers, production co
 This service currently supports three main areas of work:
 
 1. **Product data acces**  
-	 Search, filter, add, edit, restore, soft-delete, and permanently delete LangOps product records.
-2. **Translation reporting** 
-	 Calculate published word count totals and product-code counts for reporting and planning.
-3. **IDML labeling workflow**
-	 Extract story-level string groups from Crowdin so they can be labeled and routed during Adobe InDesign localization work.
+   Search, filter, add, edit, restore, soft-delete, and permanently delete LangOps product records.
+3. **Translation reporting**  
+   Calculate published word count totals and product-code counts for reporting and planning.
+5. **IDML labeling workflow**  
+   Extract story-level string groups from Crowdin so they can be labeled and routed during Adobe InDesign localization work.
 
 ## Typical Translation Workflow
 
