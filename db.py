@@ -11,8 +11,9 @@ PORT = os.environ.get("DB_PORT")
 ID = os.environ.get("CF_CLIENT_ID")
 SECRET = os.environ.get("CF_CLIENT_SECRET")
 
-DATABASE_URL = os.getenv("URL", f"postgresql+asyncpg://{USER}:{PASSWORD}@localhost:{PORT}/{DB_NAME}")
+# FOR LOCAL TESTING: DATABASE_URL = os.getenv("URL", f"postgresql+asyncpg://{USER}:{PASSWORD}@localhost:{PORT}/{DB_NAME}")
 
+DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@10.10.20.45:{PORT}/{DB_NAME}"
 
 engine = create_async_engine(
     DATABASE_URL,
