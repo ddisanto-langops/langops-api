@@ -2,7 +2,7 @@ import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
 
-URL = os.environ.get("DB_URL")
+# FOR LOCAL TESTING: URL = os.environ.get("DB_URL")
 USER = os.environ.get("DB_USER")
 PASSWORD = os.environ.get("DB_PASSWORD")
 HOST = os.environ.get("DB_HOST")
