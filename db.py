@@ -2,18 +2,14 @@ import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
 
-# FOR LOCAL TESTING: URL = os.environ.get("DB_URL")
+
 USER = os.environ.get("DB_USER")
 PASSWORD = os.environ.get("DB_PASSWORD")
 HOST = os.environ.get("DB_HOST")
 DB_NAME = os.environ.get("DB_NAME")
 PORT = os.environ.get("DB_PORT")
-ID = os.environ.get("CF_CLIENT_ID")
-SECRET = os.environ.get("CF_CLIENT_SECRET")
 
-# FOR LOCAL TESTING: DATABASE_URL = os.getenv("URL", f"postgresql+asyncpg://{USER}:{PASSWORD}@localhost:{PORT}/{DB_NAME}")
-
-DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@10.10.20.45:{PORT}/{DB_NAME}"
+DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
 
 engine = create_async_engine(
     DATABASE_URL,

@@ -1,6 +1,4 @@
 -- This is the source of truth for table creation or regeneration. 
--- Currently there is a unified products table, and a deletions table.
--- They are identical except that deletions will have date_deleted.
 
 CREATE TABLE langops_products (
     -- LangOpsProduct fields

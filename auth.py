@@ -6,18 +6,17 @@ from fastapi.security import APIKeyHeader
 cloudflare_token_scheme = APIKeyHeader(name="CF_Authorization", auto_error=True)
 
 CF_TEAM_URL = os.getenv("CF_TEAM_URL")
-TRUSTED_AUDIENCES = [
-    os.getenv("API_AUD_TAG"),
-    os.getenv("LANGOPS_WEBSITE_AUD_TAG")
-]
+TRUSTED_AUDIENCES = os.getenv("TRUSTED_AUDIENCES")
 CERTS_URL = f"{CF_TEAM_URL}/cdn-cgi/access/certs"
 
 jwks_client = jwt.PyJWKClient(CERTS_URL)
 
 
-def get_trusted_audiences() -> list[str]:
-    """Compiles a list of live audience tokens, filtering out empty variables."""
-    return [aud for aud in TRUSTED_AUDIENCES if aud]
+def get_trusted_audiences(audiences: str) -> list[str]:
+    """Compiles a list of trusted audience tokens, filtering out empty variables.
+    Expected audiences format: TRUSTED_AUDIENCES="aud1,aud2,aud3"
+    """
+    return [aud.strip() for aud in audiences.split(",") if aud]
 
 
 async def verify_jwt(request: Request, token: str = Depends(cloudflare_token_scheme)) -> dict:
@@ -26,7 +25,7 @@ async def verify_jwt(request: Request, token: str = Depends(cloudflare_token_sch
     """
     
     try:
-        audiences = get_trusted_audiences()
+        audiences = get_trusted_audiences(TRUSTED_AUDIENCES)
         if not audiences:
             raise HTTPException(
                 status.HTTP_500_INTERNAL_SERVER_ERROR, detail= "Target audience missing or not in listed of trusted audiences"
@@ -39,7 +38,10 @@ async def verify_jwt(request: Request, token: str = Depends(cloudflare_token_sch
             signing_key.key,
             algorithms=["RS256"],
             audience=audiences,
-            issuer=CF_TEAM_URL
+            issuer=CF_TEAM_URL,
+            options={
+                "require": ["aud"]
+            }
         )
 
         request.state.user_email = payload.get("email", "unknown")
@@ -53,4 +55,4 @@ async def verify_jwt(request: Request, token: str = Depends(cloudflare_token_sch
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     
     except jwt.InvalidAudienceError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token audience is untrusted or mismatched.")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token audience is missing or untrusted.")

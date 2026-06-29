@@ -20,20 +20,22 @@ auth_docs_blurb = """
 # 🔐 Authentication & Zero Trust Architecture
 
 This API is protected behind a **Cloudflare Zero Trust** perimeter layer and enforces strict identity verification using asymmetric cryptography. It cannot be accessed anonymously.
-\nSince this API is currently only meant to be accessed by the LangOps Website frontend, and is not meant for public consumption, there is no internet-facing URL at this time. 
+\nSince this API is currently only meant to be accessed by internal LangOps applications, and is not meant for public consumption, there is no internet-facing URL at this time. 
 Any apps which need access to the API are assumed to be operating on the LangOps Server Cluster, within the same virtual network, and should communicate with the API that way.
 
 ## How Authentication Works  
 
-1. **Token:** Every request sent to protected endpoints must include the **`CF_Authorization`** HTTP header containing a valid JSON Web Token (JWT) issued by Cloudflare Access.
-2. **Cryptographic Verification:** The API extracts this token and dynamically fetches Cloudflare's public keys via the JSON Web Key Set (JWKS) endpoint (`/cdn-cgi/access/certs`). The signature is cryptographically validated using the **RS256** asymmetric algorithm.
-3. **Issuer & Lifecycle Enforcement:** The API strict-matches the token issuer (`iss`) against the PCG LangOps Cloudflare Team Domain URL and ensures the token's execution timestamp (`exp`) has not expired.
-4. **Audience Constraints:** To prevent token-spoofing across applications, the API validates the token's Audience Tag (`aud`). The token must match one of our whitelisted environment targets:
-   - **Frontend Web Application Audience** (`LANGOPS_WEBSITE_AUD_TAG`)
-   - **Standalone API Gateway Audience** (`API_AUD_TAG`)
-
-\nMore audiences may be provisioned upon request. **Any request from an app not in the list of trusted audience tags will result in an error (401 Unauthorized).** 
-If you require access, please contact the maintainers.
+**To access the API, the caller must meet 3 conditions:**
+1. Valid JSON web token (JWT) passed in the header `CF_Authorization`
+```html
+"CF_Authorization: <token>"
+```
+2. The `iss` (issuer) claim of the JWT must match the expected Cloudflare team URL
+3. The request must originate from an approved audience  
+Cloudflare's JWTs have an `aud` claim, which must match at least one entry in the pre-configured list.
+\nAudiences currently supported:
+- LangOps website
+\n Any other apps must be provisioned via request. **Any request from an app not in the list of trusted audience tags will result in an error (401 Unauthorized).**
 
 # 🛠️ Operations Currently Supported
 1. **Status**: Here you can check the current database version and connection health
@@ -45,8 +47,7 @@ If you require access, please contact the maintainers.
     - Published only, unpublished only, or deleted only
     **Note that this endpoint is paginated and has a limit of 500.**
 
-3. **IDML File Operations**: This allows management of the translation lifecycle of Adobe inDesign files. 
-They can be parsed into XLIFF files for Crowdin upload. Once translated, the XLIFF files can be re-imported into the .idml file.
+3. **IDML Operations**: This allows labeling of Adobe inDesign strings by story provenance to avoid context-loss.
 ---
 """
 
