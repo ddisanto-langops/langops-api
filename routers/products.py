@@ -153,7 +153,7 @@ async def get_all_products(
     if not rows:
         raise HTTPException(status_code=404, detail="No records found")
     
-    
+
     return PaginatedProductResponse(
         total=count,
         offset=offset,
@@ -163,7 +163,6 @@ async def get_all_products(
 
 
 
-# TODO: return data
 @router.get(
     "/{id}",
     description="Get a product by its unique ID",
@@ -180,8 +179,10 @@ async def get_product_by_id(
     db: AsyncSession = Depends(get_db)
 ):
     statement = select(LangOpsProductORM).where(LangOpsProductORM.id == id)
-    await db.execute(statement)
+    result = await db.execute(statement)
+    row = result.scalars().one_or_none()
 
+    return orm_to_langops_product(row)
 
 
 

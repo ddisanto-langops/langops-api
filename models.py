@@ -42,7 +42,7 @@ class LangOpsProductORM(Base):
     crowdin_url = Column(String)
 
 
-def orm_to_langops_product(row: LangOpsProductORM) :
+def orm_to_langops_product(row: LangOpsProductORM) -> GetProductResponse:
     trello = TrelloData(
         id=row.trello_id,
         url=row.trello_url,
