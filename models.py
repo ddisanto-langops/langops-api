@@ -25,6 +25,7 @@ class LangOpsProductORM(Base):
     trello_due_date = Column(DateTime(timezone=True))
     trello_date_published = Column(DateTime(timezone=True))
     trello_date_last_activity = Column(DateTime(timezone=True))
+    trello_date_archived = Column(DateTime(timezone=True))
     trello_media_groups = Column(ARRAY(String))
     trello_editor_url = Column(String)
     trello_article_url = Column(String)
@@ -51,6 +52,7 @@ def orm_to_langops_product(row: LangOpsProductORM) :
         due_date=row.trello_due_date,
         date_published=row.trello_date_published,
         date_last_activity=row.trello_date_last_activity,
+        date_archived=row.trello_date_archived,
         media_groups=row.trello_media_groups or [],
         editor_url=row.trello_editor_url,
         article_url=row.trello_article_url,

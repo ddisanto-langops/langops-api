@@ -14,6 +14,7 @@ class TrelloData(BaseModel):
     due_date: datetime | None
     date_published: datetime | None
     date_last_activity: datetime
+    date_archived: datetime | None
     media_groups: list[MediaGroups]
     editor_url: HttpUrl | None
     article_url: HttpUrl | None

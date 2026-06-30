@@ -15,6 +15,7 @@ CREATE TABLE langops_products (
     trello_due_date         TIMESTAMPTZ,
     trello_date_published   TIMESTAMPTZ,
     trello_date_last_activity TIMESTAMPTZ,
+    trello_date_archived    TIMESTAMPTZ,
     trello_media_groups     TEXT[],
     trello_editor_url       TEXT,
     trello_article_url      TEXT,

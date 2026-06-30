@@ -79,6 +79,11 @@ async def get_all_products(
         description="Number of records to skip",
         ge=0
     )] = 0,
+    archived_only: Annotated[bool, Query(
+        title="Archived Only",
+        alias="archivedOnly",
+        description="Return only products which are archived in Trello"
+    )] = False,
     published_only: Annotated[bool, Query(
         title="Published Only",
         alias="publishedOnly",
@@ -113,53 +118,44 @@ async def get_all_products(
         .limit(limit)
         .offset(offset)
     )
-    count_statement = select(func.count()).select_from(LangOpsProductORM)
-    
 
     if language:
         statement = statement.where(LangOpsProductORM.trello_target_language == language)
-        count_statement = count_statement.where(LangOpsProductORM.trello_target_language == language)
 
     if product_code:
-        statement = statement.where(LangOpsProductORM.trello_product_code == product_code)
-        count_statement = count_statement.where(LangOpsProductORM.trello_product_code == product_code)
+        statement = statement.where(LangOpsProductORM.trello_product_code == product_code)  
     
     if date_from and date_to:
         statement = statement.where(LangOpsProductORM.trello_date_published.between(date_from, date_to))
-        count_statement = count_statement.where(LangOpsProductORM.trello_date_published.between(date_from, date_to))
     
     if media_groups:
         values = [g.value for g in media_groups]
         statement = statement.where(
             or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values])
         )
-        count_statement = count_statement.where(
-            or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values])
-        )
+
+    if archived_only:
+        statement = statement.where(LangOpsProductORM.trello_date_archived.is_not(None))
     
     if published_only:
         statement = statement.where(LangOpsProductORM.trello_date_published.is_not(None))
-        count_statement = count_statement.where(LangOpsProductORM.trello_date_published.is_not(None))
     
     if unpublished_only:
         statement = statement.where(LangOpsProductORM.trello_date_published.is_(None))
-        count_statement = count_statement.where(LangOpsProductORM.trello_date_published.is_(None))
 
     if exclude_deleted:
         statement = statement.where(LangOpsProductORM.date_deleted.is_(None))
-        count_statement = count_statement.where(LangOpsProductORM.date_deleted.is_(None))
     
     result = await db.execute(statement)
     rows = result.scalars().all()
+    count = len(rows)
 
     if not rows:
         raise HTTPException(status_code=404, detail="No records found")
     
-
-    total = await db.scalar(count_statement)
-
+    
     return PaginatedProductResponse(
-        total=total,
+        total=count,
         offset=offset,
         limit=limit,
         data=[orm_to_langops_product(r) for r in rows]

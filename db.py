@@ -9,7 +9,11 @@ HOST = os.environ.get("DB_HOST")
 DB_NAME = os.environ.get("DB_NAME")
 PORT = os.environ.get("DB_PORT")
 
-DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
+# FOR LOCAL TESTING ------------------------------------------------------------------------------------
+HOST_DEV = os.getenv("DB_HOST_DEV")
+DATABASE_URL = os.getenv("URL", f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST_DEV}:{PORT}/{DB_NAME}")
+# ------------------------------------------------------------------------------------------------------
+#DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
 
 engine = create_async_engine(
     DATABASE_URL,
