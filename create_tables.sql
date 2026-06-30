@@ -10,6 +10,7 @@ CREATE TABLE langops_products (
     trello_id               TEXT UNIQUE,
     trello_url              TEXT,
     trello_title            TEXT,
+    trello_localized_title  TEXT,
     trello_product_code     TEXT,
     trello_target_language  TEXT,
     trello_due_date         TIMESTAMPTZ,

@@ -9,6 +9,7 @@ class TrelloData(BaseModel):
     id: str
     url: HttpUrl
     title: str
+    localized_title: str
     product_code: ProductCodes 
     target_language: Languages
     due_date: datetime | None

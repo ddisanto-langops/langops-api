@@ -20,6 +20,7 @@ class LangOpsProductORM(Base):
     trello_id = Column(String)
     trello_url = Column(String)
     trello_title = Column(String)
+    trello_localized_title = Column(String)
     trello_product_code = Column(String)
     trello_target_language = Column(String)
     trello_due_date = Column(DateTime(timezone=True))
@@ -47,6 +48,7 @@ def orm_to_langops_product(row: LangOpsProductORM) -> GetProductResponse:
         id=row.trello_id,
         url=row.trello_url,
         title=row.trello_title,
+        localized_title=row.trello_localized_title,
         product_code=row.trello_product_code,
         target_language=row.trello_target_language,
         due_date=row.trello_due_date,
