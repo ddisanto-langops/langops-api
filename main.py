@@ -51,7 +51,7 @@ Cloudflare's JWTs have an `aud` claim, which must match at least one entry in th
 ---
 """
 
-app = FastAPI(title="PCG LangOps API", description=auth_docs_blurb, version="0.5.0")
+app = FastAPI(title="PCG LangOps API", description=auth_docs_blurb, version="1.0.0")
 logger = logging.getLogger("uvicorn.error")
 
 # -------------------
