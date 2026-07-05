@@ -13,18 +13,16 @@ from schemas.error_schemas import (
     BadRequestError,
     NotFoundError
 )
-from routers import products, idml, apistatus
+from routers import products, idml, apistatus, webhooks
 from auth import verify_jwt
 
 auth_docs_blurb = """
 # 🔐 Authentication & Zero Trust Architecture
 
 This API is protected behind a **Cloudflare Zero Trust** perimeter layer and enforces strict identity verification using asymmetric cryptography. It cannot be accessed anonymously.
-\nSince this API is currently only meant to be accessed by internal LangOps applications, and is not meant for public consumption, there is no internet-facing URL at this time. 
-Any apps which need access to the API are assumed to be operating on the LangOps Server Cluster, within the same virtual network, and should communicate with the API that way.
 
-## How Authentication Works  
-
+## General Authentication  
+The information below applies to all endpoints except webhooks. Since those are subject to custom authorization requirements, separate validation is enforced for `/webhooks` endpoints. See below for more information regarding webhooks.
 **To access the API, the caller must meet 3 conditions:**
 1. Valid JSON web token (JWT) passed in the header `CF_Authorization`
 ```html
@@ -37,6 +35,9 @@ Cloudflare's JWTs have an `aud` claim, which must match at least one entry in th
 - LangOps website
 \n Any other apps must be provisioned via request. **Any request from an app not in the list of trusted audience tags will result in an error (401 Unauthorized).**
 
+## Webhook Authorization
+Webhooks may be verified via a signature, an IP range, a custom header, or a combination of those. **If a request to this endpoint cannot be identified, it will result in a 401 error.**
+
 # 🛠️ Operations Currently Supported
 1. **Status**: Here you can check the current database version and connection health
 2. **Products**: This is the main function of the API. It can return all LangOps products matching any supported criteria, including:
@@ -48,10 +49,11 @@ Cloudflare's JWTs have an `aud` claim, which must match at least one entry in th
     **Note that this endpoint is paginated and has a limit of 500.**
 
 3. **IDML Operations**: This allows labeling of Adobe inDesign strings by story provenance to avoid context-loss.
+4. **Webhooks**: Receive, validate and perform data updates based on incoming webhooks from translation and productivity services, e.g. Crowdin or Trello
 ---
 """
 
-app = FastAPI(title="PCG LangOps API", description=auth_docs_blurb, version="1.0.0")
+app = FastAPI(title="PCG LangOps API", description=auth_docs_blurb, version="1.0.5")
 logger = logging.getLogger("uvicorn.error")
 
 # -------------------
@@ -61,7 +63,8 @@ GENERAL_PREFIX = "/api/v1"
 
 app.include_router(apistatus.router, prefix=f"{GENERAL_PREFIX}/status", tags=["API Status"], dependencies=[Depends(verify_jwt)])
 app.include_router(products.router, prefix=f"{GENERAL_PREFIX}/products", tags=["Products"], dependencies=[Depends(verify_jwt)])
-app.include_router(idml.router, prefix=f"{GENERAL_PREFIX}/idml", tags=["IDML Operations"],dependencies=[Depends(verify_jwt)])
+app.include_router(idml.router, prefix=f"{GENERAL_PREFIX}/idml", tags=["IDML Operations"], dependencies=[Depends(verify_jwt)])
+app.include_router(webhooks.router, prefix=f"{GENERAL_PREFIX}/webhooks", tags=["Webhooks"]) # TODO: Add webhook auth for signatures, or custom headers where signature not available
 
 
 
@@ -95,7 +98,6 @@ async def log(request: Request, call_next):
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exception: StarletteHTTPException):
-    # Map specific status codes to your matching schema shapes
     if exception.status_code == status.HTTP_404_NOT_FOUND:
         payload = NotFoundError(
             error_code="NOT_FOUND",

@@ -31,6 +31,14 @@ class NotFoundError(BaseModel):
     message: str = "Record was not found"
     timestamp: datetime
 
+
+class MethodNotAllowedError(BaseModel):
+    # 405
+    error_code: str = "METHOD_NOT_ALLOWED"
+    message: str = "This endpoint does not accept the provided method"
+    timestamp: datetime
+
+
 class ClientValidationError(BaseModel):
     # 422
     error_code: str = "INVALID_INPUT_PAYLOAD"
@@ -72,6 +80,11 @@ class ErrorResponses:
     _404_NOT_FOUND = {
         "model": NotFoundError,
         "description": "The requested LangOps resource could not be located."
+    }
+
+    _405_METHOD_NOT_ALLOWED = {
+        "model": MethodNotAllowedError,
+        "description": "The client tried to use a method which this endpoint does not allow."
     }
     
     _422_VALIDATION_ERROR = {
