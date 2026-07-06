@@ -10,7 +10,7 @@ import ipaddress
 class TrelloWebhook:
     def __init__(self):
         self.callback: str = os.getenv("TRELLO_WEBHOOK_CALLBACK")
-        trello_secret: str = os.getenv("TrelloSecret")
+        trello_secret: str = os.getenv("TRELLO_SECRET")
 
         if not self.callback:
             raise Exception({"error": "Missing callback URL. This is required for verification of webhooks."})
@@ -39,3 +39,8 @@ class TrelloWebhook:
         computed_hash = base64.b64encode(digest).decode("utf-8")
 
         return hmac.compare_digest(computed_hash, header_hash)
+
+
+class CrowdinWebhook:
+    # TODO: Manually validate CF headers and add to env
+    pass

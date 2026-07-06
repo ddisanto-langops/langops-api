@@ -79,6 +79,11 @@ All application routes are mounted under:
 - `POST /api/v1/idml/label/{crowdin_project_id}`
 	Applies labels in Crowdin using the reviewed schema payload.
 
+### Webhooks
+- `HEAD /api/v1/webhooks/trello`
+	Route to allow Trello to check connectivity at time of webhook creation
+- `POST /api/v1/webhooks/trello`
+	Endpoint for all Trello webhooks. Action, action date and card ID are extracted, and returned to inform the caller of which Trello card was updated.
 
 ## Environment Variables
 

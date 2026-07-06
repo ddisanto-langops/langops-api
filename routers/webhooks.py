@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
 from schemas.error_schemas import ErrorResponses
+from schemas.response_schemas import TrelloWebhookResponse
 from webhook_auth import TrelloWebhook
 
 router = APIRouter()
@@ -20,6 +21,7 @@ def connectivity_check():
 
 @router.post(
     "/trello",
+    response_model=TrelloWebhookResponse,
     responses={
         status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_405_METHOD_NOT_ALLOWED: ErrorResponses._405_METHOD_NOT_ALLOWED,
@@ -54,11 +56,15 @@ async def process_trello_webhook(
     card_id = payload["action"]["data"]["card"]["id"]
     
     print(f"""
+          ------ WEBHOOK RECEIVED -------
           \nAction Type: {action_type}
           \nDate: {action_date}
           \nCard: {card_id}
+          -------------------------------
           """)
 
-    return {
-        "status": "accepted"
-    }
+    return TrelloWebhookResponse(
+        action_type=action_type,
+        action_date=action_date,
+        card_id=card_id
+    )
