@@ -61,6 +61,8 @@ async def process_trello_webhook(
           \nCard: {card_id}
           -------------------------------
           """)
+    
+    print(payload)
 
     return TrelloWebhookResponse(
         action_type=action_type,
