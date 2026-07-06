@@ -34,6 +34,7 @@ router = APIRouter()
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
         status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+        
         status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
     }
