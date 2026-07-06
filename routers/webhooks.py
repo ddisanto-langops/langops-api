@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db import get_db
 from schemas.error_schemas import ErrorResponses
 from schemas.response_schemas import TrelloWebhookResponse
-from webhook_auth import TrelloWebhook
+from webhook_auth import TrelloWebhook, CrowdinWebhook
 
 router = APIRouter()
 
@@ -30,8 +30,7 @@ def connectivity_check():
 )
 async def process_trello_webhook(
     request: Request,
-    x_trello_webhook: str = Header(None),
-    db: AsyncSession = Depends(get_db)
+    x_trello_webhook: str = Header(None)
 ):
     trello_adapter = TrelloWebhook()
 
@@ -68,3 +67,32 @@ async def process_trello_webhook(
         action_date=action_date,
         card_id=card_id
     )
+
+
+@router.post(
+    "/crowdin",
+    responses={
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
+        status.HTTP_405_METHOD_NOT_ALLOWED: ErrorResponses._405_METHOD_NOT_ALLOWED,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
+    }
+)
+async def process_crowdin_webhook(
+    request: Request,
+    db: AsyncSession = Depends(get_db)
+):
+    adapter = CrowdinWebhook()
+    cf_access_id = request.headers["CF-Access-Client-Id"]
+    cf_access_secret = request.headers["CF-Access-Client-Secret"]
+    access = adapter.verify_cf_access(cf_access_id, cf_access_secret)
+    
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Cloudflare ID and/or secret headers")
+    
+    request_body = await request.body()
+    if not request_body:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing request body")
+    
+    payload = await request.json()
+    return payload
+    

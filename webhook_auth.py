@@ -31,7 +31,7 @@ class TrelloWebhook:
         content = raw_body + self.callback.encode("utf-8")
         
         digest = hmac.new(
-            os.getenv("TrelloSecret").encode("utf-8"),
+            os.getenv("TRELLO_SECRET").encode("utf-8"),
             msg=content,
             digestmod=hashlib.sha1
         ).digest()
@@ -42,5 +42,21 @@ class TrelloWebhook:
 
 
 class CrowdinWebhook:
-    # TODO: Manually validate CF headers and add to env
-    pass
+    
+    def verify_cf_access(self, provided_id: str, provided_secret: str):
+        cf_access_id = os.getenv("API_CF_ID")
+        cf_access_secret = os.getenv("API_CF_SECRET")
+        
+        combined_provided_creds = f"{provided_id}:{provided_secret}"
+        provided_creds_encoded = hashlib.sha256(combined_provided_creds.encode("utf-8"))
+        hashed_provided_creds = provided_creds_encoded.hexdigest()
+        
+        combined_creds = f"{cf_access_id}:{cf_access_secret}"
+        encoded_creds = hashlib.sha256(combined_creds.encode("utf-8"))
+        hashed_creds = encoded_creds.hexdigest()
+        
+        return hmac.compare_digest(hashed_creds, hashed_provided_creds)
+        
+        
+        
+        
