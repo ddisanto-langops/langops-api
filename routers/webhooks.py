@@ -49,7 +49,15 @@ async def process_trello_webhook(
 
 
     payload = await request.json()
-
+    action_type = payload["action"]["type"]
+    action_date = payload["action"]["date"]
+    card_id = payload["action"]["data"]["card"]["id"]
+    
+    print(f"""
+          \nAction Type: {action_type}
+          \nDate: {action_date}
+          \nCard: {card_id}
+          """)
 
     return {
         "status": "accepted"
