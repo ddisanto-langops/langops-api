@@ -47,15 +47,6 @@ async def process_trello_webhook(
             detail="Invalid signature"
         )
 
-    client_ip = request.client.host
-
-    ip_check = trello_adapter.verify_ips(client_ip)
-    if ip_check == False:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="IP address not found in Atlassian trusted IPs list"
-        )
-
 
     payload = await request.json()
 

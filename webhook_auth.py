@@ -19,24 +19,6 @@ class TrelloWebhook:
             raise Exception({"error": "Missing Trello Secret. This is required for verification of webhooks."})
 
     
-    def verify_ips(self, client_ip: str) -> bool:
-        client = ipaddress.ip_address(client_ip)
-
-        response = requests.get("https://ip-ranges.atlassian.com/", timeout=5)
-        response.raise_for_status()
-        expected_ips = response.json()
-
-        for item in expected_ips["items"]:
-            cidr = item.get("cidr")
-            if not cidr:
-                continue
-
-            network = ipaddress.ip_network(cidr)
-            if client in network:
-                return True
-
-        return False
-
     def verify_signature(self, raw_body: bytes, header_hash: str) -> bool:
         """Check the Trello webhook content and headers against client secret to ensure authenticity
         Args:
