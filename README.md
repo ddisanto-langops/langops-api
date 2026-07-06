@@ -83,7 +83,9 @@ All application routes are mounted under:
 - `HEAD /api/v1/webhooks/trello`
 	Route to allow Trello to check connectivity at time of webhook creation
 - `POST /api/v1/webhooks/trello`
-	Endpoint for all Trello webhooks. Action, action date and card ID are extracted, and returned to inform the caller of which Trello card was updated.
+	Endpoint for all Trello webhooks. Action, action date and card ID are extracted, and returned to inform the caller of which Trello card was updated. **Note: this endpoint is currently not able to make changes to the database. It should simply inform the frontend of which Trello card to check, and then send a patch request to the DB via the `products/add` endpoint with the updated data.
+- `POST /api/v1/webhooks/crowdin`
+	Endpoint for all Crowdin webhooks. 
 
 ## Environment Variables
 
