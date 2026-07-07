@@ -5,6 +5,8 @@ CREATE TABLE langops_products (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     date_created    TIMESTAMPTZ NOT NULL,
     date_deleted    TIMESTAMPTZ,
+    media_groups    TEXT[],
+    product_status  TEXT NOT NULL,
 
     -- TrelloData fields
     trello_id               TEXT UNIQUE,
@@ -17,7 +19,6 @@ CREATE TABLE langops_products (
     trello_date_published   TIMESTAMPTZ,
     trello_date_last_activity TIMESTAMPTZ,
     trello_date_archived    TIMESTAMPTZ,
-    trello_media_groups     TEXT[],
     trello_editor_url       TEXT,
     trello_article_url      TEXT,
     trello_word_count       INTEGER,
@@ -29,8 +30,9 @@ CREATE TABLE langops_products (
     youtube_duration_seconds INTEGER,
 
     -- CrowdinData fields
-    crowdin_id                  TEXT,
-    crowdin_translation_progress FLOAT,
-    crowdin_approval_progress   FLOAT,
-    crowdin_url                 TEXT
+    crowdin_file_id                 TEXT,
+    crowdin_project_id              TEXT,
+    crowdin_translation_progress    FLOAT,
+    crowdin_approval_progress       FLOAT,
+    crowdin_url                     TEXT
 );

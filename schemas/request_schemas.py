@@ -1,9 +1,20 @@
 from datetime import datetime
-from enums import ProductCodes, MediaGroups, Languages
 from pydantic import BaseModel, HttpUrl
+
+from enums import ProductCodes, MediaGroups, Languages
+from schemas.data_schemas import RawTrelloCard, RawYouTubeData, RawCrowdinData
+
+
+class AddProductRequest(BaseModel):
+    trello_data: RawTrelloCard
+    youtube_data: RawYouTubeData
+    crowdin_data: RawCrowdinData
 
 
 class EditProductRequest(BaseModel):
+    
+    media_groups: list[MediaGroups] | None = None
+    
     # trello
     trello_title: str | None = None
     trello_url: HttpUrl | None = None
@@ -11,7 +22,6 @@ class EditProductRequest(BaseModel):
     trello_target_language: Languages | None = None
     trello_due_date: datetime | None = None
     trello_date_published: datetime | None = None
-    trello_media_groups: list[MediaGroups] | None = None
     trello_editor_url: HttpUrl | None = None
     trello_article_url: HttpUrl | None = None
     trello_word_count: int | None = None

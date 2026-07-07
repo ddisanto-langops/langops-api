@@ -2,34 +2,26 @@ from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
-from schemas.data_schemas import TrelloData, YouTubeData, CrowdinData, ProductCodeCount, StringMapItem
+from schemas.data_schemas import LangOpsProduct, ProductCodeCount, StringMapItem
 from schemas.request_schemas import EditProductRequest
 
 
 class CheckHealthResponse(BaseModel):
     status: str = "OK"
     database_version: str
-
-
-class GetProductResponse(BaseModel):
-    id: UUID
-    date_created: datetime
-    date_deleted: datetime | None
-    trello_data: TrelloData | None
-    youtube_data: YouTubeData | None
-    crowdin_data: CrowdinData | None
+    
 
 
 class AddProductResponse(BaseModel):
     total_products_added: int
-    data: list[GetProductResponse]
+    data: list[LangOpsProduct]
 
 
 class PaginatedProductResponse(BaseModel):
     total: int
     offset: int
     limit: int
-    data: list[GetProductResponse]
+    data: list[LangOpsProduct]
 
 
 class EditProductResponse(EditProductRequest):

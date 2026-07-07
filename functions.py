@@ -4,11 +4,14 @@
 
 import os
 import re
+from re import Match
 from collections import defaultdict
 from crowdin_api import CrowdinClient
 from fastapi import HTTPException, status
 
-from schemas.data_schemas import StringMapItem, StringMapPayload
+from schemas.data_schemas import StringMapItem, StringMapPayload, NewLangOpsProduct, TrelloData, CrowdinData, YouTubeData
+from schemas.request_schemas import AddProductRequest
+from enums import CustomFields, ProductCodes, Languages, MediaGroups, CROWDIN_PROJECT_IDS
 
 def create_crowdin_client(token: str) -> CrowdinClient:
     return CrowdinClient(
@@ -173,3 +176,171 @@ def label_idml_strings(
                 stringIds=item.map.string_ids,
                 projectId=crowdin_project_id
             )
+
+
+
+def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLangOpsProduct]:
+    
+    wordcount_pattern =                 r"(?<=-)(?:[A-Z+]*)([0-9]{1,})(?=_)"
+    product_code_pattern =              r"^([A-Z-]*)([0-9]*[A-Z]*)(?=_)"
+    magazine_pattern =                  r"^[A-Z]{2}([0-9]{6})_([A-Z]{2}-[A-Z]{2}$)"
+    target_lang_pattern =               r"[A-Z]{2}$"
+    editor_pattern =                    r"\/editor\/articles\/posts/"
+    article_pattern =                   r"(?<!editor)\/articles\/posts"
+    crowdin_link_pattern =              r"editor\/([A-z]{4,})\/([0-9]{5})"
+    crowdin_project_and_file_pattern =  r"/editor/([a-z]{1,})"
+    youTube_link_pattern =              r"youtube"
+
+    for product in products:
+        if not product.trello_data or not product.youtube_data or not product.crowdin_data:
+            raise Exception({"error":"Missing one or more required data payloads"})
+        
+
+        name = product.trello_data.name
+
+        if product.trello_data.custom_field_items:
+            custom_fields = product.trello_data.custom_field_items
+            for item in custom_fields:
+                if item.id_custom_field == CustomFields.exclude and item.value.checked:
+                    exclude = True
+                else:
+                    exclude = False
+        
+        product_code_match = re.search(product_code_pattern, name)
+        if product_code_match:
+            product_code = product_code_match[1]
+        
+        target_language_match = re.search(target_lang_pattern, name)
+        if target_language_match:
+            target_language = target_language_match[0]
+        
+        is_template = product.trello_data.is_template
+
+        
+        # Core filtering logic
+        # Do not create product if:
+        # 1. Has no product code or product code isn't valid;
+        # 2. Is a template;
+        # 3. "Exclude" is checked in custom fields;
+        # 4. Target language missing or unsupported
+
+        if not product_code or product_code not in {code.value for code in ProductCodes}:
+            print(f"Skipped: {name} | Reason: Product code invalid or not yet supported (got {product_code})")
+            continue
+        elif is_template:
+            print(f"Skipped: {name} | Reason: Card is a template")
+        elif exclude:
+            print(f"Skipped: {name} | Reason: 'Exclude' box is checked")
+        elif not target_language or target_language not in {lang.value for lang in Languages}:
+            print(f"Skipped: {name} | Reason: Target language missing or not yet supported (got {target_language})")
+        else:
+            print(f"Accepted: {name}")
+
+
+        # Proceed to get the rest of the Trello data
+
+        if product.trello_data.actions:
+            actions = product.trello_data.actions
+            for action in actions:
+                if action.type == "updateCheckItemStateOnCard" and "[published]" in action.data.check_item.name.lower() and action.data.check_item.state == "complete":
+                    date_published = action.date
+                else: date_published = None
+
+        wordcount_match = re.search(wordcount_pattern, name)
+        if wordcount_match:
+            wordcount = wordcount_match[1]
+        
+        if product.trello_data.attachments:
+            attachments = product.trello_data.attachments
+            for attachment in attachments:
+                url = attachment.url
+                
+                editor_match = re.search(editor_pattern, url)
+                if editor_match:
+                    editor_url = url
+                
+                article_match = re.search(article_pattern, url)
+                if article_match:
+                    article_url = url
+                    
+                crowdin_match = re.search(crowdin_link_pattern, url)
+                if crowdin_match:
+                    crowdin_url = url
+                
+                youtube_match = re.search(youTube_link_pattern, url)
+                if youtube_match:
+                    youtube_url = url
+
+
+        magazine = re.search(magazine_pattern, name)
+
+        media_groups = []
+        match product_code:
+            case  "AD" | "LIT-S" | "MB" | "TB" | "TE":
+                media_groups.append(MediaGroups.WEBSITE)
+            
+            case "ANN" | "BS" | "SER" | "SMT":
+                media_groups.append(MediaGroups.INTERPRETATION)
+
+            case "BCC" | "CWL" | "LIT":
+                media_groups.append(MediaGroups.LITERATURE)
+            
+            case "LT":
+                media_groups.append(MediaGroups.AUDIO_VIDEO, MediaGroups.WEBSITE)
+
+            case "PCD" | "PN":
+                media_groups.append(MediaGroups.EMAILS)
+            
+            case "KOD":
+                if article_url:
+                    media_groups.append(MediaGroups.AUDIO_VIDEO, MediaGroups.WEBSITE)
+                else:
+                    media_groups.append(MediaGroups.AUDIO_VIDEO)
+            
+            case "OTHER":
+                if youtube_url:
+                    media_groups.append(MediaGroups.AUDIO_VIDEO)
+                else:
+                    media_groups.append(MediaGroups.OTHER)
+            
+            case "POD" | "PTVID":
+                if youtube_url:
+                    media_groups.append(MediaGroups.AUDIO_VIDEO, MediaGroups.WEBSITE)
+                else:
+                    media_groups.append(MediaGroups.WEBSITE)
+            
+            case "PT" | "LS" | "RV":
+                if magazine:
+                    media_groups.append(MediaGroups.MAGAZINES)
+                else:
+                    media_groups.append(MediaGroups.WEBSITE)
+            
+
+        if crowdin_url:
+            match: Match | None = re.search(crowdin_project_and_file_pattern, crowdin_url)
+            if match:
+                crowdin_project_name = match.group(1)
+                crowdin_file_id = match.group(2)
+
+                crowdin_project_id = CROWDIN_PROJECT_IDS.get(crowdin_project_name)
+
+
+
+
+        trello_data = TrelloData(
+            target_language=target_language,
+            product_code=product_code,
+            date_published=date_published,
+            word_count=wordcount,
+            editor_url= editor_url or None,
+            article_url= article_url or None,         
+        )
+
+        crowdin_data = CrowdinData(
+            crowdin_file_id=crowdin_file_id or None,
+            crowdin_url=crowdin_url or None
+        )
+
+        youtube_data = YouTubeData(
+            youtube_url=youtube_url or None
+        )

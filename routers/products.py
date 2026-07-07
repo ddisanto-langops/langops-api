@@ -7,16 +7,16 @@ from typing import Annotated
 from uuid import UUID
 
 from schemas.response_schemas import (
-    GetProductResponse,
     AddProductResponse,
     EditProductResponse,
-    EditProductRequest,
     DeleteProductResponse,
     RestoreProductResponse,
     PaginatedProductResponse,  
     WordcountResponse, 
     ProductCodeCountResponse
 ) 
+from schemas.request_schemas import EditProductRequest, AddProductRequest
+from schemas.data_schemas import LangOpsProduct
 from schemas.error_schemas import ErrorResponses
 from models import LangOpsProductORM, orm_to_langops_product
 from enums import MediaGroups, ProductCodes
@@ -132,7 +132,7 @@ async def get_all_products(
     if media_groups:
         values = [g.value for g in media_groups]
         statement = statement.where(
-            or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values])
+            or_(*[LangOpsProductORM.media_groups.any(v) for v in values])
         )
 
     if archived_only:
@@ -167,7 +167,7 @@ async def get_all_products(
 @router.get(
     "/{id}",
     description="Get a product by its unique ID",
-    response_model=GetProductResponse,
+    response_model=LangOpsProduct,
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
         status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
@@ -249,7 +249,7 @@ async def get_word_count(
     if media_groups:
         values = [g.value for g in media_groups]
         statement = statement.where(
-            or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values])
+            or_(*[LangOpsProductORM.media_groups.any(v) for v in values])
         )
     
 
@@ -317,7 +317,7 @@ async def get_product_count(
     
     if media_groups:
         values = [g.value for g in media_groups]
-        filters.append(or_(*[LangOpsProductORM.trello_media_groups.any(v) for v in values]))
+        filters.append(or_(*[LangOpsProductORM.media_groups.any(v) for v in values]))
     
     total_statement = select(func.count(LangOpsProductORM.trello_product_code)).where(*filters)
 
@@ -357,11 +357,14 @@ async def get_product_count(
     }
 )
 async def add_products(
-    products: Annotated[list[GetProductResponse], Body(description="The fields for a LangOps product")],
+    products: Annotated[list[AddProductRequest], Body(description="The combined, extracted JSON from each service which is to be evaluated in order to create a product or products")],
     db: AsyncSession = Depends(get_db)      
-):
-    await db.execute(insert(LangOpsProductORM), products)
-    await db.commit()
+):  
+    # for product of products:
+        # build_new_langops_products(products)
+
+        # await db.execute(insert(LangOpsProductORM), products)
+        # await db.commit()
     
     return AddProductResponse(
         total_products_added= len(products),

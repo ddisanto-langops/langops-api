@@ -48,21 +48,19 @@ async def process_trello_webhook(
             detail="Invalid signature"
         )
 
+    payload: dict = await request.json()
+    
+    template: str =  payload.get("model", {}).get("prefs", {}).get("isTemplate", {})
+    if template.lower() == 'true':
+        return
 
-    payload = await request.json()
     action_type = payload["action"]["type"]
     action_date = payload["action"]["date"]
     card_id = payload["action"]["data"]["card"]["id"]
+    card_name = payload.get("action", {}).get("data", {}).get("card", {}).get("name", {})
+
     
-    print(f"""
-          ------ WEBHOOK RECEIVED -------
-          \nAction Type: {action_type}
-          \nDate: {action_date}
-          \nCard: {card_id}
-          -------------------------------
-          """)
     
-    print(payload)
 
     return TrelloWebhookResponse(
         action_type=action_type,

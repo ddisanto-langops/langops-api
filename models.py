@@ -2,8 +2,7 @@ from sqlalchemy import Column, String, Float, Integer, DateTime, LargeBinary, fu
 from sqlalchemy.dialects.postgresql import ARRAY, UUID as SA_UUID, JSONB
 import uuid
 from sqlalchemy.orm import DeclarativeBase
-from schemas.data_schemas import TrelloData, YouTubeData, CrowdinData
-from schemas.response_schemas import GetProductResponse
+from schemas.data_schemas import LangOpsProduct, TrelloData, YouTubeData, CrowdinData
 
 
 class Base(DeclarativeBase):
@@ -16,6 +15,8 @@ class LangOpsProductORM(Base):
     id = Column(SA_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     date_created = Column(DateTime(timezone=True), nullable=False)
     date_deleted = Column(DateTime(timezone=True), nullable=True)
+    media_groups = Column(ARRAY(String))
+    product_status = Column(String, nullable=False)
 
     trello_id = Column(String)
     trello_url = Column(String)
@@ -27,7 +28,6 @@ class LangOpsProductORM(Base):
     trello_date_published = Column(DateTime(timezone=True))
     trello_date_last_activity = Column(DateTime(timezone=True))
     trello_date_archived = Column(DateTime(timezone=True))
-    trello_media_groups = Column(ARRAY(String))
     trello_editor_url = Column(String)
     trello_article_url = Column(String)
     trello_word_count = Column(Integer)
@@ -37,13 +37,14 @@ class LangOpsProductORM(Base):
     youtube_url = Column(String)
     youtube_duration_seconds = Column(Integer)
 
-    crowdin_id = Column(String)
+    crowdin_file_id = Column(String)
+    crowdin_project_id = Column(String)
     crowdin_translation_progress = Column(Float)
     crowdin_approval_progress = Column(Float)
     crowdin_url = Column(String)
 
 
-def orm_to_langops_product(row: LangOpsProductORM) -> GetProductResponse:
+def orm_to_langops_product(row: LangOpsProductORM) -> LangOpsProduct:
     trello = TrelloData(
         id=row.trello_id,
         url=row.trello_url,
@@ -55,7 +56,6 @@ def orm_to_langops_product(row: LangOpsProductORM) -> GetProductResponse:
         date_published=row.trello_date_published,
         date_last_activity=row.trello_date_last_activity,
         date_archived=row.trello_date_archived,
-        media_groups=row.trello_media_groups or [],
         editor_url=row.trello_editor_url,
         article_url=row.trello_article_url,
         word_count=row.trello_word_count,
@@ -69,16 +69,19 @@ def orm_to_langops_product(row: LangOpsProductORM) -> GetProductResponse:
     ) if row.youtube_id else None
 
     crowdin = CrowdinData(
-        crowdin_id=row.crowdin_id,
+        crowdin_file_id=row.crowdin_file_id,
+        crowdin_project_id=row.crowdin_project_id,
         translation_progress=row.crowdin_translation_progress,
         approval_progress=row.crowdin_approval_progress,
         crowdin_url=row.crowdin_url,
     ) if row.crowdin_id else None
 
-    return GetProductResponse(
+    return LangOpsProduct(
         id=row.id,
         date_created=row.date_created,
         date_deleted=row.date_deleted,
+        media_groups=row.media_groups or [],
+        product_status=row.product_status,
         trello_data=trello,
         youtube_data=youtube,
         crowdin_data=crowdin,
