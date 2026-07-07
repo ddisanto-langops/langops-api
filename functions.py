@@ -4,6 +4,7 @@
 
 import os
 import re
+from datetime import datetime
 from re import Match
 from collections import defaultdict
 from crowdin_api import CrowdinClient
@@ -11,7 +12,7 @@ from fastapi import HTTPException, status
 
 from schemas.data_schemas import StringMapItem, StringMapPayload, NewLangOpsProduct, TrelloData, CrowdinData, YouTubeData
 from schemas.request_schemas import AddProductRequest
-from enums import CustomFields, ProductCodes, Languages, MediaGroups, CROWDIN_PROJECT_IDS
+from enums import CustomFields, ProductCodes, Languages, MediaGroups, ProductStatus, CROWDIN_PROJECT_IDS
 
 def create_crowdin_client(token: str) -> CrowdinClient:
     return CrowdinClient(
@@ -191,6 +192,8 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
     crowdin_project_and_file_pattern =  r"/editor/([a-z]{1,})"
     youTube_link_pattern =              r"youtube"
 
+    langops_products: list[NewLangOpsProduct] = []
+
     for product in products:
         if not product.trello_data or not product.youtube_data or not product.crowdin_data:
             raise Exception({"error":"Missing one or more required data payloads"})
@@ -325,12 +328,41 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
                 crowdin_project_id = CROWDIN_PROJECT_IDS.get(crowdin_project_name)
 
 
+        # Product status
+        if date_published:
+            status = ProductStatus.PUBLISHED
+        elif not date_published:
+            client = create_crowdin_client(token=os.getenv("CROWDIN_API_TOKEN"))
+            r = client.translation_status.get_file_progress(
+                fileId=int(crowdin_file_id),
+                projectId=int(crowdin_project_id)
+            )
+            for item in r['data'][0]:
+                translation_progress = item['translationProgress']
+                approval_progress = item['approvalProgress']
+            
+            if translation_progress and approval_progress:
+                status = ProductStatus.PENDING
+            else:
+                status = ProductStatus.UNKNOWN
+        else:
+            status = ProductStatus.UNKNOWN
+            
+
+        
+        
 
 
         trello_data = TrelloData(
-            target_language=target_language,
+            id=product.trello_data.id,
+            url=product.trello_data.url,
+            title=name,
             product_code=product_code,
+            target_language=target_language,
+            due_date=product.trello_data.due,
             date_published=date_published,
+            date_last_activity=product.trello_data.date_last_activity,
+            date_archived=product.trello_data.date_closed,
             word_count=wordcount,
             editor_url= editor_url or None,
             article_url= article_url or None,         
@@ -338,9 +370,25 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
 
         crowdin_data = CrowdinData(
             crowdin_file_id=crowdin_file_id or None,
+            crowdin_project_id=crowdin_project_id or None,
             crowdin_url=crowdin_url or None
         )
 
         youtube_data = YouTubeData(
-            youtube_url=youtube_url or None
+            url=youtube_url or None,
+
         )
+
+        langops_products.append(
+            NewLangOpsProduct(
+                date_created= datetime.now(),
+                date_deleted=None,
+                media_groups=media_groups,
+                product_status= status,
+                trello_data=trello_data,
+                youtube_data=youtube_data,
+                crowdin_data=crowdin_data
+            )
+        )
+    
+    return langops_products

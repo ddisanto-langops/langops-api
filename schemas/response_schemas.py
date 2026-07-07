@@ -1,8 +1,8 @@
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
-from schemas.data_schemas import LangOpsProduct, ProductCodeCount, StringMapItem
+from schemas.data_schemas import LangOpsProduct, NewLangOpsProduct, ProductCodeCount, StringMapItem
 from schemas.request_schemas import EditProductRequest
 
 
@@ -14,7 +14,7 @@ class CheckHealthResponse(BaseModel):
 
 class AddProductResponse(BaseModel):
     total_products_added: int
-    data: list[LangOpsProduct]
+    data: list[NewLangOpsProduct]
 
 
 class PaginatedProductResponse(BaseModel):

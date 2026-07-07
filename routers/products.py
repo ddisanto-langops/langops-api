@@ -22,6 +22,7 @@ from models import LangOpsProductORM, orm_to_langops_product
 from enums import MediaGroups, ProductCodes
 from constants import PRODUCT_CODE_MAX_LEN
 from db import get_db
+from functions import build_new_langops_products
 
 router = APIRouter()
 
@@ -360,11 +361,9 @@ async def add_products(
     products: Annotated[list[AddProductRequest], Body(description="The combined, extracted JSON from each service which is to be evaluated in order to create a product or products")],
     db: AsyncSession = Depends(get_db)      
 ):  
-    # for product of products:
-        # build_new_langops_products(products)
-
-        # await db.execute(insert(LangOpsProductORM), products)
-        # await db.commit()
+    products = build_new_langops_products(products)
+    await db.execute(insert(LangOpsProductORM), products)
+    await db.commit()
     
     return AddProductResponse(
         total_products_added= len(products),

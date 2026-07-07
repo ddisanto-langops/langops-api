@@ -1,7 +1,6 @@
-from sqlalchemy import Column, String, Float, Integer, DateTime, LargeBinary, func
-from sqlalchemy.dialects.postgresql import ARRAY, UUID as SA_UUID, JSONB
-import uuid
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import Column, String, Float, Integer, DateTime, text
+from sqlalchemy.dialects.postgresql import ARRAY, UUID as SA_UUID
 from schemas.data_schemas import LangOpsProduct, TrelloData, YouTubeData, CrowdinData
 
 
@@ -12,7 +11,7 @@ class Base(DeclarativeBase):
 class LangOpsProductORM(Base):
     __tablename__ = "langops_products"
     
-    id = Column(SA_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(SA_UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     date_created = Column(DateTime(timezone=True), nullable=False)
     date_deleted = Column(DateTime(timezone=True), nullable=True)
     media_groups = Column(ARRAY(String))
@@ -74,7 +73,7 @@ def orm_to_langops_product(row: LangOpsProductORM) -> LangOpsProduct:
         translation_progress=row.crowdin_translation_progress,
         approval_progress=row.crowdin_approval_progress,
         crowdin_url=row.crowdin_url,
-    ) if row.crowdin_id else None
+    ) if row.crowdin_file_id else None
 
     return LangOpsProduct(
         id=row.id,

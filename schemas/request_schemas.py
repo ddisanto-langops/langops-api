@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, HttpUrl
 
-from enums import ProductCodes, MediaGroups, Languages
+from enums import ProductCodes, MediaGroups, Languages, ProductStatus
 from schemas.data_schemas import RawTrelloCard, RawYouTubeData, RawCrowdinData
 
 

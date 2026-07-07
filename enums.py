@@ -47,6 +47,11 @@ class MediaCategories(str, Enum):
     }
 
 
+class ProductStatus(str, Enum):
+    PUBLISHED = "published"
+    PENDING = "pending"
+    UNKNOWN = "unknown"
+
 class Languages(str, Enum):
     # Lists the ISO-639-1 code of allowed languages
     AFRIKAANS =     "af"

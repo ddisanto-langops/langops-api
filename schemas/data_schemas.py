@@ -1,17 +1,14 @@
 from uuid import UUID
 from datetime import datetime
-from enums import ProductCodes, MediaGroups, Languages
+from enums import ProductCodes, MediaGroups, Languages, ProductStatus
 from pydantic import BaseModel, ConfigDict, HttpUrl
-
-from datetime import datetime
-from pydantic import BaseModel, Field, HttpUrl
-
 
 
 class RawCrowdinData(BaseModel):
     pass
 
-
+class RawYouTubeData(BaseModel):
+    pass
 
 
 class TrelloLabel(BaseModel):
@@ -63,21 +60,11 @@ class RawTrelloCard(BaseModel):
 
 
 
-class YouTubeLocalized(BaseModel):
-    title: str
-
-class YouTubeSnippet(BaseModel):
-    localized: YouTubeLocalized
-
-class YouTubeContentDetails(BaseModel):
-    duration: str
-
-class YouTubeItem(BaseModel):
-    snippet: YouTubeSnippet
-    content_details: YouTubeContentDetails
-
-class RawYouTubeData(BaseModel):
-    items: list[YouTubeItem]
+class YouTubeData(BaseModel):
+    id: str
+    localized_title: str
+    url: HttpUrl
+    duration_seconds: int
 
 
 
@@ -112,6 +99,7 @@ class CrowdinData(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     crowdin_file_id: str | None
+    crowdin_project_id: str | None
     translation_progress: float | None
     approval_progress: float | None
     crowdin_url: HttpUrl | None
@@ -138,7 +126,7 @@ class LangOpsProduct(BaseModel):
     date_created: datetime
     date_deleted: datetime | None
     media_groups: list[MediaGroups]
-    product_status: str
+    product_status: ProductStatus
     trello_data: TrelloData | None
     youtube_data: YouTubeData | None
     crowdin_data: CrowdinData | None
@@ -148,7 +136,7 @@ class NewLangOpsProduct(BaseModel):
     date_created: datetime
     date_deleted: datetime | None = None
     media_groups: list[MediaGroups]
-    product_status: str
+    product_status: ProductStatus
     trello_data: TrelloData | None
     youtube_data: YouTubeData | None
     crowdin_data: CrowdinData | None
