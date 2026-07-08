@@ -180,6 +180,8 @@ def label_idml_strings(
 
 
 
+
+
 def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLangOpsProduct]:
     
     wordcount_pattern =                 r"(?<=-)(?:[A-Z+]*)([0-9]{1,})(?=_)"
@@ -209,13 +211,15 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
                 else:
                     exclude = False
         
-        product_code_match = re.search(product_code_pattern, name)
+        product_code = None
+        product_code_match: Match | None = re.search(product_code_pattern, name)
         if product_code_match:
-            product_code = product_code_match[1]
+            product_code = product_code_match.group(1)
         
-        target_language_match = re.search(target_lang_pattern, name)
+        target_language = None
+        target_language_match: Match | None = re.search(target_lang_pattern, name)
         if target_language_match:
-            target_language = target_language_match[0]
+            target_language: str = target_language_match.group(0).lower()
         
         is_template = product.trello_data.is_template
 
@@ -242,33 +246,41 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
 
         # Proceed to get the rest of the Trello data
 
+        date_published = None
         if product.trello_data.actions:
             actions = product.trello_data.actions
             for action in actions:
                 if action.type == "updateCheckItemStateOnCard" and "[published]" in action.data.check_item.name.lower() and action.data.check_item.state == "complete":
                     date_published = action.date
-                else: date_published = None
-
-        wordcount_match = re.search(wordcount_pattern, name)
+                
+        wordcount = 0
+        wordcount_match: Match | None = re.search(wordcount_pattern, name)
         if wordcount_match:
-            wordcount = wordcount_match[1]
-        
+            wordcount = wordcount_match.group(1)
+            
+        editor_url: str | None = None
+        article_url: str | None = None
+        crowdin_url: str | None = None
+        youtube_url: str | None = None
         if product.trello_data.attachments:
             attachments = product.trello_data.attachments
             for attachment in attachments:
-                url = attachment.url
+                url = str(attachment.url) 
                 
                 editor_match = re.search(editor_pattern, url)
                 if editor_match:
                     editor_url = url
+                    
                 
                 article_match = re.search(article_pattern, url)
                 if article_match:
                     article_url = url
                     
+                    
                 crowdin_match = re.search(crowdin_link_pattern, url)
                 if crowdin_match:
                     crowdin_url = url
+                    
                 
                 youtube_match = re.search(youTube_link_pattern, url)
                 if youtube_match:
@@ -318,64 +330,78 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
                 else:
                     media_groups.append(MediaGroups.WEBSITE)
             
-
+        crowdin_file_id: int | None = None
+        crowdin_project_id: int | None = None
         if crowdin_url:
             match: Match | None = re.search(crowdin_project_and_file_pattern, crowdin_url)
             if match:
                 crowdin_project_name = match.group(1)
-                crowdin_file_id = match.group(2)
-
-                crowdin_project_id = CROWDIN_PROJECT_IDS.get(crowdin_project_name)
+                crowdin_file_id = int(match.group(2))
+                crowdin_project_id = int(CROWDIN_PROJECT_IDS.get(crowdin_project_name))
+            
 
 
         # Product status
+        status = ProductStatus.UNKNOWN
+        translation_progress = 0.0
+        approval_progress = 0.0
+        
         if date_published:
             status = ProductStatus.PUBLISHED
-        elif not date_published:
-            client = create_crowdin_client(token=os.getenv("CROWDIN_API_TOKEN"))
-            r = client.translation_status.get_file_progress(
-                fileId=int(crowdin_file_id),
-                projectId=int(crowdin_project_id)
-            )
-            for item in r['data'][0]:
-                translation_progress = item['translationProgress']
-                approval_progress = item['approvalProgress']
-            
-            if translation_progress and approval_progress:
+        elif crowdin_url and crowdin_file_id and crowdin_project_id:
+            try:
+                client = create_crowdin_client(token=os.getenv("CROWDIN_API_TOKEN"))
+                r = client.translation_status.get_file_progress(
+                    fileId=crowdin_file_id,
+                    projectId=crowdin_project_id
+                )
+                for item in r['data'][0]:
+                    translation_progress = item['translationProgress']
+                    approval_progress = item['approvalProgress']
+                
+                if translation_progress and approval_progress:
+                    status = ProductStatus.PENDING
+               
+            except Exception as e:
+                print(e)
+        
+        elif product.trello_data.date_last_activity:
+            last_activity = product.trello_data.date_last_activity
+            now = datetime.now()
+            if (last_activity + 7 >= now):
                 status = ProductStatus.PENDING
-            else:
-                status = ProductStatus.UNKNOWN
-        else:
-            status = ProductStatus.UNKNOWN
-            
-
-        
         
 
 
-        trello_data = TrelloData(
+        trello = TrelloData(
             id=product.trello_data.id,
             url=product.trello_data.url,
             title=name,
+            localized_title="",
             product_code=product_code,
             target_language=target_language,
             due_date=product.trello_data.due,
             date_published=date_published,
             date_last_activity=product.trello_data.date_last_activity,
             date_archived=product.trello_data.date_closed,
-            word_count=wordcount,
+            word_count=wordcount or None,
             editor_url= editor_url or None,
             article_url= article_url or None,         
         )
 
-        crowdin_data = CrowdinData(
+        crowdin = CrowdinData(
             crowdin_file_id=crowdin_file_id or None,
             crowdin_project_id=crowdin_project_id or None,
-            crowdin_url=crowdin_url or None
+            crowdin_url=crowdin_url or None,
+            translation_progress=translation_progress,
+            approval_progress=approval_progress
         )
 
-        youtube_data = YouTubeData(
+        youtube = YouTubeData(
             url=youtube_url or None,
+            id="",
+            localized_title="",
+            duration_seconds=0
 
         )
 
@@ -385,9 +411,9 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
                 date_deleted=None,
                 media_groups=media_groups,
                 product_status= status,
-                trello_data=trello_data,
-                youtube_data=youtube_data,
-                crowdin_data=crowdin_data
+                trello_data=trello,
+                youtube_data=youtube,
+                crowdin_data=crowdin
             )
         )
     

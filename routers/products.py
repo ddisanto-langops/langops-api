@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Depends, Query, Path, Body
-from sqlalchemy import asc, func, or_, update, insert, delete
+from sqlalchemy import asc, func, or_, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import Annotated
@@ -18,7 +18,7 @@ from schemas.response_schemas import (
 from schemas.request_schemas import EditProductRequest, AddProductRequest
 from schemas.data_schemas import LangOpsProduct
 from schemas.error_schemas import ErrorResponses
-from models import LangOpsProductORM, orm_to_langops_product
+from models import LangOpsProductORM, orm_to_langops_product, new_product_to_orm
 from enums import MediaGroups, ProductCodes
 from constants import PRODUCT_CODE_MAX_LEN
 from db import get_db
@@ -362,7 +362,7 @@ async def add_products(
     db: AsyncSession = Depends(get_db)      
 ):  
     products = build_new_langops_products(products)
-    await db.execute(insert(LangOpsProductORM), products)
+    db.add_all([new_product_to_orm(product) for product in products])
     await db.commit()
     
     return AddProductResponse(

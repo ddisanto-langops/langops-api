@@ -1,13 +1,12 @@
 from datetime import datetime
 from pydantic import BaseModel, HttpUrl
 
-from enums import ProductCodes, MediaGroups, Languages, ProductStatus
-from schemas.data_schemas import RawTrelloCard, RawYouTubeData, RawCrowdinData
+from enums import ProductCodes, MediaGroups, Languages
+from schemas.data_schemas import RawTrelloCard, RawCrowdinData
 
 
 class AddProductRequest(BaseModel):
     trello_data: RawTrelloCard
-    youtube_data: RawYouTubeData
     crowdin_data: RawCrowdinData
 
 
