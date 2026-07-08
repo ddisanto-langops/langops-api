@@ -16,7 +16,7 @@ from schemas.response_schemas import (
     ProductCodeCountResponse
 ) 
 from schemas.request_schemas import EditProductRequest, AddProductRequest
-from schemas.data_schemas import LangOpsProduct
+from schemas.data_schemas import LangOpsProduct, RawTrelloCard
 from schemas.error_schemas import ErrorResponses
 from models import LangOpsProductORM, orm_to_langops_product, new_product_to_orm
 from enums import MediaGroups, ProductCodes
@@ -358,16 +358,16 @@ async def get_product_count(
     }
 )
 async def add_products(
-    products: Annotated[list[AddProductRequest], Body(description="The combined, extracted JSON from each service which is to be evaluated in order to create a product or products")],
+    products: Annotated[list[RawTrelloCard], Body(description="The combined, extracted JSON from each service which is to be evaluated in order to create a product or products")],
     db: AsyncSession = Depends(get_db)      
 ):  
-    products = build_new_langops_products(products)
-    db.add_all([new_product_to_orm(product) for product in products])
+    new_products = build_new_langops_products(products)
+    db.add_all([new_product_to_orm(product) for product in new_products])
     await db.commit()
     
     return AddProductResponse(
-        total_products_added= len(products),
-        data=products
+        total_products_added= len(new_products),
+        data=new_products
     )
 
 
@@ -386,7 +386,7 @@ async def add_products(
 )
 async def edit_product(
     id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
-    updated_product: Annotated[EditProductRequest, Body(alias="updatedProduct")],
+    updated_product: Annotated[RawTrelloCard, Body(alias="updatedProduct")],
     db: AsyncSession = Depends(get_db)
 ):
     fields = updated_product.model_dump(exclude_unset=True)

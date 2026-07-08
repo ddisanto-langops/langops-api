@@ -4,14 +4,13 @@
 
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from re import Match
 from collections import defaultdict
 from crowdin_api import CrowdinClient
 from fastapi import HTTPException, status
 
-from schemas.data_schemas import StringMapItem, StringMapPayload, NewLangOpsProduct, TrelloData, CrowdinData, YouTubeData
-from schemas.request_schemas import AddProductRequest
+from schemas.data_schemas import StringMapItem, StringMapPayload, NewLangOpsProduct, TrelloData, CrowdinData, YouTubeData, RawTrelloCard
 from enums import CustomFields, ProductCodes, Languages, MediaGroups, ProductStatus, CROWDIN_PROJECT_IDS
 
 def create_crowdin_client(token: str) -> CrowdinClient:
@@ -182,7 +181,7 @@ def label_idml_strings(
 
 
 
-def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLangOpsProduct]:
+def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOpsProduct]:
     
     wordcount_pattern =                 r"(?<=-)(?:[A-Z+]*)([0-9]{1,})(?=_)"
     product_code_pattern =              r"^([A-Z-]*)([0-9]*[A-Z]*)(?=_)"
@@ -197,14 +196,11 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
     langops_products: list[NewLangOpsProduct] = []
 
     for product in products:
-        if not product.trello_data or not product.youtube_data or not product.crowdin_data:
-            raise Exception({"error":"Missing one or more required data payloads"})
         
+        name = product.name
 
-        name = product.trello_data.name
-
-        if product.trello_data.custom_field_items:
-            custom_fields = product.trello_data.custom_field_items
+        if product.custom_field_items:
+            custom_fields = product.custom_field_items
             for item in custom_fields:
                 if item.id_custom_field == CustomFields.exclude and item.value.checked:
                     exclude = True
@@ -221,7 +217,7 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
         if target_language_match:
             target_language: str = target_language_match.group(0).lower()
         
-        is_template = product.trello_data.is_template
+        is_template = product.is_template
 
         
         # Core filtering logic
@@ -247,8 +243,8 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
         # Proceed to get the rest of the Trello data
 
         date_published = None
-        if product.trello_data.actions:
-            actions = product.trello_data.actions
+        if product.actions:
+            actions = product.actions
             for action in actions:
                 if action.type == "updateCheckItemStateOnCard" and "[published]" in action.data.check_item.name.lower() and action.data.check_item.state == "complete":
                     date_published = action.date
@@ -262,8 +258,8 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
         article_url: str | None = None
         crowdin_url: str | None = None
         youtube_url: str | None = None
-        if product.trello_data.attachments:
-            attachments = product.trello_data.attachments
+        if product.attachments:
+            attachments = product.attachments
             for attachment in attachments:
                 url = str(attachment.url) 
                 
@@ -365,25 +361,25 @@ def build_new_langops_products(products: list[AddProductRequest]) -> list[NewLan
             except Exception as e:
                 print(e)
         
-        elif product.trello_data.date_last_activity:
-            last_activity = product.trello_data.date_last_activity
-            now = datetime.now()
-            if (last_activity + 7 >= now):
+        elif product.date_last_activity:
+            last_activity = product.date_last_activity
+            now = datetime.now(timezone.utc)
+            if (last_activity + timedelta(days=7) >= now):
                 status = ProductStatus.PENDING
         
 
 
         trello = TrelloData(
-            id=product.trello_data.id,
-            url=product.trello_data.url,
+            id=product.id,
+            url=product.url,
             title=name,
             localized_title="",
             product_code=product_code,
             target_language=target_language,
-            due_date=product.trello_data.due,
+            due_date=product.due,
             date_published=date_published,
-            date_last_activity=product.trello_data.date_last_activity,
-            date_archived=product.trello_data.date_closed,
+            date_last_activity=product.date_last_activity,
+            date_archived=product.date_closed,
             word_count=wordcount or None,
             editor_url= editor_url or None,
             article_url= article_url or None,         
