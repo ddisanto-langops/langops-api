@@ -15,7 +15,7 @@ from schemas.response_schemas import (
     WordcountResponse, 
     ProductCodeCountResponse
 ) 
-from schemas.request_schemas import EditProductRequest, AddProductRequest
+
 from schemas.data_schemas import LangOpsProduct, RawTrelloCard
 from schemas.error_schemas import ErrorResponses
 from models import LangOpsProductORM, orm_to_langops_product, new_product_to_orm
@@ -385,24 +385,26 @@ async def add_products(
         }
 )
 async def edit_product(
-    id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
-    updated_product: Annotated[RawTrelloCard, Body(alias="updatedProduct")],
+    id: Annotated[str, Path(description="The unique Trello ID of the product to be edited)")],
+    updated_data: Annotated[RawTrelloCard, Body(alias="updatedProduct")],
     db: AsyncSession = Depends(get_db)
 ):
-    fields = updated_product.model_dump(exclude_unset=True)
-    if not fields:
-        raise HTTPException(status_code=400, detail="Must provide fields to update")
+    updated_data.id = id # ensure ID of product to edit corresponds to the one in RawTrelloCard body
     
-    statement = update(LangOpsProductORM).where(LangOpsProductORM.id == id).values(**fields).returning(LangOpsProductORM)
-
+    # re-compute the LangOps product on edit, to ensure all dervied fields remain consistent with domain logic
+    edited_product_list: list[LangOpsProduct] = build_new_langops_products([updated_data])
+    edited_product: LangOpsProductORM = new_product_to_orm(edited_product_list[0])
+    
+    statement = select(LangOpsProductORM.id).where(LangOpsProductORM.trello_id == id) # Get the actual LangOps UUID by referencing Trello ID
     result = await db.execute(statement)
+    existing_id = result.scalar_one_or_none()
+
+    edited_product.id = existing_id # Fill in the LangOps UUID with the one derived from the DB
+    merged = await db.merge(edited_product) 
+
     await db.commit()
 
-    row = result.scalar_one_or_none() 
-    if row is None:
-        raise HTTPException(status_code=404, detail="Product not found")
-
-    return EditProductResponse.model_validate(row)
+    return EditProductResponse.model_validate(merged)
 
 
 @router.patch(
