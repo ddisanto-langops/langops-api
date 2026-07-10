@@ -1,9 +1,8 @@
 import os
 import jwt
-from fastapi import Depends, HTTPException, status, Request
-from fastapi.security import APIKeyHeader
+from fastapi import HTTPException, status, Request
 
-CF_TEAM_URL = os.getenv("CF_TEAM_URL")
+CF_TEAM_URL = os.getenv("CF_TEAM_URL").rstrip("/") + "/"
 TRUSTED_AUDIENCES = os.getenv("TRUSTED_AUDIENCES")
 CERTS_URL = f"{CF_TEAM_URL}/cdn-cgi/access/certs"
 
