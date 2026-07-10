@@ -113,6 +113,7 @@ async def http_exception_handler(request: Request, exception: StarletteHTTPExcep
     else:
         # Fallback handle for other explicitly raised HTTP exceptions (e.g., 401, 403)
         return JSONResponse(
+            logger.error(f"HTTP EXCEPTION TRIGGERED: Status {exception.status_code} | Detail: {exception.detail}")
             status_code=exception.status_code,
             content={
                 "error_code": f"HTTP_{exception.status_code}",
