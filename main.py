@@ -98,6 +98,7 @@ async def log(request: Request, call_next):
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exception: StarletteHTTPException):
+    logger.error(f"HTTP EXCEPTION TRIGGERED: Status {exception.status_code} | Detail: {exception.detail}")
     if exception.status_code == status.HTTP_404_NOT_FOUND:
         payload = NotFoundError(
             error_code="NOT_FOUND",
@@ -113,7 +114,6 @@ async def http_exception_handler(request: Request, exception: StarletteHTTPExcep
     else:
         # Fallback handle for other explicitly raised HTTP exceptions (e.g., 401, 403)
         return JSONResponse(
-            logger.error(f"HTTP EXCEPTION TRIGGERED: Status {exception.status_code} | Detail: {exception.detail}")
             status_code=exception.status_code,
             content={
                 "error_code": f"HTTP_{exception.status_code}",
