@@ -24,9 +24,9 @@ This API is protected behind a **Cloudflare Zero Trust** perimeter layer and enf
 ## General Authentication  
 The information below applies to all endpoints except webhooks. Since those are subject to custom authorization requirements, separate validation is enforced for `/webhooks` endpoints. See below for more information regarding webhooks.
 **To access the API, the caller must meet 3 conditions:**
-1. Valid JSON web token (JWT) passed in the header `CF_Authorization`
+1. Valid JSON web token (JWT) passed in the header `CF-Authorization`
 ```html
-"CF_Authorization: <token>"
+"CF-Authorization: <token>"
 ```
 2. The `iss` (issuer) claim of the JWT must match the expected Cloudflare team URL
 3. The request must originate from an approved audience  
