@@ -1,9 +1,7 @@
 import os
 import jwt
-from fastapi import Depends, HTTPException, status, Request, Depends
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import APIKeyHeader
-
-cloudflare_token_scheme = APIKeyHeader(name="CF-Authorization", auto_error=True)
 
 CF_TEAM_URL = os.getenv("CF_TEAM_URL")
 TRUSTED_AUDIENCES = os.getenv("TRUSTED_AUDIENCES")
@@ -19,10 +17,12 @@ def get_trusted_audiences(audiences: str) -> list[str]:
     return [aud.strip() for aud in audiences.split(",") if aud]
 
 
-async def verify_jwt(request: Request, token: str = Depends(cloudflare_token_scheme)) -> dict:
+async def verify_jwt(request: Request) -> dict:
     """
     Extracts and cryptographically verifies the automatic CF_Authorization JWT.
     """
+    
+    token = request.headers.get("cf-authorization") or request.headers.get("cf_authorization")
     
     try:
         audiences = get_trusted_audiences(TRUSTED_AUDIENCES)
