@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
 from schemas.error_schemas import ErrorResponses
-from schemas.response_schemas import TrelloWebhookResponse
 from webhook_auth import TrelloWebhook, CrowdinWebhook
 
 router = APIRouter()
@@ -21,7 +20,6 @@ def connectivity_check():
 
 @router.post(
     "/trello",
-    response_model=TrelloWebhookResponse,
     responses={
         status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_405_METHOD_NOT_ALLOWED: ErrorResponses._405_METHOD_NOT_ALLOWED,
@@ -48,26 +46,10 @@ async def process_trello_webhook(
             detail="Invalid signature"
         )
 
-    payload: dict = await request.json()
+    payload = await request.json()
+    print(payload)
     
-    template: str =  payload.get("model", {}).get("prefs", {}).get("isTemplate", {})
-    if template.lower() == 'true':
-        return
-
-    action_type = payload["action"]["type"]
-    action_date = payload["action"]["date"]
-    card_id = payload["action"]["data"]["card"]["id"]
-    card_name = payload.get("action", {}).get("data", {}).get("card", {}).get("name", {})
-
-    
-    
-
-    return TrelloWebhookResponse(
-        action_type=action_type,
-        action_date=action_date,
-        card_id=card_id
-    )
-
+    return status.HTTP_200_OK
 
 @router.post(
     "/crowdin",
