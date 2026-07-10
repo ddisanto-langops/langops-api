@@ -49,6 +49,12 @@ async def verify_jwt(request: Request) -> dict:
         
         return payload
     
+    except Exception as e:
+        # This logs the explicit reason PyJWT rejected the internet token
+        print(f"CRYPTOGRAPHIC BLOCKING ERROR: {type(e).__name__} - {str(e)}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+    """
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
     
@@ -56,4 +62,4 @@ async def verify_jwt(request: Request) -> dict:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     
     except jwt.InvalidAudienceError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token audience is missing or untrusted.")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token audience is missing or untrusted.")"""
