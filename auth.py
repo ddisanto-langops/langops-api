@@ -3,7 +3,7 @@ import jwt
 from fastapi import Depends, HTTPException, status, Request, Depends
 from fastapi.security import APIKeyHeader
 
-cloudflare_token_scheme = APIKeyHeader(name="CF_Authorization", auto_error=True)
+cloudflare_token_scheme = APIKeyHeader(name="CF-Authorization", auto_error=True)
 
 CF_TEAM_URL = os.getenv("CF_TEAM_URL")
 TRUSTED_AUDIENCES = os.getenv("TRUSTED_AUDIENCES")
