@@ -179,8 +179,6 @@ def label_idml_strings(
 
 
 
-
-
 def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOpsProduct]:
     
     wordcount_pattern =                 r"(?<=-)(?:[A-Z+]*)([0-9]{1,})(?=_)"
@@ -196,7 +194,8 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
     langops_products: list[NewLangOpsProduct] = []
 
     for product in products:
-        
+       
+       # get some intitial data to help with filtering
         name = product.name
 
         if product.custom_field_items:
@@ -232,16 +231,18 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
             continue
         elif is_template:
             print(f"Skipped: {name} | Reason: Card is a template")
+            continue
         elif exclude:
             print(f"Skipped: {name} | Reason: 'Exclude' box is checked")
+            continue
         elif not target_language or target_language not in {lang.value for lang in Languages}:
             print(f"Skipped: {name} | Reason: Target language missing or not yet supported (got {target_language})")
+            continue
         else:
             print(f"Accepted: {name}")
 
 
-        # Proceed to get the rest of the Trello data
-
+        # product is valid, apply the rest of the domain logic
         date_published = None
         if product.actions:
             actions = product.actions

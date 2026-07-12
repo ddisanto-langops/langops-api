@@ -16,7 +16,14 @@ from schemas.response_schemas import (
     ProductCodeCountResponse
 ) 
 
-from schemas.data_schemas import LangOpsProduct, RawTrelloCard
+from schemas.data_schemas import (
+    LangOpsProduct, 
+    RawTrelloCard, 
+    TrelloData, 
+    YouTubeData, 
+    CrowdinData,
+    NewLangOpsProduct
+)
 from schemas.error_schemas import ErrorResponses
 from models import LangOpsProductORM, orm_to_langops_product, new_product_to_orm
 from enums import MediaGroups, ProductCodes
@@ -346,7 +353,7 @@ async def get_product_count(
 
 @router.post(
     "/add",
-    description="Add a product or multiple products to the database",
+    description="Endpoint for LangOps Gateway to add a product or multiple products to the database. <span style='color:red'>To avoid duplicates and unpredictable behavior, end users are not allowed to add products directly. All add product requests should be handled via the source of truth.</span>",
     response_model=AddProductResponse,
     status_code=201,
     responses={

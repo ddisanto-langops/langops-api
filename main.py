@@ -45,8 +45,9 @@ Webhooks may be verified via a signature, an IP range, a custom header, or a com
     - Date published (from and to)  
     - Product code
     - Media Groups
-    - Published only, unpublished only, or deleted only
-    **Note that this endpoint is paginated and has a limit of 500.**
+    - Published only, unpublished only, or deleted only  
+    **Note 1: this endpoint is paginated and has a limit of 500.**  
+    **Note 2: To avoid duplicates and unpredictable logic, end-users are not allowed to directly add products. They should do so via the source of truth in a dedicated frontend with proper validation logic.**
 
 3. **IDML Operations**: This allows labeling of Adobe inDesign strings by story provenance to avoid context-loss.
 4. **Webhooks**: Receive, validate and perform data updates based on incoming webhooks from translation and productivity services, e.g. Crowdin or Trello
@@ -64,7 +65,7 @@ GENERAL_PREFIX = "/api/v1"
 app.include_router(apistatus.router, prefix=f"{GENERAL_PREFIX}/status", tags=["API Status"], dependencies=[Depends(verify_jwt)])
 app.include_router(products.router, prefix=f"{GENERAL_PREFIX}/products", tags=["Products"], dependencies=[Depends(verify_jwt)])
 app.include_router(idml.router, prefix=f"{GENERAL_PREFIX}/idml", tags=["IDML Operations"], dependencies=[Depends(verify_jwt)])
-app.include_router(webhooks.router, prefix=f"{GENERAL_PREFIX}/webhooks", tags=["Webhooks"]) # TODO: Add webhook auth for signatures, or custom headers where signature not available
+app.include_router(webhooks.router, prefix=f"{GENERAL_PREFIX}/webhooks", tags=["Webhooks"])
 
 
 
