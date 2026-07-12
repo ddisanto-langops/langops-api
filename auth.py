@@ -21,7 +21,7 @@ async def verify_jwt(request: Request) -> dict:
     Extracts and cryptographically verifies the automatic CF_Authorization JWT.
     """
     
-    token = request.headers.get("cf-authorization") or request.headers.get("cf_authorization")
+    token = request.headers.get("Cf-Access-Jwt-Assertion")
     
     try:
         audiences = get_trusted_audiences(TRUSTED_AUDIENCES)
