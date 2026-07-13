@@ -1,7 +1,8 @@
 from uuid import UUID
 from datetime import datetime
 from enums import MediaGroups, ProductStatus
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, ConfigDict
+from pydantic.alias_generators import to_camel
 
 from schemas.sub_schemas import (
     TrelloAction,
@@ -19,21 +20,23 @@ from schemas.sub_schemas import (
 # --------------------------------------
 
 class RawTrelloCard(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True
+    )
+
     id: str
     name: str
-    labels: list[TrelloLabel] | None 
-    due: datetime | None
+    labels: list[TrelloLabel] | None = None
+    due: datetime | None = None
     date_last_activity: datetime
     url: HttpUrl
-    is_template: bool
-    date_closed: datetime
-    actions: list[TrelloAction]
-    attachments: list[TrelloAttachment] | None
-    custom_field_items: list[CustomFieldItem] | None
-    id_labels: list[str]
-
-    class Config:
-        populate_by_name = True 
+    is_template: bool | None = None
+    date_closed: datetime | None = None
+    actions: list[TrelloAction] | None = None
+    attachments: list[TrelloAttachment] | None = None
+    custom_field_items: list[CustomFieldItem] | None = None
+    id_labels: list[str] | None = None
 
 
 class RawCrowdinData(BaseModel):

@@ -29,12 +29,12 @@ class EditProductResponse(EditProductRequest):
 
 
 class DeleteProductResponse(BaseModel):
-    id: UUID
+    id: str
     deleted_at: datetime
 
 
 class RestoreProductResponse(BaseModel):
-    id: UUID
+    id: str
     restored_at: datetime
 
 

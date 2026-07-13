@@ -18,11 +18,8 @@ from schemas.response_schemas import (
 
 from schemas.data_schemas import (
     LangOpsProduct, 
-    RawTrelloCard, 
-    TrelloData, 
-    YouTubeData, 
-    CrowdinData,
-    NewLangOpsProduct
+    RawTrelloCard,
+    ProductCodeCount
 )
 from schemas.error_schemas import ErrorResponses
 from models import LangOpsProductORM, orm_to_langops_product, new_product_to_orm
@@ -169,30 +166,6 @@ async def get_all_products(
         limit=limit,
         data=[orm_to_langops_product(r) for r in rows]
     )
-
-
-
-@router.get(
-    "/{id}",
-    description="Get a product by its unique ID",
-    response_model=LangOpsProduct,
-    responses={
-        status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
-        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
-        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
-        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
-    }
-)
-async def get_product_by_id(
-    id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
-    db: AsyncSession = Depends(get_db)
-):
-    statement = select(LangOpsProductORM).where(LangOpsProductORM.id == id)
-    result = await db.execute(statement)
-    row = result.scalars().one_or_none()
-
-    return orm_to_langops_product(row)
-
 
 
 @router.get(
@@ -345,10 +318,32 @@ async def get_product_count(
 
     return ProductCodeCountResponse(
         total_products=total_products or 0,
-        count=[
-            {"product_code": row.product_code, "count": row.count} for row in rows
+        data=[
+            ProductCodeCount(product_code=row.product_code, count=row.count) for row in rows
         ]
     )
+
+
+@router.get(
+    "/{id}",
+    description="Get a product by its unique ID",
+    response_model=LangOpsProduct,
+    responses={
+        status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
+        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
+    }
+)
+async def get_product_by_id(
+    id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
+    db: AsyncSession = Depends(get_db)
+):
+    statement = select(LangOpsProductORM).where(LangOpsProductORM.id == id)
+    result = await db.execute(statement)
+    row = result.scalars().one_or_none()
+
+    return orm_to_langops_product(row)
 
 
 @router.post(
@@ -364,7 +359,7 @@ async def get_product_count(
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
     }
 )
-async def add_products(
+async def add_product(
     products: Annotated[list[RawTrelloCard], Body(description="The combined, extracted JSON from each service which is to be evaluated in order to create a product or products")],
     db: AsyncSession = Depends(get_db)      
 ):  
@@ -393,10 +388,14 @@ async def add_products(
 )
 async def edit_product(
     id: Annotated[str, Path(description="The unique Trello ID of the product to be edited)")],
-    updated_data: Annotated[RawTrelloCard, Body(alias="updatedProduct")],
+    updated_data: Annotated[RawTrelloCard, Body()],
     db: AsyncSession = Depends(get_db)
 ):
-    updated_data.id = id # ensure ID of product to edit corresponds to the one in RawTrelloCard body
+    # ensure ID of product to edit corresponds to the one in RawTrelloCard body
+    if updated_data.id != id:
+        raise ValueError("Mismatch between requested Trello ID and Trello ID in updated product body field")
+    else:
+        updated_data.id = id
     
     # re-compute the LangOps product on edit, to ensure all dervied fields remain consistent with domain logic
     edited_product_list: list[LangOpsProduct] = build_new_langops_products([updated_data])
@@ -427,16 +426,21 @@ async def edit_product(
     }
 )
 async def restore_product(
-    id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
+    id: Annotated[str, Path(description="The product's Trello ID)")],
     db: AsyncSession = Depends(get_db)
 ):
-    statement = update(LangOpsProductORM).where(LangOpsProductORM.id == id).values(date_deleted=None).returning(LangOpsProductORM.id)
+    statement = (
+        update(LangOpsProductORM)
+            .where(LangOpsProductORM.trello_id == id)
+            .values(date_deleted=None)
+            .returning(LangOpsProductORM.trello_id)
+        )
     result = await db.execute(statement)
-    await db.commit()
 
     if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Product not found")
 
+    await db.commit()
 
     return RestoreProductResponse(
         id=id,
@@ -457,21 +461,24 @@ async def restore_product(
     }
 )
 async def delete_product(
-    id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
+    id: Annotated[str, Path(description="The Trello ID of the product")],
     db: AsyncSession = Depends(get_db)
 ):
     timestamp = datetime.now(timezone.utc)
     statement = (
         update(LangOpsProductORM)
-            .where(LangOpsProductORM.id == id)
+            .where(LangOpsProductORM.trello_id == id)
             .values(date_deleted=timestamp)
+            .returning(LangOpsProductORM.trello_id)
     )
 
     result = await db.execute(statement)
-    await db.commit()
+    
 
     if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Unable to soft-delete product: not found")
+
+    await db.commit()
 
     return DeleteProductResponse(
         id=id,
@@ -480,7 +487,7 @@ async def delete_product(
 
 
 @router.delete(
-    "/permanentdelete/{id}",
+    "/permanent-delete/{id}",
     description="**Hard delete** of a product",
     response_model=DeleteProductResponse,
     responses={
@@ -492,10 +499,10 @@ async def delete_product(
     }
 )
 async def permanently_delete_product(
-    id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
+    id: Annotated[str, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
     db: AsyncSession = Depends(get_db)
 ):
-    statement = delete(LangOpsProductORM).where(LangOpsProductORM.id == id).returning(LangOpsProductORM.id)
+    statement = delete(LangOpsProductORM).where(LangOpsProductORM.trello_id == id).returning(LangOpsProductORM.id)
     result = await db.execute(statement)
     await db.commit()
 

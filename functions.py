@@ -184,7 +184,7 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
     wordcount_pattern =                 r"(?<=-)(?:[A-Z+]*)([0-9]{1,})(?=_)"
     product_code_pattern =              r"^([A-Z-]*)([0-9]*[A-Z]*)(?=_)"
     magazine_pattern =                  r"^[A-Z]{2}([0-9]{6})_([A-Z]{2}-[A-Z]{2}$)"
-    target_lang_pattern =               r"[A-Z]{2}$"
+    target_lang_pattern =               r"([A-Z]{2})$"
     editor_pattern =                    r"\/editor\/articles\/posts/"
     article_pattern =                   r"(?<!editor)\/articles\/posts"
     crowdin_link_pattern =              r"editor\/([A-z]{4,})\/([0-9]{5})"
@@ -194,8 +194,8 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
     langops_products: list[NewLangOpsProduct] = []
 
     for product in products:
-       
-       # get some intitial data to help with filtering
+
+        # get some intitial data to help with filtering
         name = product.name
 
         if product.custom_field_items:
@@ -374,7 +374,7 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
             id=product.id,
             url=product.url,
             title=name,
-            localized_title="",
+            localized_title="test",
             product_code=product_code,
             target_language=target_language,
             due_date=product.due,
@@ -404,14 +404,14 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
 
         langops_products.append(
             NewLangOpsProduct(
-                date_created= datetime.now(),
+                date_created=datetime.now(),
                 date_deleted=None,
                 media_groups=media_groups,
-                product_status= status,
+                product_status=status,
                 trello_data=trello,
                 youtube_data=youtube,
                 crowdin_data=crowdin
             )
         )
-    
+
     return langops_products

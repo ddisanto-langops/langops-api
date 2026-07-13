@@ -1,0 +1,1072 @@
+{
+    "id": "6a511df79e69232750b17e24",
+    "name": "MB_July-10-2026-German-military-prepares-antisatellite-capabilities-STAFF292_EN-FR",
+    "dateLastActivity": "2026-07-13T05:06:14.163Z",
+    "due": "2026-07-13T09:00:00.000Z",
+    "url": "https://trello.com/c/d5cksN9N/24291-mbjuly-10-2026-german-military-prepares-launch-of-antisatellite-satellites-staff294en-fr",
+    "dateClosed": null,
+    "actions": [{
+        "id": "6a547246026ca5cf653acbdd",
+        "idMemberCreator": "5681a5e8f79a5501c321e49e",
+        "data": {
+            "old": {
+                "pos": 65536
+            },
+            "card": {
+                "pos": 8192,
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "list": {
+                "id": "606b346da21d916c880d9432",
+                "name": "Mary Labao",
+                "color": "purple"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "56ff07afbc287582d36e19ac",
+            "name": "Automation",
+            "icon": {
+                "url": "https://app.butlerfortrello.com/assets/icon-butler-bot.png"
+            }
+        },
+        "type": "updateCard",
+        "date": "2026-07-13T05:06:14.185Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "5681a5e8f79a5501c321e49e",
+            "activityBlocked": false,
+            "avatarHash": "5cdbff8469e92f67d10d50f4a8c1113c",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/5681a5e8f79a5501c321e49e/5cdbff8469e92f67d10d50f4a8c1113c",
+            "fullName": "Adiel Granados",
+            "idMemberReferrer": null,
+            "initials": "AG",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "adielgranados"
+        }
+    }, {
+        "id": "6a515dffbd7bfec9160eae2a",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "old": {
+                "pos": 140737487601664
+            },
+            "card": {
+                "pos": 65536,
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "list": {
+                "id": "606b346da21d916c880d9432",
+                "name": "Mary Labao",
+                "color": "purple"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "56ff07afbc287582d36e19ac",
+            "name": "Automation",
+            "icon": {
+                "url": "https://app.butlerfortrello.com/assets/icon-butler-bot.png"
+            }
+        },
+        "type": "updateCard",
+        "date": "2026-07-10T21:02:55.380Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a515dffbd7bfec9160eac4b",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "old": {
+                "idList": "65ea35c924f5aa7c2c4603af"
+            },
+            "card": {
+                "idList": "606b346da21d916c880d9432",
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "listBefore": {
+                "id": "65ea35c924f5aa7c2c4603af",
+                "name": "PR + Q/A (human)_FR",
+                "color": "blue"
+            },
+            "listAfter": {
+                "id": "606b346da21d916c880d9432",
+                "name": "Mary Labao",
+                "color": "purple"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "56ff07afbc287582d36e19ac",
+            "name": "Automation",
+            "icon": {
+                "url": "https://app.butlerfortrello.com/assets/icon-butler-bot.png"
+            }
+        },
+        "type": "updateCard",
+        "date": "2026-07-10T21:02:55.092Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a515dfda9c33df41f6cc586",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "idMember": "606b50ab650825680ad4ce06",
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "member": {
+                "id": "606b50ab650825680ad4ce06",
+                "name": "Mary Labao"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "56ff07afbc287582d36e19ac",
+            "name": "Automation",
+            "icon": {
+                "url": "https://app.butlerfortrello.com/assets/icon-butler-bot.png"
+            }
+        },
+        "type": "addMemberToCard",
+        "date": "2026-07-10T21:02:53.573Z",
+        "limits": null,
+        "member": {
+            "id": "606b50ab650825680ad4ce06",
+            "activityBlocked": false,
+            "avatarHash": "080c1c278623953f4af8a89b3205cd79",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/606b50ab650825680ad4ce06/080c1c278623953f4af8a89b3205cd79",
+            "fullName": "Mary Labao",
+            "idMemberReferrer": null,
+            "initials": "ML",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "marylabao"
+        },
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a515dfbb65378a6d8318bef",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "checklist": {
+                "id": "6a511df79e69232750b17f80",
+                "name": "TRANSLATION"
+            },
+            "checkItem": {
+                "id": "6a511df79e69232750b17f82",
+                "name": "Mr. Chiasson emails @marylabao @danieldisanto1 when final edits complete & -> [Mary Labao]",
+                "state": "complete",
+                "textData": {
+                    "emoji": {}
+                }
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "updateCheckItemStateOnCard",
+        "date": "2026-07-10T21:02:51.493Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a515df964b38d53ad14c1c5",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "checklist": {
+                "id": "6a511df79e69232750b17f80",
+                "name": "TRANSLATION"
+            },
+            "checkItem": {
+                "id": "6a511df79e69232750b17f81",
+                "name": "@danieldisanto1 emails Mr. Chiasson when initial translation complete",
+                "state": "complete",
+                "textData": {
+                    "emoji": {}
+                }
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "updateCheckItemStateOnCard",
+        "date": "2026-07-10T21:02:49.342Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a515df767a96ebe2e607964",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "attachment": {
+                "id": "6a515df767a96ebe2e60794c",
+                "name": "Article",
+                "url": "http://www.latrompette.fr/articles/posts/le-ministere-allemand-de-la-defense-prevoit-de-lancer-quatre-satellites-militaires-des-l-annee-prochaine-a-rapporte-mercredi-le-journal-allemand-tagesschau-sur-la-base-de-documents-secrets"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "list": {
+                "id": "65ea35c924f5aa7c2c4603af",
+                "name": "PR + Q/A (human)_FR",
+                "color": "blue"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "addAttachmentToCard",
+        "date": "2026-07-10T21:02:47.226Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a515df4ab49eaeb2d56b281",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "attachment": {
+                "id": "6a515df3ab49eaeb2d56b26d",
+                "name": "Edit Article",
+                "url": "http://www.latrompette.fr/editor/articles/posts/le-ministere-allemand-de-la-defense-prevoit-de-lancer-quatre-satellites-militaires-des-l-annee-prochaine-a-rapporte-mercredi-le-journal-allemand-tagesschau-sur-la-base-de-documents-secrets/edit"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "list": {
+                "id": "65ea35c924f5aa7c2c4603af",
+                "name": "PR + Q/A (human)_FR",
+                "color": "blue"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "addAttachmentToCard",
+        "date": "2026-07-10T21:02:44.034Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511e050c712207ae6a8c59",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "attachment": {
+                "id": "6a511e050c712207ae6a8c49",
+                "name": "Crowdin",
+                "url": "https://crowdin.com/editor/NewsFR/14728/en-fr"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "list": {
+                "id": "65ea35c924f5aa7c2c4603af",
+                "name": "PR + Q/A (human)_FR",
+                "color": "blue"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "addAttachmentToCard",
+        "date": "2026-07-10T16:29:57.688Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511e03b9a319f74cec74cf",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "checklist": {
+                "id": "6a511df79e69232750b17f86",
+                "name": "AUTOMATION"
+            },
+            "checkItem": {
+                "id": "6a511df79e69232750b17f8c",
+                "name": "@marylabao uploads and resolves localization issues",
+                "state": "complete",
+                "textData": {
+                    "emoji": {}
+                }
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "updateCheckItemStateOnCard",
+        "date": "2026-07-10T16:29:55.382Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511e0182e1fb63820ac7f4",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "checklist": {
+                "id": "6a511df79e69232750b17f86",
+                "name": "AUTOMATION"
+            },
+            "checkItem": {
+                "id": "6a511df79e69232750b17f8b",
+                "name": "APE",
+                "state": "complete",
+                "textData": {
+                    "emoji": {}
+                }
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "updateCheckItemStateOnCard",
+        "date": "2026-07-10T16:29:53.793Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511dff06f5f4782f1bff86",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "checklist": {
+                "id": "6a511df79e69232750b17f86",
+                "name": "AUTOMATION"
+            },
+            "checkItem": {
+                "id": "6a511df79e69232750b17f8a",
+                "name": "AI",
+                "state": "complete",
+                "textData": {
+                    "emoji": {}
+                }
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "updateCheckItemStateOnCard",
+        "date": "2026-07-10T16:29:51.764Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511dfe88074b182877ee40",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "checklist": {
+                "id": "6a511df79e69232750b17f86",
+                "name": "AUTOMATION"
+            },
+            "checkItem": {
+                "id": "6a511df79e69232750b17f89",
+                "name": "MT",
+                "state": "complete",
+                "textData": {
+                    "emoji": {}
+                }
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "updateCheckItemStateOnCard",
+        "date": "2026-07-10T16:29:50.135Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511dfde977042c0ff5e3c4",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "old": {
+                "pos": 140737488355328
+            },
+            "card": {
+                "pos": 140737487601664,
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "list": {
+                "id": "65ea35c924f5aa7c2c4603af",
+                "name": "PR + Q/A (human)_FR",
+                "color": "blue"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "56ff07afbc287582d36e19ac",
+            "name": "Automation",
+            "icon": {
+                "url": "https://app.butlerfortrello.com/assets/icon-butler-bot.png"
+            }
+        },
+        "type": "updateCard",
+        "date": "2026-07-10T16:29:49.937Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511dfde977042c0ff5e260",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "old": {
+                "idList": "6776aa7dee3975d41e5907ae"
+            },
+            "card": {
+                "idList": "65ea35c924f5aa7c2c4603af",
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "listBefore": {
+                "id": "6776aa7dee3975d41e5907ae",
+                "name": "AUTOMATION",
+                "color": "purple"
+            },
+            "listAfter": {
+                "id": "65ea35c924f5aa7c2c4603af",
+                "name": "PR + Q/A (human)_FR",
+                "color": "blue"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "56ff07afbc287582d36e19ac",
+            "name": "Automation",
+            "icon": {
+                "url": "https://app.butlerfortrello.com/assets/icon-butler-bot.png"
+            }
+        },
+        "type": "updateCard",
+        "date": "2026-07-10T16:29:49.792Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511dfcb975d351d8e432f6",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "checklist": {
+                "id": "6a511df79e69232750b17f86",
+                "name": "AUTOMATION"
+            },
+            "checkItem": {
+                "id": "6a511df79e69232750b17f88",
+                "name": "TM",
+                "state": "complete",
+                "textData": {
+                    "emoji": {}
+                }
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "updateCheckItemStateOnCard",
+        "date": "2026-07-10T16:29:48.655Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511dfb29b87e5080c1f0d6",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "checklist": {
+                "id": "6a511df79e69232750b17f86",
+                "name": "AUTOMATION"
+            },
+            "checkItem": {
+                "id": "6a511df79e69232750b17f87",
+                "name": "BB uploads to TMS & -> [PR + Q/A (human)_FR]",
+                "state": "complete",
+                "textData": {
+                    "emoji": {}
+                }
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "updateCheckItemStateOnCard",
+        "date": "2026-07-10T16:29:47.514Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511dfa594e35502bb57778",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "old": {
+                "idValue": null
+            },
+            "customField": {
+                "id": "65f1b4b226571a365f7687da",
+                "name": "Language",
+                "type": "list"
+            },
+            "customFieldItem": {
+                "id": "6a511dfa594e35502bb57776",
+                "value": null,
+                "idValue": "65f1b4b226571a365f7687dc",
+                "idCustomField": "65f1b4b226571a365f7687da",
+                "idModel": "6a511df79e69232750b17e24",
+                "modelType": "card"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "56ff07afbc287582d36e19ac",
+            "name": "Automation",
+            "icon": {
+                "url": "https://app.butlerfortrello.com/assets/icon-butler-bot.png"
+            }
+        },
+        "type": "updateCustomFieldItem",
+        "date": "2026-07-10T16:29:46.943Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511dfac9249c56bf76f31c",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "old": {
+                "due": null
+            },
+            "card": {
+                "due": "2026-07-13T09:00:00.000Z",
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "list": {
+                "id": "6776aa7dee3975d41e5907ae",
+                "name": "AUTOMATION",
+                "color": "purple"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "56ff07afbc287582d36e19ac",
+            "name": "Automation",
+            "icon": {
+                "url": "https://app.butlerfortrello.com/assets/icon-butler-bot.png"
+            }
+        },
+        "type": "updateCard",
+        "date": "2026-07-10T16:29:46.050Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511df8815ef08032168eeb",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "old": {
+                "name": "MB_FR"
+            },
+            "card": {
+                "name": "MB_July-10-2026-German-military-prepares-launch-of-antisatellite-satellites-STAFF294_EN-FR",
+                "id": "6a511df79e69232750b17e24",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "list": {
+                "id": "6776aa7dee3975d41e5907ae",
+                "name": "AUTOMATION",
+                "color": "purple"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "updateCard",
+        "date": "2026-07-10T16:29:44.892Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }, {
+        "id": "6a511df79e69232750b17f4c",
+        "idMemberCreator": "68278b84ccf8dea810949333",
+        "data": {
+            "card": {
+                "id": "6a511df79e69232750b17e24",
+                "name": "MB_FR",
+                "idShort": 24291,
+                "shortLink": "d5cksN9N"
+            },
+            "list": {
+                "id": "6776aa7dee3975d41e5907ae",
+                "name": "AUTOMATION",
+                "color": "purple"
+            },
+            "board": {
+                "id": "5176af831f22073e1e0012e3",
+                "name": "LangOps",
+                "shortLink": "HJFtfyOC"
+            },
+            "cardSource": {
+                "id": "6980d7be7585ce8f6942d3a6",
+                "name": "MB_FR",
+                "idShort": 22105,
+                "shortLink": "VWikzZfv"
+            }
+        },
+        "agenticIdentity": null,
+        "appCreator": {
+            "id": "685c65f6ba0d95d40cd4b599"
+        },
+        "type": "copyCard",
+        "date": "2026-07-10T16:29:43.763Z",
+        "limits": null,
+        "memberCreator": {
+            "id": "68278b84ccf8dea810949333",
+            "activityBlocked": false,
+            "avatarHash": "560f0c960e29f43bc927370167c8930e",
+            "avatarUrl": "https://trello-members.s3.amazonaws.com/68278b84ccf8dea810949333/560f0c960e29f43bc927370167c8930e",
+            "fullName": "LangOpsBot",
+            "idMemberReferrer": "5681a5e8f79a5501c321e49e",
+            "initials": "L",
+            "nonPublic": {},
+            "nonPublicAvailable": true,
+            "username": "langopsbot"
+        }
+    }],
+    "attachments": [{
+        "id": "6a511e050c712207ae6a8c49",
+        "bytes": null,
+        "date": "2026-07-10T16:29:57.634Z",
+        "edgeColor": null,
+        "idMember": "68278b84ccf8dea810949333",
+        "isMalicious": false,
+        "isUpload": false,
+        "mimeType": "",
+        "name": "Crowdin",
+        "previews": [],
+        "sourceView": null,
+        "url": "https://crowdin.com/editor/NewsFR/14728/en-fr",
+        "pos": 140737488355328,
+        "fileName": "en-fr"
+    }, {
+        "id": "6a515df3ab49eaeb2d56b26d",
+        "bytes": null,
+        "date": "2026-07-10T21:02:43.967Z",
+        "edgeColor": null,
+        "idMember": "68278b84ccf8dea810949333",
+        "isMalicious": false,
+        "isUpload": false,
+        "mimeType": "",
+        "name": "Edit Article",
+        "previews": [],
+        "sourceView": null,
+        "url": "http://www.latrompette.fr/editor/articles/posts/le-ministere-allemand-de-la-defense-prevoit-de-lancer-quatre-satellites-militaires-des-l-annee-prochaine-a-rapporte-mercredi-le-journal-allemand-tagesschau-sur-la-base-de-documents-secrets/edit",
+        "pos": 140737488371712,
+        "fileName": "edit"
+    }, {
+        "id": "6a515df767a96ebe2e60794c",
+        "bytes": null,
+        "date": "2026-07-10T21:02:47.164Z",
+        "edgeColor": null,
+        "idMember": "68278b84ccf8dea810949333",
+        "isMalicious": false,
+        "isUpload": false,
+        "mimeType": "",
+        "name": "Article",
+        "previews": [],
+        "sourceView": null,
+        "url": "http://www.latrompette.fr/articles/posts/le-ministere-allemand-de-la-defense-prevoit-de-lancer-quatre-satellites-militaires-des-l-annee-prochaine-a-rapporte-mercredi-le-journal-allemand-tagesschau-sur-la-base-de-documents-secrets",
+        "pos": 140737488388096,
+        "fileName": "le-ministere-allemand-de-la-defense-prevoit-de-lancer-quatre-satellites-militaires-des-l-annee-prochaine-a-rapporte-mercredi-le-journal-allemand-tagesschau-sur-la-base-de-documents-secrets"
+    }],
+    "customFieldItems": [{
+        "id": "6a511dfa594e35502bb57776",
+        "value": null,
+        "idValue": "65f1b4b226571a365f7687dc",
+        "idCustomField": "65f1b4b226571a365f7687da",
+        "idModel": "6a511df79e69232750b17e24",
+        "modelType": "card"
+    }]
+}
