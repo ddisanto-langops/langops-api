@@ -13,7 +13,7 @@ from schemas.error_schemas import (
     BadRequestError,
     NotFoundError
 )
-from routers import products, idml, apistatus, webhooks
+from routers import products, idml, apistatus
 from auth import verify_jwt
 
 auth_docs_blurb = """
