@@ -49,9 +49,3 @@ class ProductCodeCountResponse(BaseModel):
 
 class GetStringMapResponse(BaseModel):
     data: list[StringMapItem]
-
-
-class TrelloWebhookResponse(BaseModel):
-    action_type: str
-    action_date: datetime
-    card_id: str

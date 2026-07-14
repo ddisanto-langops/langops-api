@@ -36,8 +36,3 @@ class EditProductRequest(BaseModel):
     crowdin_url: HttpUrl | None = None
     # soft delete
     date_deleted: datetime | None = None
-
-
-class TrelloWebhookRequest(BaseModel):
-    type: str
-    
