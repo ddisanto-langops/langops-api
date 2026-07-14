@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Depends, Query, Path, Body
-from sqlalchemy import asc, func, or_, update, delete
+from sqlalchemy import asc, func, or_, update, delete, inspect as sa_inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from typing import Annotated
 from uuid import UUID
 

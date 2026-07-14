@@ -183,7 +183,7 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
     
     wordcount_pattern =                 r"(?<=-)(?:[A-Z+]*)([0-9]{1,})(?=_)"
     product_code_pattern =              r"^([A-Z-]*)([0-9]*[A-Z]*)(?=_)"
-    magazine_pattern =                  r"^[A-Z]{2}([0-9]{6})_([A-Z]{2}-[A-Z]{2}$)"
+    magazine_pattern =                  r"^[A-Z]{2}([0-9]{6})_([A-Z-]{2,}$)"
     target_lang_pattern =               r"([A-Z]{2})$"
     editor_pattern =                    r"\/editor\/articles\/posts/"
     article_pattern =                   r"(?<!editor)\/articles\/posts"
@@ -197,13 +197,19 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
         # get some intitial data to help with filtering
         name = product.name
 
-        if product.custom_field_items:
-            custom_fields = product.custom_field_items
-            for item in custom_fields:
-                if item.id_custom_field == CustomFields.exclude and item.value.checked:
-                    exclude = True
-                else:
-                    exclude = False
+        exclude = False
+        if product.actions:
+            actions = product.actions
+            for action in actions:
+                try:
+                    action_id = action.data.custom_field_item.id_custom_field
+                    checkbox = action.data.custom_field_item.value.checked
+                    if action_id == CustomFields.exclude and checkbox and checkbox == 'true':
+                        exclude = True
+                except:
+                    pass
+                    
+
         
         product_code = None
         product_code_match: Match | None = re.search(product_code_pattern, name)
@@ -246,9 +252,15 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
         if product.actions:
             actions = product.actions
             for action in actions:
-                if action.type == "updateCheckItemStateOnCard" and "[published]" in action.data.check_item.name.lower() and action.data.check_item.state == "complete":
-                    date_published = action.date
-                
+                try:
+                    action_id = action.data.custom_field_item.id_custom_field
+                    checkbox = action.data.custom_field_item.value.checked
+                    if action_id == CustomFields.published and checkbox and checkbox == 'true' :
+                        date_published = action.date
+                except:
+                    pass
+
+    
         wordcount = 0
         wordcount_match: Match | None = re.search(wordcount_pattern, name)
         if wordcount_match:
@@ -353,12 +365,15 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
                     fileId=crowdin_file_id,
                     projectId=crowdin_project_id
                 )
-                for item in r['data'][0]:
-                    translation_progress = item['translationProgress']
-                    approval_progress = item['approvalProgress']
+                crowdin_payload = r['data']
+
+                for item in crowdin_payload:
+                    translation_progress = item['data']['translationProgress']
+                    print(translation_progress)
+                    approval_progress = item['data']['approvalProgress']
                 
-                if translation_progress and approval_progress:
-                    status = ProductStatus.PENDING
+                    if translation_progress or approval_progress:
+                        status = ProductStatus.PENDING
                
             except Exception as e:
                 print(e)

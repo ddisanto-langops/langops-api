@@ -17,12 +17,23 @@ class CheckItem(BaseModel):
     name: str
     state: str
 
+class CustomFieldValue(BaseModel):
+    checked: str | None = None
+    text: str | None = None
+
+class CustomFieldItem(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel)
+    id_custom_field: str | None = None
+    value: CustomFieldValue | None = None
+
 class ActionData(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel)
+    custom_field_item: CustomFieldItem | None = None
     check_item: CheckItem | None = None
 
+
 class TrelloAction(BaseModel):
-    data: ActionData
+    data: ActionData | None = None
     type: str
     date: datetime  
 
@@ -30,14 +41,7 @@ class TrelloAttachment(BaseModel):
     name: str
     url: HttpUrl   
 
-class CustomFieldValue(BaseModel):
-    checked: str | None = None
-    text: str | None = None
 
-class CustomFieldItem(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel)
-    id_custom_field: str
-    value: CustomFieldValue | None = None
 
 
 class TrelloData(BaseModel):
