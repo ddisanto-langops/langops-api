@@ -43,8 +43,8 @@ class LangOpsProductORM(Base):
     youtube_url: Mapped[str | None]
     youtube_duration_seconds: Mapped[int | None]
 
-    crowdin_file_id: Mapped[str | None]
-    crowdin_project_id: Mapped[str | None]
+    crowdin_file_id: Mapped[int | None]
+    crowdin_project_id: Mapped[int | None]
     crowdin_translation_progress: Mapped[float | None]
     crowdin_approval_progress: Mapped[float | None]
     crowdin_url: Mapped[str | None]

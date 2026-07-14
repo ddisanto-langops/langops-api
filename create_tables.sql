@@ -30,8 +30,8 @@ CREATE TABLE langops_products (
     youtube_duration_seconds INTEGER,
 
     -- CrowdinData fields
-    crowdin_file_id                 TEXT,
-    crowdin_project_id              TEXT,
+    crowdin_file_id                 INTEGER,
+    crowdin_project_id              INTEGER,
     crowdin_translation_progress    FLOAT,
     crowdin_approval_progress       FLOAT,
     crowdin_url                     TEXT
