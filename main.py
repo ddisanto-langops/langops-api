@@ -81,7 +81,7 @@ async def log(request: Request, call_next):
     user = getattr(request.state, "user_email", "Unknown")
 
     logger.info(
-        f"API_REQUEST | User: {user} | Method: {request.method} | Path: {request.url.path} "
+        f"{datetime.now(timezone.utc)} | User: {user} | Method: {request.method} | Path: {request.url.path} "
         f"| Status: {response.status_code} | Duration: {process_time:.2f}ms"
     )
     
