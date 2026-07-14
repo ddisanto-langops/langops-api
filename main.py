@@ -22,21 +22,19 @@ auth_docs_blurb = """
 This API is protected behind a **Cloudflare Zero Trust** perimeter layer and enforces strict identity verification using asymmetric cryptography. It cannot be accessed anonymously.
 
 ## General Authentication  
-The information below applies to all endpoints except webhooks. Since those are subject to custom authorization requirements, separate validation is enforced for `/webhooks` endpoints. See below for more information regarding webhooks.
 **To access the API, the caller must meet 3 conditions:**
-1. Valid JSON web token (JWT) passed in the header `CF-Authorization`
+1. Valid Cloudflare service auth
 ```html
-"CF-Authorization: <token>"
+"CF-Access-Client-Id: <id>"
+"CF-Access-Client-Secret: <token>"
 ```
 2. The `iss` (issuer) claim of the JWT must match the expected Cloudflare team URL
 3. The request must originate from an approved audience  
 Cloudflare's JWTs have an `aud` claim, which must match at least one entry in the pre-configured list.
 \nAudiences currently supported:
 - LangOps website
+- LangOps Gateway
 \n Any other apps must be provisioned via request. **Any request from an app not in the list of trusted audience tags will result in an error (401 Unauthorized).**
-
-## Webhook Authorization
-Webhooks may be verified via a signature, an IP range, a custom header, or a combination of those. **If a request to this endpoint cannot be identified, it will result in a 401 error.**
 
 # 🛠️ Operations Currently Supported
 1. **Status**: Here you can check the current database version and connection health
@@ -50,7 +48,6 @@ Webhooks may be verified via a signature, an IP range, a custom header, or a com
     **Note 2: To avoid duplicates and unpredictable logic, end-users are not allowed to directly add products. They should do so via the source of truth in a dedicated frontend with proper validation logic.**
 
 3. **IDML Operations**: This allows labeling of Adobe inDesign strings by story provenance to avoid context-loss.
-4. **Webhooks**: Receive, validate and perform data updates based on incoming webhooks from translation and productivity services, e.g. Crowdin or Trello
 ---
 """
 
