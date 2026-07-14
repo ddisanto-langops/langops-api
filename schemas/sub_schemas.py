@@ -93,8 +93,8 @@ class YouTubeData(BaseModel):
 class CrowdinData(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    crowdin_file_id: str | None = None
-    crowdin_project_id: str | None = None
+    crowdin_file_id: int | None = None
+    crowdin_project_id: int | None = None
     translation_progress: float | None = None
     approval_progress: float | None = None
     crowdin_url: HttpUrl | None = None

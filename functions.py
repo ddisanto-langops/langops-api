@@ -188,7 +188,6 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
     editor_pattern =                    r"\/editor\/articles\/posts/"
     article_pattern =                   r"(?<!editor)\/articles\/posts"
     crowdin_link_pattern =              r"editor\/([A-z]{4,})\/([0-9]{5})"
-    crowdin_project_and_file_pattern =  r"/editor/([a-z]{1,})"
     youTube_link_pattern =              r"youtube"
 
     langops_products: list[NewLangOpsProduct] = []
@@ -326,17 +325,17 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
                     media_groups.append(MediaGroups.MAGAZINES)
                 else:
                     media_groups.append(MediaGroups.WEBSITE)
-            
+        
+        # If Crowdin editor URL, attempt to extract project name and file ID,
+        # then correlate project name to its ID
         crowdin_file_id: int | None = None
         crowdin_project_id: int | None = None
         if crowdin_url:
-            match: Match | None = re.search(crowdin_project_and_file_pattern, crowdin_url)
+            match: Match | None = re.search(crowdin_link_pattern, crowdin_url)
             if match:
-                crowdin_project_name = match.group(1)
+                crowdin_project_name = match.group(1).lower()
                 crowdin_file_id = int(match.group(2))
                 crowdin_project_id = int(CROWDIN_PROJECT_IDS.get(crowdin_project_name))
-            
-
 
         # Product status
         status = ProductStatus.UNKNOWN
@@ -345,6 +344,8 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
         
         if date_published:
             status = ProductStatus.PUBLISHED
+            translation_progress = 100.0
+            approval_progress = 100.0
         elif crowdin_url and crowdin_file_id and crowdin_project_id:
             try:
                 client = create_crowdin_client(token=os.getenv("CROWDIN_API_TOKEN"))
