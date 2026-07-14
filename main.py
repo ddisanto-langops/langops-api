@@ -62,7 +62,6 @@ GENERAL_PREFIX = "/api/v1"
 app.include_router(apistatus.router, prefix=f"{GENERAL_PREFIX}/status", tags=["API Status"], dependencies=[Depends(verify_jwt)])
 app.include_router(products.router, prefix=f"{GENERAL_PREFIX}/products", tags=["Products"], dependencies=[Depends(verify_jwt)])
 app.include_router(idml.router, prefix=f"{GENERAL_PREFIX}/idml", tags=["IDML Operations"], dependencies=[Depends(verify_jwt)])
-app.include_router(webhooks.router, prefix=f"{GENERAL_PREFIX}/webhooks", tags=["Webhooks"])
 
 
 
