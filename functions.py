@@ -244,7 +244,7 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
             print(f"Skipped: {name} | Reason: Target language missing or not yet supported (got {target_language})")
             continue
         else:
-            print(f"Accepted: {name}")
+            print(f"Parsed product: {name}")
 
 
         # product is valid, apply the rest of the domain logic
@@ -369,7 +369,6 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
 
                 for item in crowdin_payload:
                     translation_progress = item['data']['translationProgress']
-                    print(translation_progress)
                     approval_progress = item['data']['approvalProgress']
                 
                     if translation_progress or approval_progress:
