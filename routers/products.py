@@ -399,7 +399,7 @@ async def add_product(
     
     return AddProductResponse(
         total_products_added= 1,
-        data=product
+        data=[product]
     )
 
 
