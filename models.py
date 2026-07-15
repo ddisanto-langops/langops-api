@@ -52,9 +52,9 @@ class LangOpsProductORM(Base):
 
 def orm_to_langops_product(row: LangOpsProductORM) -> LangOpsProduct:
     trello = TrelloData(
-        id=str(row.trello_id),
-        url=str(row.trello_url),
-        title=str(row.trello_title),
+        id=row.trello_id,
+        url=row.trello_url,
+        title=row.trello_title,
         localized_title=row.trello_localized_title,
         product_code=row.trello_product_code,
         target_language=row.trello_target_language,
@@ -62,8 +62,8 @@ def orm_to_langops_product(row: LangOpsProductORM) -> LangOpsProduct:
         date_published=row.trello_date_published,
         date_last_activity=row.trello_date_last_activity,
         date_archived=row.trello_date_archived,
-        editor_url=str(row.trello_editor_url),
-        article_url=str(row.trello_article_url),
+        editor_url=row.trello_editor_url,
+        article_url=row.trello_article_url,
         word_count=row.trello_word_count,
     ) if row.trello_id else None
 
@@ -102,7 +102,11 @@ def new_product_to_orm(product: NewLangOpsProduct) -> LangOpsProductORM:
         product_status=product.product_status,
         
         trello_id=product.trello_data.id,
-        trello_url=str(getattr(product.trello_data, "url", None)),
+        trello_url=(
+            str(product.trello_data.url)
+            if product.trello_data.url is not None
+            else None
+        ),
         trello_title=getattr(product.trello_data, "title"),
         trello_localized_title=getattr(product.trello_data, "localized_title", None),
         trello_product_code=product.trello_data.product_code,
@@ -111,18 +115,34 @@ def new_product_to_orm(product: NewLangOpsProduct) -> LangOpsProductORM:
         trello_date_last_activity=product.trello_data.date_last_activity,
         trello_date_published=product.trello_data.date_published,
         trello_date_archived=product.trello_data.date_archived,
-        trello_article_url=str(getattr(product.trello_data,"article_url", None)),
-        trello_editor_url=str(getattr(product.trello_data, "editor_url", None)),
+        trello_article_url=(
+            str(product.trello_data.article_url)
+            if product.trello_data.article_url is not None
+            else None
+        ),
+        trello_editor_url=(
+            str(product.trello_data.editor_url)
+            if product.trello_data.editor_url is not None
+            else None
+        ),
         trello_word_count=getattr(product.trello_data, "word_count", None),
 
         crowdin_file_id=getattr(product.crowdin_data, "crowdin_file_id", None),
         crowdin_project_id=getattr(product.crowdin_data, "crowdin_project_id", None),
-        crowdin_url=str(getattr(product.crowdin_data, "crowdin_url", None)),
+        crowdin_url=(
+            str(product.crowdin_data.crowdin_url)
+            if product.crowdin_data.crowdin_url is not None
+            else None
+        ),
         crowdin_translation_progress=getattr(product.crowdin_data, "translation_progress", None),
         crowdin_approval_progress=getattr(product.crowdin_data, "approval_progress", None),
 
         youtube_id=getattr(product.youtube_data, 'id', None),
-        youtube_url=str(getattr(product.youtube_data, 'url', None)),
+        youtube_url=(
+            str(product.youtube_data.url)
+            if product.youtube_data.url is not None
+            else None
+        ),
         youtube_localized_title=getattr(product.youtube_data, 'localized_title', None),
         youtube_duration_seconds=getattr(product.youtube_data, 'duration_seconds', None),
 
