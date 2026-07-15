@@ -393,7 +393,8 @@ async def add_product(
     product: Annotated[NewLangOpsProduct, Body(description="The combined, extracted JSON from each service which is to be evaluated in order to create a product or products")],
     db: AsyncSession = Depends(get_db)      
 ):  
-    db.add(product)
+    new_product = new_product_to_orm(product)
+    db.add(new_product)
     await db.commit()
     
     return AddProductResponse(
