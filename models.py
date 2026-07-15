@@ -104,7 +104,7 @@ def new_product_to_orm(product: NewLangOpsProduct) -> LangOpsProductORM:
         trello_id=product.trello_data.id,
         trello_url=str(product.trello_data.url) if product.trello_data.url else None,
         trello_title=product.trello_data.title,
-        trello_localized_title=product.trello_data.localized_title,
+        trello_localized_title=product.trello_data.localized_title if product.trello_data.localized_title else None,
         trello_product_code=product.trello_data.product_code,
         trello_target_language=product.trello_data.target_language,
         trello_due_date=product.trello_data.due_date,
@@ -115,15 +115,15 @@ def new_product_to_orm(product: NewLangOpsProduct) -> LangOpsProductORM:
         trello_editor_url=str(product.trello_data.editor_url) if product.trello_data.editor_url else None,
         trello_word_count=product.trello_data.word_count,
 
-        crowdin_file_id=product.crowdin_data.crowdin_file_id,
-        crowdin_project_id=product.crowdin_data.crowdin_project_id,
+        crowdin_file_id=product.crowdin_data.crowdin_file_id if product.crowdin_data.crowdin_file_id else None,
+        crowdin_project_id=product.crowdin_data.crowdin_project_id if product.crowdin_data.crowdin_project_id else None,
         crowdin_url=str(product.crowdin_data.crowdin_url) if product.crowdin_data.crowdin_url else None,
-        crowdin_translation_progress=product.crowdin_data.translation_progress,
-        crowdin_approval_progress=product.crowdin_data.approval_progress,
+        crowdin_translation_progress=product.crowdin_data.translation_progress if product.crowdin_data.translation_progress else None,
+        crowdin_approval_progress=product.crowdin_data.approval_progress if product.crowdin_data.approval_progress else None,
 
-        youtube_id=product.youtube_data.id,
+        youtube_id=product.youtube_data.id if product.youtube_data.id else None,
         youtube_url=str(product.youtube_data.url) if product.youtube_data.url else None,
-        youtube_localized_title=product.youtube_data.localized_title,
-        youtube_duration_seconds=product.youtube_data.duration_seconds
+        youtube_localized_title=product.youtube_data.localized_title if product.youtube_data.localized_title else None,
+        youtube_duration_seconds=product.youtube_data.duration_seconds if product.youtube_data.duration_seconds else None
 
     )
