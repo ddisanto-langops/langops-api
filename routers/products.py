@@ -18,7 +18,8 @@ from schemas.response_schemas import (
 ) 
 
 from schemas.data_schemas import (
-    LangOpsProduct, 
+    LangOpsProduct,
+    NewLangOpsProduct,
     RawTrelloCard,
     ProductCodeCount
 )
@@ -373,6 +374,32 @@ async def add_product(
         data=new_products
     )
 
+
+
+@router.post(
+    "/user-add",
+    description="Temporary endpoint to add a constructed LangOps product to the database.",
+    response_model=AddProductResponse,
+    status_code=201,
+    responses={
+        status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
+        status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
+        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
+    }
+)
+async def add_product(
+    product: Annotated[NewLangOpsProduct, Body(description="The combined, extracted JSON from each service which is to be evaluated in order to create a product or products")],
+    db: AsyncSession = Depends(get_db)      
+):  
+    db.add(product)
+    await db.commit()
+    
+    return AddProductResponse(
+        total_products_added= 1,
+        data=product
+    )
 
 
 @router.patch(

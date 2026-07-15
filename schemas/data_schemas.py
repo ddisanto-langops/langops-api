@@ -74,6 +74,10 @@ class LangOpsProduct(BaseModel):
 
 
 class NewLangOpsProduct(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True
+    )
     date_created: datetime
     date_deleted: datetime | None = None
     media_groups: list[MediaGroups]
