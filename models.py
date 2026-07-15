@@ -52,9 +52,9 @@ class LangOpsProductORM(Base):
 
 def orm_to_langops_product(row: LangOpsProductORM) -> LangOpsProduct:
     trello = TrelloData(
-        id=row.trello_id,
-        url=row.trello_url,
-        title=row.trello_title,
+        id=str(row.trello_id),
+        url=str(row.trello_url),
+        title=str(row.trello_title),
         localized_title=row.trello_localized_title,
         product_code=row.trello_product_code,
         target_language=row.trello_target_language,
@@ -62,8 +62,8 @@ def orm_to_langops_product(row: LangOpsProductORM) -> LangOpsProduct:
         date_published=row.trello_date_published,
         date_last_activity=row.trello_date_last_activity,
         date_archived=row.trello_date_archived,
-        editor_url=row.trello_editor_url,
-        article_url=row.trello_article_url,
+        editor_url=str(row.trello_editor_url),
+        article_url=str(row.trello_article_url),
         word_count=row.trello_word_count,
     ) if row.trello_id else None
 

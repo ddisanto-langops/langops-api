@@ -389,7 +389,7 @@ async def add_product(
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
     }
 )
-async def add_product(
+async def user_add_product(
     product: Annotated[NewLangOpsProduct, Body(description="The combined, extracted JSON from each service which is to be evaluated in order to create a product or products")],
     db: AsyncSession = Depends(get_db)      
 ):  
