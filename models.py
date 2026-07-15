@@ -95,6 +95,10 @@ def orm_to_langops_product(row: LangOpsProductORM) -> LangOpsProduct:
 
 
 def new_product_to_orm(product: NewLangOpsProduct) -> LangOpsProductORM:
+
+    youtube_url_value = getattr(product.youtube_data, "url", None)
+    crowdin_url_value = getattr(product.crowdin_data, "crowdin_url", None)
+
     return LangOpsProductORM(
         date_created=datetime.now(),
         date_deleted=None,
@@ -130,8 +134,8 @@ def new_product_to_orm(product: NewLangOpsProduct) -> LangOpsProductORM:
         crowdin_file_id=getattr(product.crowdin_data, "crowdin_file_id", None),
         crowdin_project_id=getattr(product.crowdin_data, "crowdin_project_id", None),
         crowdin_url=(
-            str(product.crowdin_data.crowdin_url)
-            if product.crowdin_data.crowdin_url is not None
+            str(crowdin_url_value)
+            if crowdin_url_value is not None
             else None
         ),
         crowdin_translation_progress=getattr(product.crowdin_data, "translation_progress", None),
@@ -139,8 +143,8 @@ def new_product_to_orm(product: NewLangOpsProduct) -> LangOpsProductORM:
 
         youtube_id=getattr(product.youtube_data, 'id', None),
         youtube_url=(
-            str(product.youtube_data.url)
-            if product.youtube_data.url is not None
+            str(youtube_url_value)
+            if youtube_url_value is not None
             else None
         ),
         youtube_localized_title=getattr(product.youtube_data, 'localized_title', None),
