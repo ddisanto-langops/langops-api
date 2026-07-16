@@ -10,7 +10,7 @@ CMD ["fastapi", "dev", "./main.py", "--host", "0.0.0.0"]
 
 
 # Production
-FROM python:3.12-slim
+FROM python:3.12-slim as production
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
