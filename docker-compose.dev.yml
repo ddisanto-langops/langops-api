@@ -1,0 +1,10 @@
+services:
+  api:
+    build:
+      context: .
+      target: development
+    ports:
+      - "8000:8000"
+    env_file:
+      - /etc/langops-api/secrets.env
+    restart: unless-stopped
