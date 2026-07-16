@@ -13,7 +13,7 @@ ENV = os.getenv("ENVIRONMENT")
 if ENV == 'PROD':
     DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
 elif ENV == 'DEV':
-    DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@localhost:{PORT}/{DB_NAME}"
+    DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@db:{PORT}/{DB_NAME}"
 
 
 
