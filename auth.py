@@ -59,7 +59,7 @@ async def verify_jwt(
         audiences = get_trusted_audiences(TRUSTED_AUDIENCES)
         if not audiences:
             raise HTTPException(
-                status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Target audience missing or not in listed of trusted audiences"
+                status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Target audience missing or not in list of trusted audiences"
             )
         
         target_audience = audiences[0] if len(audiences) == 1 else audiences
@@ -89,6 +89,3 @@ async def verify_jwt(
     
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    
-    except jwt.InvalidAudienceError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token audience is missing or untrusted.")

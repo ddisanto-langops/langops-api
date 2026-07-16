@@ -32,6 +32,7 @@ This API is protected behind a **Cloudflare Zero Trust** perimeter layer and enf
 3. The request must originate from an approved audience  
 Cloudflare's JWTs have an `aud` claim, which must match at least one entry in the pre-configured list.
 \nAudiences currently supported:
+- LangOps API over HTTPS
 - LangOps website
 - LangOps Gateway
 \n Any other apps must be provisioned via request. **Any request from an app not in the list of trusted audience tags will result in an error (401 Unauthorized).**
