@@ -32,8 +32,13 @@ async def verify_jwt(
     Extracts and cryptographically verifies the automatic CF_Authorization JWT.
     Bypasses validation if ENVIRONMENT is set to DEV.
     """
-    # DEV ENVIRONMENT BYPASS
-    if os.getenv("ENVIRONMENT") == "DEV":
+
+    accepted_environments = {"DEV", "PROD"}
+    environment = os.getenv("ENVIRONMENT")
+    if environment not in accepted_environments:
+        raise ValueError("Auth error: user must specify either 'DEV' or 'PROD' environment.")
+ 
+    if environment == "DEV":
         if not client_id or not client_secret:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -47,7 +52,7 @@ async def verify_jwt(
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing Cf-Access-Jwt-Assertion header",
+            detail="Missing Cf-Access-Jwt-Assertion header for PROD environment",
         )
     
     try:

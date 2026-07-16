@@ -119,10 +119,23 @@ def label_misc_strings(
     
     try:
         client = create_crowdin_client(token=os.getenv("CROWDIN_API_TOKEN"))
-        client.labels.add_label(
-            title="Miscellaneous",
+
+        label_id: int | None = None
+        labels_res = client.labels.list_labels(
             projectId=crowdin_project_id
         )
+        for item in labels_res['data']:
+            title = item['data']['title'].lower()
+            if title == "miscellaneous": # label exists
+                label_id = item['data']['id']
+        
+        if label_id is None:
+            add_label_res = client.labels.add_label(
+                title="miscellaneous",
+                projectId=crowdin_project_id
+            )
+            label_id = add_label_res['data'][ 'id']
+
     except Exception as e:
         print(f"Error adding label. Check if label already exists. Message: {e}")
 
@@ -136,8 +149,15 @@ def label_misc_strings(
                 misc_strings_count +=1
 
     try:
+        add_label_res = client.labels.add_label(
+            title="Miscellaneous",
+            projectId=crowdin_project_id
+        )
+        
+
+
         client.labels.assign_label_to_strings(
-            labelId=1412, # PLACEHOLDER FOR "Miscellaneous" LABEL
+            labelId=label_id,
             stringIds=misc_strings,
             projectId=crowdin_project_id
         )

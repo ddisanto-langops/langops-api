@@ -17,24 +17,24 @@ LangOps API is a FastAPI service for translation operations at scale. It gives i
 
 This API provides three main services:
 
-1. **Product data acces**  
+1. **Product data access**  
    Search, filter, add, edit, soft-delete, restore, and permanently delete LangOps product records.
 3. **Translation reporting**  
    Calculate published word count totals and product code counts for reporting and planning.
 5. **IDML labeling workflow**  
-   Extract story-level string groups from Crowdin so they can be labeled and assigned for translation, avoiding context-loss  during Adobe InDesign localization work.
+   Extract story-level string groups from Crowdin so they can be labeled and assigned for translation, avoiding context-loss during Adobe InDesign localization work.
 
 ## Authentication
 
-This API makes use of Cloudflare Zero Trust architecture and requires a valid `CF_Authorization` JWT on all routes.
+This API makes use of Cloudflare's Zero Trust architecture and requires a valid `Cf-Access-Jwt-Assertion` JWT on all routes (via Service Auth Token).
 
 Authentication behavior:
 
-1. Caller must send a `CF_Authorization` header; the API validates the token signature against Cloudflare Access public keys. 
+1. Caller must send a `Cf-Access-Jwt-Assertion` header; the API validates the token signature against Cloudflare Access public keys. 
 2. The token issuer must match the configured Cloudflare team URL.
 3. The audience must match one of the trusted internal applications.
 
-This API is intended for internal services and trusted applications. It is not designed as a public internet-facing API.
+This API does not handle webhooks. It sits behind a gateway which is responsible for verifying webhooks and pasing the data on.
 
 ## Base Path
 
@@ -48,46 +48,53 @@ All application routes are mounted under:
 
 ### API Status
 
-- `GET /api/v1/status/health`
+- `HEAD /api/v1/status`  
+	Basic connectivity check
+- `GET /api/v1/status/database`  
 	Checks database connectivity and returns the current database version.
 
 ### Products
 
-- `GET /api/v1/products`
+- `GET /api/v1/products`  
 	Returns paginated product results with filters such as target language, publication date range, product code, media group, and deletion state.
-- `GET /api/v1/products/{id}`
+- `GET /api/v1/products/{id}`  
 	Retrieves a single product by UUID.
-- `GET /api/v1/products/wordcount`
+- `GET /api/v1/products/wordcount`  
 	Returns the sum of published word counts for matching products.
-- `GET /api/v1/products/productcount`
+- `GET /api/v1/products/productcount`  
 	Returns published product counts grouped by product code.
-- `POST /api/v1/products/add`
+- `POST /api/v1/products/add`  
 	Adds one or more products.
-- `PATCH /api/v1/products/edit/{id}`
+- `PATCH /api/v1/products/edit/{id}`  
 	Updates an existing product.
-- `PATCH /api/v1/products/restore/{id}`
+- `PATCH /api/v1/products/restore/{id}`  
 	Restores a soft-deleted product.
-- `DELETE /api/v1/products/delete/{id}`
+- `DELETE /api/v1/products/delete/{id}`  
 	Soft-deletes a product.
-- `DELETE /api/v1/products/permanentdelete/{id}`
+- `DELETE /api/v1/products/permanentdelete/{id}`  
 	Permanently deletes a product.
 
 ### IDML Operations
 
-- `GET /api/v1/idml/map/{crowdin_project_id}/{crowdin_file_id}`
+- `GET /api/v1/idml/map/{crowdin_project_id}/{crowdin_file_id}`  
 	Returns grouped source strings for a Crowdin file so a client can review and label each context group.
-- `POST /api/v1/idml/label/{crowdin_project_id}`
+- `POST /api/v1/idml/label/{crowdin_project_id}`  
 	Applies labels in Crowdin using the reviewed schema payload.
 
 ## Environment Variables
 
 Set the following environment variables before running the API:
 
+### Environment
+- `ENVIRONMENT`  
+	One of `DEV` or `PROD`. If using dev mode, the Cf-Access-Jwt-Assertion is not checked, to permit local testing (CF access ID and secret are still checked). Ensure this is set to `PROD` before deployment!
+
 ### Database
 
 - `DB_USER`
 - `DB_PASSWORD`
-- `DB_HOST`
+- `DB_HOST`  
+	Note: For local testing, set this to the name of the service which is connecting to the database. Otherwise, set it to the IP of the database on the local network in prod. 
 - `DB_PORT`
 - `DB_NAME`
 
@@ -95,7 +102,7 @@ Set the following environment variables before running the API:
 ### Cloudflare Access
 
 - `CF_TEAM_URL`
-- `TRUSTED_AUDIENCES` (in the format)
+- `TRUSTED_AUDIENCES` (in the format "audience1, audience2, audience3")
 
 ### Crowdin
 
@@ -108,6 +115,7 @@ The API uses structured JSON error responses for common failure cases, including
 - `400 Bad Request`
 - `401 Unauthorized`
 - `404 Not Found`
+- `405 Method Not Allowed`
 - `422 Unprocessable Content`
 - `500 Internal Server Error`
 
