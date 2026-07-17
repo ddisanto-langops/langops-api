@@ -366,6 +366,12 @@ async def add_product(
     db: AsyncSession = Depends(get_db)      
 ):  
     new_products = build_new_langops_products(products)
+    if not new_products:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Add product: validation failed"
+        )
+    
     db.add_all([new_product_to_orm(product) for product in new_products])
     await db.commit()
     
