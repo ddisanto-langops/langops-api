@@ -1,9 +1,8 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Depends, Query, Path, Body
-from sqlalchemy import asc, func, or_, update, delete, inspect as sa_inspect
+from sqlalchemy import asc, func, or_, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.dialects.postgresql import insert as pg_insert
 from typing import Annotated
 from uuid import UUID
 
@@ -75,6 +74,11 @@ async def get_all_products(
         alias="mediaGroups",
         description="The general category of the product, e.g. website"
     )] = None, 
+    search: Annotated[str | None, Query(
+        title="Search",
+        alias="search",
+        description="Search for products by title or localized title"
+    )] = None,
     limit: Annotated[int, Query(
         title="Limit",
         alias="limit",
@@ -140,6 +144,15 @@ async def get_all_products(
         values = [g.value for g in media_groups]
         statement = statement.where(
             or_(*[LangOpsProductORM.media_groups.any(v) for v in values])
+        )
+    
+    if search:
+        search_filter = f"%{search}%"
+        statement = statement.where(
+            or_(
+                LangOpsProductORM.trello_title.ilike(search_filter),
+                LangOpsProductORM.trello_localized_title.ilike(search_filter)
+            )
         )
 
     if archived_only:
