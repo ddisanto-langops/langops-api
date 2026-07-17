@@ -428,11 +428,12 @@ async def edit_product(
     
     # re-compute the LangOps product on edit, to ensure all dervied fields remain consistent with domain logic
     edited_product_list: list[LangOpsProduct] = build_new_langops_products([updated_data])
-    if len(edited_product_list == 0):
+    if not edited_product_list:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Edit product: validation failed"
         )
+    
     edited_product: LangOpsProductORM = new_product_to_orm(edited_product_list[0])
     
     statement = select(LangOpsProductORM.id).where(LangOpsProductORM.trello_id == id) # Get the actual LangOps UUID by referencing Trello ID
