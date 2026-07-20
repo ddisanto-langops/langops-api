@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
 
 from enums import ProductCodes, MediaGroups, Languages
 from schemas.data_schemas import RawTrelloCard, RawCrowdinData
@@ -10,18 +10,18 @@ class AddProductRequest(BaseModel):
     crowdin_data: RawCrowdinData
 
 
-class UserAddProductRequest(BaseModel):
-    date_created: datetime
+class UserEditProductRequest(BaseModel):
+    date_created: datetime | None = None
     date_deleted: datetime | None = None
-    media_groups: list[MediaGroups]
-    product_status: str
+    media_groups: list[MediaGroups] | None = None
+    product_status: str | None = None
 
-    trello_id: str
-    trello_url: str
-    trello_title: str
+    trello_id: str | None = None
+    trello_url: str | None = None
+    trello_title: str | None = None
     trello_localized_title: str | None = None
-    trello_product_code: ProductCodes
-    trello_target_language: Languages
+    trello_product_code: ProductCodes | None = None
+    trello_target_language: Languages | None = None
     trello_due_date: datetime | None = None
     trello_date_published: datetime | None = None
     trello_date_last_activity: datetime | None = None
@@ -40,19 +40,3 @@ class UserAddProductRequest(BaseModel):
     crowdin_translation_progress: float | None = None
     crowdin_approval_progress: float | None = None
     crowdin_url: str | None = None
-
-
-class UserEditProductRequest(UserAddProductRequest):
-    #
-    # Expected to be the same as the class above (UserAddProductRequest)
-    #
-    date_created: datetime | None = None
-    date_deleted: datetime | None = None
-    media_groups: list[MediaGroups] | None = None
-    product_status: str | None = None
-
-    trello_id: str | None = None
-    trello_url: str | None = None
-    trello_title: str | None = None
-    trello_product_code: ProductCodes | None = None
-    trello_target_language: Languages | None = None

@@ -6,10 +6,7 @@ from sqlalchemy.future import select
 from typing import Annotated
 from uuid import UUID
 
-from schemas.request_schemas import (
-    UserAddProductRequest,
-    UserEditProductRequest
-)
+from schemas.request_schemas import UserEditProductRequest
 
 from schemas.response_schemas import (
     AddProductResponse,
@@ -414,7 +411,7 @@ async def add_product(
     }
 )
 async def user_add_product(
-    product: Annotated[UserAddProductRequest, Body()],
+    product: Annotated[NewLangOpsProduct, Body()],
     db: AsyncSession = Depends(get_db)      
 ):  
 

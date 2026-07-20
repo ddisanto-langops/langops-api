@@ -54,7 +54,7 @@ class TrelloData(BaseModel):
     id: str
     url: HttpUrl
     title: str
-    localized_title: str
+    localized_title: str | None = None
     product_code: ProductCodes 
     target_language: Languages
     due_date: datetime | None = None
@@ -82,9 +82,9 @@ class StringMapPayload(BaseModel):
 # ---------------------
 
 class YouTubeData(BaseModel):
-    id: str | None
+    id: str | None = None
     localized_title: str | None = None
-    url: HttpUrl | None
+    url: HttpUrl | None = None
     duration_seconds: int | None = None
 
 
