@@ -6,6 +6,11 @@ from sqlalchemy.future import select
 from typing import Annotated
 from uuid import UUID
 
+from schemas.request_schemas import (
+    UserAddProductRequest,
+    UserEditProductRequest
+)
+
 from schemas.response_schemas import (
     AddProductResponse,
     EditProductResponse,
@@ -397,7 +402,7 @@ async def add_product(
 
 @router.post(
     "/user-add",
-    description="Temporary endpoint to add a constructed LangOps product to the database.",
+    description="Endpoint to manually add a LangOps product to the database, e.g. via a frontend. <span style='color:red'>Warning: This is a fully manual endpoint, which bypasses the product creation factory function. Use it only if you intend to manually add a product which was missed by automation.</span> **Note: as this bypasses the automation, the caller should consider supplying values which are normally created automatically.**",
     response_model=AddProductResponse,
     status_code=201,
     responses={
@@ -409,11 +414,12 @@ async def add_product(
     }
 )
 async def user_add_product(
-    product: Annotated[NewLangOpsProduct, Body(description="The combined, extracted JSON from each service which is to be evaluated in order to create a product or products")],
+    product: Annotated[UserAddProductRequest, Body()],
     db: AsyncSession = Depends(get_db)      
 ):  
-    new_product = new_product_to_orm(product)
-    db.add(new_product)
+
+    orm_product = LangOpsProductORM(**product.model_dump(exclude_none=False))
+    db.add(orm_product)
     await db.commit()
     
     return AddProductResponse(
@@ -442,8 +448,6 @@ async def edit_product(
     # ensure ID of product to edit corresponds to the one in RawTrelloCard body
     if updated_data.id != id:
         raise ValueError("Mismatch between requested Trello ID and Trello ID in updated product body field")
-    else:
-        updated_data.id = id
     
     # re-compute the LangOps product on edit, to ensure all dervied fields remain consistent with domain logic
     edited_product_list: list[LangOpsProduct] = build_new_langops_products([updated_data])
@@ -468,6 +472,44 @@ async def edit_product(
     edited_product.id = existing_id # Fill in the LangOps UUID with the one derived from the DB
     merged = await db.merge(edited_product) 
 
+    await db.commit()
+
+    return EditProductResponse.model_validate(merged)
+
+@router.patch(
+        "/user-edit/{id}",
+        description="Manually edit an existing product, e.g. via a frontend. <span style='color:red'>Warning: This is a fully manual endpoint, which bypasses the product creation factory function. Use it only if you intend to manually edit a product which was missed by automation.</span> **Note: as this bypasses the automation, the caller should consider supplying values which are normally created automatically.**",
+        response_model=EditProductResponse,
+        responses={
+            status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+            status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
+            status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
+            status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+            status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
+        }
+)
+async def user_edit_product(
+    id: Annotated[str, Path(description="The unique Trello ID of the product to be edited)")],
+    product: Annotated[UserEditProductRequest, Body()],
+    db: AsyncSession = Depends(get_db)
+):
+    # ensure ID of product to edit corresponds to the one in RawTrelloCard body
+    if product.trello_id != id:
+        raise ValueError("Mismatch between requested Trello ID and Trello ID in updated product body field")
+    
+    statement = select(LangOpsProductORM.id).where(LangOpsProductORM.trello_id == id) # Get the actual LangOps UUID by referencing Trello ID
+    result = await db.execute(statement)
+    
+    existing_id = result.scalar_one_or_none()
+    if existing_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Edit product: not found"
+        )
+
+    orm_product = LangOpsProductORM(**product.model_dump(exclude_none=False))
+    orm_product.id = existing_id
+    merged = await db.merge(orm_product)
     await db.commit()
 
     return EditProductResponse.model_validate(merged)

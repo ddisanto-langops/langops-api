@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 from schemas.data_schemas import LangOpsProduct, NewLangOpsProduct, ProductCodeCount, StringMapItem
-from schemas.request_schemas import EditProductRequest
+from schemas.request_schemas import UserEditProductRequest, UserAddProductRequest
 
 
 class CheckHealthResponse(BaseModel):
@@ -14,7 +14,7 @@ class CheckHealthResponse(BaseModel):
 
 class AddProductResponse(BaseModel):
     total_products_added: int
-    data: list[NewLangOpsProduct]
+    data: list[NewLangOpsProduct | UserAddProductRequest ]
 
 
 class PaginatedProductResponse(BaseModel):
@@ -24,7 +24,7 @@ class PaginatedProductResponse(BaseModel):
     data: list[LangOpsProduct]
 
 
-class EditProductResponse(EditProductRequest):
+class EditProductResponse(UserEditProductRequest):
     model_config = ConfigDict(from_attributes=True)
 
 
