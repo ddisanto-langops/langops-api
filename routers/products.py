@@ -2,11 +2,9 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Depends, Query, Path, Body
 from sqlalchemy import asc, func, or_, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.future import select
 from typing import Annotated
-from uuid import UUID
-
-from schemas.request_schemas import UserEditProductRequest
 
 from schemas.response_schemas import (
     AddProductResponse,
@@ -21,6 +19,7 @@ from schemas.response_schemas import (
 from schemas.data_schemas import (
     LangOpsProduct,
     NewLangOpsProduct,
+    EditingLangOpsProduct,
     RawTrelloCard,
     ProductCodeCount
 )
@@ -353,10 +352,10 @@ async def get_product_count(
     }
 )
 async def get_product_by_id(
-    id: Annotated[UUID, Path(description="The unique ID of the product (not a Trello or Crowdin ID)")],
+    id: Annotated[str, Path(description="The unique Trello ID of the product)")],
     db: AsyncSession = Depends(get_db)
 ):
-    statement = select(LangOpsProductORM).where(LangOpsProductORM.id == id)
+    statement = select(LangOpsProductORM).where(LangOpsProductORM.trello_id == id)
     result = await db.execute(statement)
     row = result.scalars().one_or_none()
 
@@ -486,30 +485,45 @@ async def edit_product(
         }
 )
 async def user_edit_product(
-    id: Annotated[str, Path(description="The unique Trello ID of the product to be edited)")],
-    product: Annotated[UserEditProductRequest, Body()],
+    id: Annotated[str, Path(description="The unique Trello ID of the product to be edited")],
+    product: Annotated[EditingLangOpsProduct, Body()],
     db: AsyncSession = Depends(get_db)
 ):
-    # ensure ID of product to edit corresponds to the one in RawTrelloCard body
-    if product.trello_id != id:
-        raise ValueError("Mismatch between requested Trello ID and Trello ID in updated product body field")
-    
-    statement = select(LangOpsProductORM.id).where(LangOpsProductORM.trello_id == id) # Get the actual LangOps UUID by referencing Trello ID
+    statement = select(LangOpsProductORM).where(LangOpsProductORM.trello_id == id)
     result = await db.execute(statement)
-    
-    existing_id = result.scalar_one_or_none()
-    if existing_id is None:
+    existing_product = result.scalar_one_or_none()
+
+    if existing_product is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Edit product: not found"
         )
+    
+    # Explicit mapping to determine what can or can't be edited
+    existing_product.date_created = product.date_created
+    existing_product.product_status = product.product_status
+    existing_product.media_groups = product.media_groups
 
-    orm_product = LangOpsProductORM(**product.model_dump(exclude_none=False))
-    orm_product.id = existing_id
-    merged = await db.merge(orm_product)
-    await db.commit()
+    existing_product.trello_id = product.trello_data.id
+    existing_product.trello_url = product.trello_data.url
 
-    return EditProductResponse.model_validate(merged)
+
+
+    update_data = product.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(existing_product, field, value)
+
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Edit product: conflicting key"
+        )
+
+    await db.refresh(existing_product)
+    return EditProductResponse.model_validate(existing_product)
 
 
 @router.patch(

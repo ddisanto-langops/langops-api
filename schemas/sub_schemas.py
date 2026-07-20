@@ -66,6 +66,26 @@ class TrelloData(BaseModel):
     word_count: int | None = None
 
 
+class EditingTrelloData(BaseModel):
+    model_config = ConfigDict(
+        from_attributes=True, 
+        alias_generator=to_camel, 
+        populate_by_name=True
+    )
+    id: str | None = None
+    url: HttpUrl | None = None
+    title: str | None = None
+    localized_title: str | None = None
+    product_code: ProductCodes | None = None
+    target_language: Languages | None = None
+    due_date: datetime | None = None
+    date_published: datetime | None = None
+    date_last_activity: datetime
+    date_archived: datetime | None = None
+    editor_url: HttpUrl | None = None
+    article_url: HttpUrl | None = None
+    word_count: int | None = None
+
 # ---------------------
 # IDML OPS
 # ---------------------
@@ -88,6 +108,14 @@ class YouTubeData(BaseModel):
     duration_seconds: int | None = None
 
 
+class EditingYouTubeData(YouTubeData):
+    model_config = ConfigDict(
+        from_attributes=True, 
+        alias_generator=to_camel, 
+        populate_by_name=True
+    )
+    pass
+
 
 
 # ---------------------
@@ -102,3 +130,12 @@ class CrowdinData(BaseModel):
     translation_progress: float | None = None
     approval_progress: float | None = None
     crowdin_url: HttpUrl | None = None
+
+
+class EditingCrowdinData(CrowdinData):
+    model_config = ConfigDict(
+        from_attributes=True, 
+        alias_generator=to_camel, 
+        populate_by_name=True
+    )
+    pass

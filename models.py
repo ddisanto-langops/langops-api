@@ -3,8 +3,15 @@ from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_column
 from sqlalchemy import ARRAY, String, DateTime, text
 from sqlalchemy.dialects.postgresql import UUID as SA_UUID
-from schemas.data_schemas import LangOpsProduct, NewLangOpsProduct, TrelloData, YouTubeData, CrowdinData
 
+from schemas.data_schemas import (
+    LangOpsProduct,
+    NewLangOpsProduct,
+    EditingLangOpsProduct,
+    TrelloData,
+    YouTubeData,
+    CrowdinData
+)
 
 class Base(DeclarativeBase, MappedAsDataclass):
     pass
@@ -94,7 +101,7 @@ def orm_to_langops_product(row: LangOpsProductORM) -> LangOpsProduct:
     )
 
 
-def new_product_to_orm(product: NewLangOpsProduct) -> LangOpsProductORM:
+def new_product_to_orm(product: NewLangOpsProduct | EditingLangOpsProduct) -> LangOpsProductORM:
 
     youtube_url_value = getattr(product.youtube_data, "url", None)
     crowdin_url_value = getattr(product.crowdin_data, "crowdin_url", None)
@@ -149,5 +156,4 @@ def new_product_to_orm(product: NewLangOpsProduct) -> LangOpsProductORM:
         ),
         youtube_localized_title=getattr(product.youtube_data, 'localized_title', None),
         youtube_duration_seconds=getattr(product.youtube_data, 'duration_seconds', None),
-
-    )
+)

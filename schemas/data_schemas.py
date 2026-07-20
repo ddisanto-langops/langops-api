@@ -10,8 +10,11 @@ from schemas.sub_schemas import (
     TrelloLabel,
     CustomFieldItem,
     TrelloData,
+    EditingTrelloData,
     YouTubeData,
+    EditingYouTubeData,
     CrowdinData,
+    EditingCrowdinData,
     StringMapPayload
 )
 
@@ -85,3 +88,15 @@ class NewLangOpsProduct(BaseModel):
     trello_data: TrelloData | None
     youtube_data: YouTubeData | None
     crowdin_data: CrowdinData | None
+
+
+class EditingLangOpsProduct(BaseModel):
+    id: str | None = None
+    date_created: datetime | None = None
+    date_deleted: datetime | None = None
+    media_groups: list[MediaGroups] | None = None
+    product_status: ProductStatus | None = None
+
+    trello_data: EditingTrelloData
+    youtube_data: EditingYouTubeData | None = None 
+    crowdin_data:  EditingCrowdinData | None = None
