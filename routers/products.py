@@ -505,15 +505,65 @@ async def user_edit_product(
     existing_product.media_groups = product.media_groups
 
     existing_product.trello_id = product.trello_data.id
-    existing_product.trello_url = product.trello_data.url
+    existing_product.trello_url = str(product.trello_data.url)
+    existing_product.trello_title = product.trello_data.title
 
+    if product.trello_data.localized_title:
+        existing_product.trello_localized_title = product.trello_data.localized_title
 
+    existing_product.trello_product_code = product.trello_data.product_code
+    existing_product.trello_target_language = product.trello_data.target_language
+    
+    if product.trello_data.due_date:
+        existing_product.trello_due_date = product.trello_data.due_date
 
-    update_data = product.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(existing_product, field, value)
+    if product.trello_data.date_published:
+        existing_product.trello_date_published = product.trello_data.date_published
+    
+    existing_product.trello_date_last_activity = product.trello_data.date_last_activity
+    if product.trello_data.date_archived:
+        existing_product.trello_date_archived = product.trello_data.date_archived
+    
+    if product.trello_data.editor_url:
+        existing_product.trello_editor_url = product.trello_data.editor_url
+    
+    if product.trello_data.article_url:
+        existing_product.trello_article_url = product.trello_data.article_url
+    
+    if product.trello_data.word_count:
+        existing_product.trello_word_count = product.trello_data.word_count
+
+    if product.youtube_data:
+        if product.youtube_data.id:
+            existing_product.youtube_id = product.youtube_data.id
+        
+        if product.youtube_data.url:
+            existing_product.youtube_url = product.youtube_data.url
+
+        if product.youtube_data.localized_title:
+            existing_product.youtube_localized_title = product.youtube_data.localized_title
+
+        if product.youtube_data.duration_seconds:
+            existing_product.youtube_duration_seconds = product.youtube_data.duration_seconds
+
+    if product.crowdin_data:
+        if product.crowdin_data.crowdin_file_id:
+            existing_product.crowdin_file_id = product.crowdin_data.crowdin_file_id
+        
+        if product.crowdin_data.crowdin_project_id:
+            existing_product.crowdin_project_id = product.crowdin_data.crowdin_project_id
+        
+        if product.crowdin_data.translation_progress:
+            existing_product.crowdin_translation_progress = product.crowdin_data.translation_progress
+        
+        if product.crowdin_data.approval_progress:
+            existing_product.crowdin_approval_progress = product.crowdin_data.approval_progress
+        
+        if product.crowdin_data.crowdin_url:
+            existing_product.crowdin_url = product.crowdin_data.crowdin_url
 
     try:
+        merged = await db.merge(existing_product)
         await db.commit()
     except IntegrityError:
         await db.rollback()
@@ -523,7 +573,7 @@ async def user_edit_product(
         )
 
     await db.refresh(existing_product)
-    return EditProductResponse.model_validate(existing_product)
+    return EditProductResponse.model_validate(merged)
 
 
 @router.patch(
