@@ -1,54 +1,51 @@
 from datetime import datetime
 from enums import ProductCodes, Languages
-from pydantic import BaseModel, ConfigDict, HttpUrl
-from pydantic.alias_generators import to_camel
+from pydantic import ConfigDict, HttpUrl
+
+from schemas.base import CamelModel
 
 
 # ---------------------
 # TRELLO
 # ---------------------
 
-class TrelloLabel(BaseModel):
+class TrelloLabel(CamelModel):
     id: str
     name: str
 
-class CheckItem(BaseModel):
+class CheckItem(CamelModel):
     id: str
     name: str
     state: str
 
-class CustomFieldValue(BaseModel):
+class CustomFieldValue(CamelModel):
     checked: str | None = None
     text: str | None = None
 
-class CustomFieldItem(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel)
+class CustomFieldItem(CamelModel):
     id_custom_field: str | None = None
     value: CustomFieldValue | None = None
 
-class ActionData(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel)
+class ActionData(CamelModel):
     custom_field_item: CustomFieldItem | None = None
     check_item: CheckItem | None = None
 
 
-class TrelloAction(BaseModel):
+class TrelloAction(CamelModel):
     data: ActionData | None = None
     type: str
     date: datetime  
 
-class TrelloAttachment(BaseModel):
+class TrelloAttachment(CamelModel):
     name: str
     url: HttpUrl   
 
 
 
 
-class TrelloData(BaseModel):
+class TrelloData(CamelModel):
     model_config = ConfigDict(
-        from_attributes=True, 
-        alias_generator=to_camel, 
-        populate_by_name=True
+        from_attributes=True,  
     )
 
     id: str
@@ -66,11 +63,9 @@ class TrelloData(BaseModel):
     word_count: int | None = None
 
 
-class EditingTrelloData(BaseModel):
+class EditingTrelloData(CamelModel):
     model_config = ConfigDict(
-        from_attributes=True, 
-        alias_generator=to_camel, 
-        populate_by_name=True
+        from_attributes=True
     )
     id: str | None = None
     url: HttpUrl | None = None
@@ -90,7 +85,7 @@ class EditingTrelloData(BaseModel):
 # IDML OPS
 # ---------------------
 
-class StringMapPayload(BaseModel):
+class StringMapPayload(CamelModel):
     string_ids: list[int]
     strings: list[str]
     label_id: int | None = None
@@ -101,7 +96,7 @@ class StringMapPayload(BaseModel):
 # YouTube
 # ---------------------
 
-class YouTubeData(BaseModel):
+class YouTubeData(CamelModel):
     id: str | None = None
     localized_title: str | None = None
     url: HttpUrl | None = None
@@ -109,11 +104,7 @@ class YouTubeData(BaseModel):
 
 
 class EditingYouTubeData(YouTubeData):
-    model_config = ConfigDict(
-        from_attributes=True, 
-        alias_generator=to_camel, 
-        populate_by_name=True
-    )
+    model_config = ConfigDict(from_attributes=True)
     pass
 
 
@@ -122,7 +113,7 @@ class EditingYouTubeData(YouTubeData):
 # Crowdin
 # ---------------------
 
-class CrowdinData(BaseModel):
+class CrowdinData(CamelModel):
     model_config = ConfigDict(from_attributes=True)
 
     crowdin_file_id: int | None = None
@@ -133,9 +124,5 @@ class CrowdinData(BaseModel):
 
 
 class EditingCrowdinData(CrowdinData):
-    model_config = ConfigDict(
-        from_attributes=True, 
-        alias_generator=to_camel, 
-        populate_by_name=True
-    )
+    model_config = ConfigDict(from_attributes=True)
     pass

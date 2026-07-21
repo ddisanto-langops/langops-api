@@ -1,9 +1,9 @@
 from uuid import UUID
 from datetime import datetime
 from enums import MediaGroups, ProductStatus
-from pydantic import BaseModel, HttpUrl, ConfigDict
-from pydantic.alias_generators import to_camel
+from pydantic import HttpUrl
 
+from schemas.base import CamelModel
 from schemas.sub_schemas import (
     TrelloAction,
     TrelloAttachment,
@@ -22,12 +22,7 @@ from schemas.sub_schemas import (
 # Raw data classes, used in requests
 # --------------------------------------
 
-class RawTrelloCard(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True
-    )
-
+class RawTrelloCard(CamelModel):
     id: str
     name: str
     labels: list[TrelloLabel] | None = None
@@ -42,7 +37,7 @@ class RawTrelloCard(BaseModel):
     id_labels: list[str] | None = None
 
 
-class RawCrowdinData(BaseModel):
+class RawCrowdinData(CamelModel):
     translation_progress: int
     approval_progress: int
 
@@ -55,17 +50,17 @@ class RawCrowdinData(BaseModel):
 # Product data classes, used in responses
 # --------------------------------------
 
-class ProductCodeCount(BaseModel):
+class ProductCodeCount(CamelModel):
     product_code: str
     count: int
 
 
-class StringMapItem(BaseModel):
+class StringMapItem(CamelModel):
     context_identifier: str
     map: StringMapPayload
 
 
-class LangOpsProduct(BaseModel):
+class LangOpsProduct(CamelModel):
     id: UUID
     date_created: datetime
     date_deleted: datetime | None
@@ -76,11 +71,7 @@ class LangOpsProduct(BaseModel):
     crowdin_data: CrowdinData | None
 
 
-class NewLangOpsProduct(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True
-    )
+class NewLangOpsProduct(CamelModel):
     date_created: datetime
     date_deleted: datetime | None = None
     media_groups: list[MediaGroups]
@@ -90,7 +81,7 @@ class NewLangOpsProduct(BaseModel):
     crowdin_data: CrowdinData | None
 
 
-class EditingLangOpsProduct(BaseModel):
+class EditingLangOpsProduct(CamelModel):
     id: str | None = None
     date_created: datetime | None = None
     date_deleted: datetime | None = None

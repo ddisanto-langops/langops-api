@@ -1,16 +1,16 @@
 from datetime import datetime
-from pydantic import BaseModel
 
+from schemas.base import CamelModel
 from enums import ProductCodes, MediaGroups, Languages
 from schemas.data_schemas import RawTrelloCard, RawCrowdinData
 
 
-class AddProductRequest(BaseModel):
+class AddProductRequest(CamelModel):
     trello_data: RawTrelloCard
     crowdin_data: RawCrowdinData
 
 
-class UserEditProductRequest(BaseModel):
+class UserEditProductRequest(CamelModel):
     date_created: datetime | None = None
     date_deleted: datetime | None = None
     media_groups: list[MediaGroups] | None = None

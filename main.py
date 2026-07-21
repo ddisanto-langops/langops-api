@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError, ResponseValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from schemas.base import CamelJSONResponse
 from schemas.error_schemas import (
     ErrorDetail, 
     ClientValidationError, 
@@ -52,7 +53,7 @@ Cloudflare's JWTs have an `aud` claim, which must match at least one entry in th
 ---
 """
 
-app = FastAPI(title="PCG LangOps API", description=auth_docs_blurb, version="1.0.5")
+app = FastAPI(title="PCG LangOps API", description=auth_docs_blurb, version="1.0.5", default_response_class=CamelJSONResponse)
 logger = logging.getLogger("uvicorn.error")
 
 # -------------------
@@ -122,7 +123,7 @@ async def http_exception_handler(request: Request, exception: StarletteHTTPExcep
 
     return JSONResponse(
         status_code=exception.status_code,
-        content=payload.model_dump(mode="json")
+        content=payload.model_dump(mode="json", by_alias=True)
     )
 
 
@@ -146,7 +147,7 @@ async def validation_exception_handler(request: Request, exception: RequestValid
     )
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-        content=payload.model_dump(mode="json")
+        content=payload.model_dump(mode="json", by_alias=True)
     )
 
 
@@ -159,7 +160,7 @@ async def response_validation_exception_handler(request: Request, exception: Res
     )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=payload.model_dump(mode="json")
+        content=payload.model_dump(mode="json", by_alias=True)
     )
 
 
@@ -176,5 +177,5 @@ async def global_exception_handler(request: Request, exception: Exception):
     
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=payload.model_dump(mode="json")
+        content=payload.model_dump(mode="json", by_alias=True)
     )

@@ -1,52 +1,52 @@
-from pydantic import BaseModel
+from schemas.base import CamelModel
 from datetime import datetime
 
 
 # ----------------------------------------------
 # The models of each individual error response
 # ----------------------------------------------
-class ErrorDetail(BaseModel):
+class ErrorDetail(CamelModel):
     loc: list[str | int]
     msg: str
     type: str
 
 
-class BadRequestError(BaseModel):
+class BadRequestError(CamelModel):
     # 400
     error_code: str = "BAD_REQUEST"
     message: str = "Bad data sent to server"
     timestamp: datetime
 
 
-class Unauthorized(BaseModel):
+class Unauthorized(CamelModel):
     # 401
     error_code: str = "Unauthorized"
     message: str = "Token is missing, expired or incorrect"
     timestamp: datetime
 
 
-class NotFoundError(BaseModel):
+class NotFoundError(CamelModel):
     # 404
     error_code: str = "NOT_FOUND"
     message: str = "Record was not found"
     timestamp: datetime
 
 
-class MethodNotAllowedError(BaseModel):
+class MethodNotAllowedError(CamelModel):
     # 405
     error_code: str = "METHOD_NOT_ALLOWED"
     message: str = "This endpoint does not accept the provided method"
     timestamp: datetime
 
 
-class ClientValidationError(BaseModel):
+class ClientValidationError(CamelModel):
     # 422
     error_code: str = "INVALID_INPUT_PAYLOAD"
     message: str = "The request payload failed validation rules."
     details: list[ErrorDetail]
     timestamp: datetime
 
-class ServerContractViolation(BaseModel):
+class ServerContractViolation(CamelModel):
     # 500
     error_code: str = "SERVER_CONTRACT_VIOLATION"
     message: str = "Internal server configuration error."
