@@ -525,10 +525,10 @@ async def user_edit_product(
         existing_product.trello_date_archived = product.trello_data.date_archived
     
     if product.trello_data.editor_url:
-        existing_product.trello_editor_url = product.trello_data.editor_url
+        existing_product.trello_editor_url = str(product.trello_data.editor_url)
     
     if product.trello_data.article_url:
-        existing_product.trello_article_url = product.trello_data.article_url
+        existing_product.trello_article_url = str(product.trello_data.article_url)
     
     if product.trello_data.word_count:
         existing_product.trello_word_count = product.trello_data.word_count
@@ -538,7 +538,7 @@ async def user_edit_product(
             existing_product.youtube_id = product.youtube_data.id
         
         if product.youtube_data.url:
-            existing_product.youtube_url = product.youtube_data.url
+            existing_product.youtube_url = str(product.youtube_data.url)
 
         if product.youtube_data.localized_title:
             existing_product.youtube_localized_title = product.youtube_data.localized_title
@@ -560,7 +560,7 @@ async def user_edit_product(
             existing_product.crowdin_approval_progress = product.crowdin_data.approval_progress
         
         if product.crowdin_data.crowdin_url:
-            existing_product.crowdin_url = product.crowdin_data.crowdin_url
+            existing_product.crowdin_url = str(product.crowdin_data.crowdin_url)
 
     try:
         merged = await db.merge(existing_product)
