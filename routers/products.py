@@ -92,31 +92,11 @@ async def get_products(
         description="Number of records to skip",
         ge=0
     )] = 0,
-    archived_only: Annotated[bool, Query(
-        title="Archived Only",
-        alias="archivedOnly",
-        description="Return only products which are archived in Trello"
-    )] = False,
-    published_only: Annotated[bool, Query(
-        title="Published Only",
-        alias="publishedOnly",
-        description="""Whether to return only products where `date_published` **is not null.**
-        <span style="color:red">If set to true, `unpublished_only` must be set to false.</span>"""
-    )] = False,
-    unpublished_only: Annotated[bool, Query(
-        title="Unpublished Only",
-        alias="unpublishedOnly",
-        description="""Whether to return only products where `date_published` **is null.**
-        <span style="color:red">If set to true, `published_only` must be set to false.</span>"""
-    )] = False,
-    exclude_deleted: Annotated[bool, Query(
-        title="Exclude Deleted",
-        alias="excludeDeleted",
-        description="""Whether to exclude deleted products 
-        (where date deleted is not null). If set to false, 
-        deleted products will be returned along with active ones.
-        """
-    )] = True,
+    status: Annotated[list[ProductStatus], Query(
+        title="Status",
+        alias="status",
+        description="Returns products with a status matching the values in this array"
+    )] = None,
     db: AsyncSession = Depends(get_db)
     ):
     if limit > 500 or limit < 1:
@@ -156,17 +136,8 @@ async def get_products(
             )
         )
 
-    if archived_only:
-        statement = statement.where(LangOpsProductORM.trello_date_archived.is_not(None))
-    
-    if published_only:
-        statement = statement.where(LangOpsProductORM.trello_date_published.is_not(None))
-    
-    if unpublished_only:
-        statement = statement.where(LangOpsProductORM.trello_date_published.is_(None))
-
-    if exclude_deleted:
-        statement = statement.where(LangOpsProductORM.date_deleted.is_(None))
+    if status:
+        statement = statement.where(LangOpsProductORM.product_status.in_(status))
     
     result = await db.execute(statement)
     rows = result.scalars().all()
