@@ -25,7 +25,7 @@ from schemas.data_schemas import (
 )
 from schemas.error_schemas import ErrorResponses
 from models import LangOpsProductORM, orm_to_langops_product, new_product_to_orm
-from enums import MediaGroups, ProductCodes
+from enums import MediaGroups, ProductCodes, ProductStatus
 from constants import PRODUCT_CODE_MAX_LEN
 from db import get_db
 from functions import build_new_langops_products
@@ -46,7 +46,7 @@ router = APIRouter()
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
     }
 )
-async def get_all_products(
+async def get_products(
     language: Annotated[str | None, Query(
         title="Target Language", 
         alias="targetLanguage", 
@@ -632,6 +632,7 @@ async def delete_product(
         update(LangOpsProductORM)
             .where(LangOpsProductORM.trello_id == id)
             .values(date_deleted=timestamp)
+            .values(product_status=ProductStatus.DELETED)
             .returning(LangOpsProductORM.trello_id)
     )
 

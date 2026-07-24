@@ -1,5 +1,6 @@
 #
 # WARNING: CONTAINS PLACEHOLDERS FOR TESTING
+ # TODO: Implement localized title via web scraping
 #
 
 import os
@@ -10,7 +11,15 @@ from collections import defaultdict
 from crowdin_api import CrowdinClient
 from fastapi import HTTPException, status
 
-from schemas.data_schemas import StringMapItem, StringMapPayload, NewLangOpsProduct, TrelloData, CrowdinData, YouTubeData, RawTrelloCard
+from schemas.data_schemas import (
+    StringMapItem,
+    StringMapPayload,
+    RawTrelloCard,
+    NewLangOpsProduct,
+    TrelloData,
+    CrowdinData,
+    YouTubeData,
+)       
 from enums import CustomFields, ProductCodes, Languages, MediaGroups, ProductStatus, CROWDIN_PROJECT_IDS
 
 def create_crowdin_client(token: str) -> CrowdinClient:
@@ -373,7 +382,10 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
         status = ProductStatus.UNKNOWN
         translation_progress = 0.0
         approval_progress = 0.0
-        
+
+        if product.date_closed:
+            status = ProductStatus.ARCHIVED
+
         if date_published:
             status = ProductStatus.PUBLISHED
             translation_progress = 100.0

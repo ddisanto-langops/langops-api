@@ -48,8 +48,10 @@ class MediaCategories(str, Enum):
 
 
 class ProductStatus(str, Enum):
+    ARCHIVED = "archived"
     PUBLISHED = "published"
     PENDING = "pending"
+    DELETED = "deleted"
     UNKNOWN = "unknown"
 
 class Languages(str, Enum):
