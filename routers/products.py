@@ -62,11 +62,10 @@ async def get_products(
         alias="dateTo", 
         description="Return products published on or before this date"
     )] = None,
-    product_code: Annotated[ProductCodes | None, Query(
-        title="Product Code",
-        alias="productCode",
-        description="The prefixed code indicating type of product, e.g. 'PT'",
-        max_length=PRODUCT_CODE_MAX_LEN
+    product_codes: Annotated[list[ProductCodes] | None, Query(
+        title="Product Codes",
+        alias="productCodes",
+        description="An array containing desired product code(s), e.g. 'PT'"
     )] = None, 
     media_groups: Annotated[list[MediaGroups] | None, Query(
         title="Media Groups",
@@ -113,8 +112,8 @@ async def get_products(
     if languages:
         statement = statement.where(LangOpsProductORM.trello_target_language.in_(languages))
 
-    if product_code:
-        statement = statement.where(LangOpsProductORM.trello_product_code == product_code)  
+    if product_codes:
+        statement = statement.where(LangOpsProductORM.trello_product_code.in_(product_codes))  
     
     if date_from and date_to:
         statement = statement.where(LangOpsProductORM.trello_date_published.between(date_from, date_to))
@@ -181,10 +180,10 @@ async def get_word_count(
         alias="dateTo", 
         description="Return products published on or before this date"
     )] = None,
-    product_code: Annotated[ProductCodes | None, Query(
-        title="Product Code",
-        alias="productCode",
-        description="The prefixed code indicating type of product, e.g. 'PT'",
+    product_codes: Annotated[list[ProductCodes] | None, Query(
+        title="Product Codes",
+        alias="productCodes",
+        description="The desired product code(s) indicating type of product, e.g. 'PT'",
         max_length=PRODUCT_CODE_MAX_LEN
     )] = None, 
     media_groups: Annotated[list[MediaGroups] | None, Query(
@@ -209,8 +208,8 @@ async def get_word_count(
     if date_from and date_to:
         statement = statement.where(LangOpsProductORM.trello_date_published.between(date_from, date_to))
     
-    if product_code:
-        statement = statement.where(LangOpsProductORM.trello_product_code == product_code)
+    if product_codes:
+        statement = statement.where(LangOpsProductORM.trello_product_code.in_(product_codes))
     
     if media_groups:
         values = [g.value for g in media_groups]
@@ -253,10 +252,10 @@ async def get_product_count(
         alias="dateTo", 
         description="Return products published on or before this date"
     )] = None,
-    product_code: Annotated[ProductCodes | None, Query(
-        title="Product Code",
-        alias="productCode",
-        description="The prefixed code indicating type of product, e.g. 'PT'",
+    product_codes: Annotated[list[ProductCodes] | None, Query(
+        title="Product Codes",
+        alias="productCodes",
+        description="The product code of the desired product(s), e.g. 'PT'",
         max_length=PRODUCT_CODE_MAX_LEN
     )] = None, 
     media_groups: Annotated[list[MediaGroups] | None, Query(
@@ -278,8 +277,8 @@ async def get_product_count(
     if date_from and date_to:
         filters.append(LangOpsProductORM.trello_date_published.between(date_from, date_to))
     
-    if product_code:
-        filters.append(LangOpsProductORM.trello_product_code == product_code)
+    if product_codes:
+        filters.append(LangOpsProductORM.trello_product_code.in_(product_codes))
     
     if media_groups:
         values = [g.value for g in media_groups]
