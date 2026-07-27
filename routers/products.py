@@ -4,6 +4,7 @@ from sqlalchemy import asc, func, or_, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.future import select
+from sqlalchemy.sql.functions import coalesce
 from typing import Annotated
 
 from schemas.response_schemas import (
@@ -125,13 +126,20 @@ async def get_products(
         )
     
     if search:
-        search_filter = f"%{search}%"
-        statement = statement.where(
-            or_(
-                LangOpsProductORM.trello_title.ilike(search_filter),
-                LangOpsProductORM.trello_localized_title.ilike(search_filter)
+        words = [w.strip() for w in search.split() if w.strip()]
+        if words:
+            # 2. Format tokens for a prefix/wildcard search ('word1:* & word2:*')
+            fts_query = " & ".join([f"{w}:*" for w in words])
+            
+            # 3. Combine English and multi-language columns using the 'simple' configuration
+            vector_title = func.to_tsvector('simple', LangOpsProductORM.trello_title)
+            vector_loc_title = func.to_tsvector('simple', LangOpsProductORM.trello_localized_title)
+            combined_vector = vector_title.op('||')(vector_loc_title)
+                            
+            # 4. Filter using the match operator (@@)
+            statement = statement.where(
+                combined_vector.op('@@')(func.to_tsquery('simple', fts_query))
             )
-        )
 
     if status:
         statement = statement.where(LangOpsProductORM.product_status.in_(status))
