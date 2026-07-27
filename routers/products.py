@@ -47,12 +47,10 @@ router = APIRouter()
     }
 )
 async def get_products(
-    language: Annotated[str | None, Query(
-        title="Target Language", 
-        alias="targetLanguage", 
-        description="The target language of the products in ISO-639-1 format",
-        min_length=2,
-        max_length=2
+    languages: Annotated[list[str] | None, Query(
+        title="Target Languages", 
+        alias="targetLanguages", 
+        description="The target languages of the products, in ISO-639-1 format"
     )] = None,
     date_from: Annotated[datetime | None, Query(
         title="Date From", 
@@ -112,8 +110,8 @@ async def get_products(
         .offset(offset)
     )
 
-    if language:
-        statement = statement.where(LangOpsProductORM.trello_target_language == language)
+    if languages:
+        statement = statement.where(LangOpsProductORM.trello_target_language.in_(languages))
 
     if product_code:
         statement = statement.where(LangOpsProductORM.trello_product_code == product_code)  
@@ -168,10 +166,10 @@ async def get_products(
         }
 )
 async def get_word_count(
-    language: Annotated[str | None, Query(
-        title="Target Language", 
-        alias="targetLanguage", 
-        description="The target language of the products in ISO-639-1 format"
+    languages: Annotated[list[str] | None, Query(
+        title="Target Languages", 
+        alias="targetLanguages", 
+        description="The target languages of the products, in ISO-639-1 format"
     )] = None,
     date_from: Annotated[datetime | None, Query(
         title="Date From", 
@@ -205,8 +203,8 @@ async def get_word_count(
         .where(LangOpsProductORM.date_deleted.is_(None))
     )
 
-    if language:
-        statement = statement.where(LangOpsProductORM.trello_target_language == language)
+    if languages:
+        statement = statement.where(LangOpsProductORM.trello_target_language.in_(languages))
     
     if date_from and date_to:
         statement = statement.where(LangOpsProductORM.trello_date_published.between(date_from, date_to))
@@ -240,10 +238,10 @@ async def get_word_count(
         }
 )
 async def get_product_count(
-    language: Annotated[str | None, Query(
-        title="Target Language", 
-        alias="targetLanguage", 
-        description="The target language of the products in ISO-639-1 format"
+    languages: Annotated[list[str] | None, Query(
+        title="Target Languages", 
+        alias="targetLanguages", 
+        description="The target languages of the products, in ISO-639-1 format"
     )] = None,
     date_from: Annotated[datetime | None, Query(
         title="Date From", 
@@ -274,8 +272,8 @@ async def get_product_count(
         LangOpsProductORM.date_deleted.is_(None),
     ]
 
-    if language:
-        filters.append(LangOpsProductORM.trello_target_language == language)
+    if languages:
+        filters.append(LangOpsProductORM.trello_target_language.in_(languages))
     
     if date_from and date_to:
         filters.append(LangOpsProductORM.trello_date_published.between(date_from, date_to))
