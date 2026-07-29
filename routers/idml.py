@@ -4,7 +4,7 @@ from fastapi import APIRouter, status, Body
 from schemas.error_schemas import ErrorResponses
 from schemas.response_schemas import GetStringMapResponse
 from schemas.data_schemas import StringMapItem
-from functions import create_string_map, label_misc_strings, label_idml_strings
+from functions import create_string_map, label_idml_strings
 
 router = APIRouter()
 
