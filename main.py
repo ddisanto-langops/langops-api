@@ -130,6 +130,7 @@ async def http_exception_handler(request: Request, exception: StarletteHTTPExcep
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exception: RequestValidationError):
+    logger.error(f"Validation failed: {exception.errors()}")
     details = [
         ErrorDetail(
             loc=error["loc"],
