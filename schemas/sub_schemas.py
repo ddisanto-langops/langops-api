@@ -88,7 +88,7 @@ class EditingTrelloData(CamelModel):
 class StringMapPayload(CamelModel):
     string_ids: list[int]
     strings: list[str]
-    label_id: int | None = None
+    label_text: str | None = None
 
 
 

@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get(
     "/map/{crowdin_project_id}/{crowdin_file_id}",
-    description="Get the context identifier, string IDs and text of each IDML story file to facilitate labeling, e.g. via a frontend service.",
+    description="Get the context identifier, string IDs and text of each IDML story file to facilitate labeling, e.g. via a frontend service. Stories with less than 10 strings will be automatically labelled as miscellaneous and will not be shown to the caller.",
     response_model=GetStringMapResponse,
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
@@ -46,10 +46,9 @@ def label_idml(
     schema: Annotated[list[StringMapItem], Body(
         title="String Map Schema",
         alias="schema",
-        description="The schema with string IDs as array and desired label as int"
+        description="A string map schema with string IDs as array and desired label as text. See readme for more information."
     )]
 ):
-    label_misc_strings(crowdin_project_id, schema)
     label_idml_strings(crowdin_project_id, schema)
 
 

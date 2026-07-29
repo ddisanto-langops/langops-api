@@ -128,15 +128,12 @@ async def get_products(
     if search:
         words = [w.strip() for w in search.split() if w.strip()]
         if words:
-            # 2. Format tokens for a prefix/wildcard search ('word1:* & word2:*')
             fts_query = " & ".join([f"{w}:*" for w in words])
             
-            # 3. Combine English and multi-language columns using the 'simple' configuration
             vector_title = func.to_tsvector('simple', LangOpsProductORM.trello_title)
             vector_loc_title = func.to_tsvector('simple', LangOpsProductORM.trello_localized_title)
             combined_vector = vector_title.op('||')(vector_loc_title)
                             
-            # 4. Filter using the match operator (@@)
             statement = statement.where(
                 combined_vector.op('@@')(func.to_tsquery('simple', fts_query))
             )

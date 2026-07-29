@@ -31,6 +31,72 @@ def create_crowdin_client(token: str) -> CrowdinClient:
 
 
 
+def label_misc_strings(
+        crowdin_project_id: int,
+        string_data: list[StringMapItem],
+    ) -> None:
+    """
+        If a context label has less than 10 strings, label it as miscellaneous.
+        Only context labels which own 10 strings or more will be exposed to the user
+        for labelling.
+    """
+    
+    try:
+        client = create_crowdin_client(token=os.getenv("CROWDIN_API_TOKEN"))
+
+        label_id: int | None = None
+        labels_res = client.labels.list_labels(
+            projectId=crowdin_project_id
+        )
+        for item in labels_res['data']:
+            title = item['data']['title'].lower()
+            if title == "miscellaneous": # label exists
+                label_id = item['data']['id']
+        
+        if label_id is None:
+            add_label_res = client.labels.add_label(
+                title="miscellaneous",
+                projectId=crowdin_project_id
+            )
+            label_id = add_label_res['data'][ 'id']
+
+    except Exception as e:
+        print(f"Error adding label. Check if label already exists. Message: {e}")
+
+    misc_strings = []
+    misc_strings_count = 0
+
+    for item in string_data:
+        if len(item.map.string_ids) < 10:
+            for id in item.map.string_ids:
+                misc_strings.append(int(id))
+                misc_strings_count +=1
+
+    try:
+        add_label_res = client.labels.add_label(
+            title="Miscellaneous",
+            projectId=crowdin_project_id
+        )
+        
+
+
+        client.labels.assign_label_to_strings(
+            labelId=label_id,
+            stringIds=misc_strings,
+            projectId=crowdin_project_id
+        )
+
+    except Exception as e:
+        print(f"Failed to lable misc. strings: {e}")
+            
+    return {
+        "status": "OK",
+        "Misc. string count": misc_strings_count,
+        "ids": misc_strings
+    }
+
+
+
 def create_string_map(
     crowdin_project_id: int,
     crowdin_file_id: int
@@ -102,7 +168,7 @@ def create_string_map(
         if res_length < limit:
             has_more = False
 
-    return [
+    mapped_strings = [
         StringMapItem(
             context_identifier=context,
             map=StringMapPayload(
@@ -114,71 +180,18 @@ def create_string_map(
         for context, payload in grouped.items()
     ]
 
+    label_misc_strings(crowdin_project_id, mapped_strings)
+
+    user_strings = []
+    for item in mapped_strings:
+        if len(item.map.strings) >= 10:
+            user_strings.append(item)
+
+    return user_strings
 
 
-def label_misc_strings(
-        crowdin_project_id: int,
-        string_data: list[StringMapItem],
-    ) -> None:
-    """
-        If a context label has less than 10 strings, label it as miscellaneous.
-        Only context labels which own 10 strings or more will be exposed to the user
-        for labelling.
-    """
-    
-    try:
-        client = create_crowdin_client(token=os.getenv("CROWDIN_API_TOKEN"))
-
-        label_id: int | None = None
-        labels_res = client.labels.list_labels(
-            projectId=crowdin_project_id
-        )
-        for item in labels_res['data']:
-            title = item['data']['title'].lower()
-            if title == "miscellaneous": # label exists
-                label_id = item['data']['id']
-        
-        if label_id is None:
-            add_label_res = client.labels.add_label(
-                title="miscellaneous",
-                projectId=crowdin_project_id
-            )
-            label_id = add_label_res['data'][ 'id']
-
-    except Exception as e:
-        print(f"Error adding label. Check if label already exists. Message: {e}")
-
-    misc_strings = []
-    misc_strings_count = 0
-
-    for item in string_data:
-        if len(item.map.string_ids) < 10:
-            for id in item.map.string_ids:
-                misc_strings.append(int(id))
-                misc_strings_count +=1
-
-    try:
-        add_label_res = client.labels.add_label(
-            title="Miscellaneous",
-            projectId=crowdin_project_id
-        )
-        
 
 
-        client.labels.assign_label_to_strings(
-            labelId=label_id,
-            stringIds=misc_strings,
-            projectId=crowdin_project_id
-        )
-
-    except Exception as e:
-        print(f"Failed to lable misc. strings: {e}")
-            
-    return {
-        "status": "OK",
-        "Misc. string count": misc_strings_count,
-        "ids": misc_strings
-    }
 
 
 def label_idml_strings(
@@ -196,12 +209,29 @@ def label_idml_strings(
     client = create_crowdin_client(token)
 
     for item in labeled_string_data:
-        if not item.map.label_id:
+        if not item.map.label_text:
             continue
+        else:
+            label_text = item.map.label_text
+
+        if item.map.label_text:
+            try:
+                add_req = client.labels.add_label(
+                    title=label_text,
+                    projectId=crowdin_project_id
+                )
+                label_id = add_req['data']['id']
+
+            except Exception as e:
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Failed to add label to Crowdin: {e}.",
+                ) from e
+            
         
         if len(item.map.string_ids) >= 10:
             client.labels.assign_label_to_strings(
-                labelId=item.map.label_id,
+                labelId=label_id,
                 stringIds=item.map.string_ids,
                 projectId=crowdin_project_id
             )
