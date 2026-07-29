@@ -45,7 +45,6 @@ def label_idml(
     crowdin_project_id: int,
     schema: Annotated[list[StringMapItem], Body(
         title="String Map Schema",
-        alias="schema",
         description="A string map schema with string IDs as array and desired label as text. See readme for more information."
     )]
 ):
