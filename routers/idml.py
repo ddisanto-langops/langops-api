@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, status, Body
+from fastapi import HTTPException, APIRouter, status, Body
 
 from schemas.error_schemas import ErrorResponses
 from schemas.response_schemas import GetStringMapResponse
@@ -17,18 +17,25 @@ router = APIRouter()
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
         status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
         status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
-        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR,
+        status.HTTP_502_BAD_GATEWAY: ErrorResponses._502_BAD_GATEWAY
     }
 )
 def get_string_map(
     crowdin_project_id: int,
     crowdin_file_id: int
 ):
-    string_map = create_string_map(crowdin_project_id, crowdin_file_id)
+    try:
+        string_map = create_string_map(crowdin_project_id, crowdin_file_id)
     
-    return GetStringMapResponse(
-        data=string_map
-    )
+        return GetStringMapResponse(
+            data=string_map
+        )
+    except HTTPException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        )
 
 
 @router.post(
@@ -45,14 +52,16 @@ def label_idml(
     crowdin_project_id: int,
     schema: Annotated[list[StringMapItem], Body(
         title="String Map Schema",
-        description="A string map schema with string IDs as array and desired label as text. See readme for more information."
+        description="An object linking string IDs to a label title. See readme for more information."
     )]
 ):
-    label_idml_strings(crowdin_project_id, schema)
-
-
-
-    
-
-
-
+    try:
+        label_idml_strings(crowdin_project_id, schema)
+        return status.HTTP_201_CREATED
+    except HTTPException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        )
+    except Exception as e:
+        raise Exception(e)

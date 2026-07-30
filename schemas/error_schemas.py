@@ -1,5 +1,6 @@
 from schemas.base import CamelModel
 from datetime import datetime
+from fastapi import status
 
 
 # ----------------------------------------------
@@ -12,47 +13,44 @@ class ErrorDetail(CamelModel):
 
 
 class BadRequestError(CamelModel):
-    # 400
-    error_code: str = "BAD_REQUEST"
+    error_code: int = status.HTTP_400_BAD_REQUEST
     message: str = "Bad data sent to server"
     timestamp: datetime
 
 
 class Unauthorized(CamelModel):
-    # 401
-    error_code: str = "Unauthorized"
+    error_code: int = status.HTTP_401_UNAUTHORIZED
     message: str = "Token is missing, expired or incorrect"
     timestamp: datetime
 
 
 class NotFoundError(CamelModel):
-    # 404
-    error_code: str = "NOT_FOUND"
+    error_code: int = status.HTTP_404_NOT_FOUND
     message: str = "Record was not found"
     timestamp: datetime
 
 
 class MethodNotAllowedError(CamelModel):
-    # 405
-    error_code: str = "METHOD_NOT_ALLOWED"
+    error_code: int = status.HTTP_405_METHOD_NOT_ALLOWED
     message: str = "This endpoint does not accept the provided method"
     timestamp: datetime
 
 
 class ClientValidationError(CamelModel):
-    # 422
-    error_code: str = "INVALID_INPUT_PAYLOAD"
+    error_code: int = status.HTTP_422_UNPROCESSABLE_CONTENT
     message: str = "The request payload failed validation rules."
     details: list[ErrorDetail]
     timestamp: datetime
 
 class ServerContractViolation(CamelModel):
-    # 500
-    error_code: str = "SERVER_CONTRACT_VIOLATION"
+    error_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
     message: str = "Internal server configuration error."
     timestamp: datetime
 
-
+class BadGateway(CamelModel):
+    error_code: int = status.HTTP_502_BAD_GATEWAY
+    message: str = "Upstream error"
+    timestamp: datetime
 
 
 # ------------------------------------------------------------------------------
@@ -69,7 +67,7 @@ class ErrorResponses:
     
     _400_BAD_REQUEST = {
         "model": BadRequestError,
-        "description": "Data sent to the server was malformed."
+        "description": "Data sent to the server was malformed"
     }
 
     _401_UNAUTHORIZED = {
@@ -79,22 +77,27 @@ class ErrorResponses:
 
     _404_NOT_FOUND = {
         "model": NotFoundError,
-        "description": "The requested LangOps resource could not be located."
+        "description": "The requested LangOps resource could not be located"
     }
 
     _405_METHOD_NOT_ALLOWED = {
         "model": MethodNotAllowedError,
-        "description": "The client tried to use a method which this endpoint does not allow."
+        "description": "The client tried to use a method which this endpoint does not allow"
     }
     
     _422_VALIDATION_ERROR = {
         "model": ClientValidationError,
-        "description": "The client sent a payload that failed schema or domain validation."
+        "description": "The client sent a payload that failed schema or domain validation"
     }
     
     _500_INTERNAL_SERVER_ERROR = {
         "model": ServerContractViolation,
-        "description": "Internal database structure or outbound schema mismatch."
+        "description": "Internal database structure or outbound schema mismatch"
+    }
+
+    _502_BAD_GATEWAY = {
+        "model": BadGateway,
+        "description": "Error from upstream resource"
     }
 
     

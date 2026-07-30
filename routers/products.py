@@ -4,7 +4,6 @@ from sqlalchemy import asc, func, or_, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.future import select
-from sqlalchemy.sql.functions import coalesce
 from typing import Annotated
 
 from schemas.response_schemas import (
@@ -331,8 +330,13 @@ async def get_product_by_id(
     statement = select(LangOpsProductORM).where(LangOpsProductORM.trello_id == id)
     result = await db.execute(statement)
     row = result.scalars().one_or_none()
-
-    return orm_to_langops_product(row)
+    if row:
+        return orm_to_langops_product(row)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requested product not found"
+        )
 
 
 @router.post(

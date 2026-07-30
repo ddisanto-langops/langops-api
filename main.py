@@ -97,16 +97,16 @@ async def log(request: Request, call_next):
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exception: StarletteHTTPException):
-    logger.error(f"HTTP EXCEPTION TRIGGERED: Status {exception.status_code} | Detail: {exception.detail}")
+    logger.error(f"HTTP EXCEPTION: Status {exception.status_code} | Detail: {exception.detail}")
     if exception.status_code == status.HTTP_404_NOT_FOUND:
         payload = NotFoundError(
-            error_code="NOT_FOUND",
+            error_code=status.HTTP_404_NOT_FOUND,
             message=str(exception.detail),
             timestamp=datetime.now(timezone.utc)
         )
     elif exception.status_code == status.HTTP_400_BAD_REQUEST:
         payload = BadRequestError(
-            error_code="BAD_REQUEST",
+            error_code=status.HTTP_400_BAD_REQUEST,
             message=str(exception.detail),
             timestamp=datetime.now(timezone.utc)
         )
@@ -115,7 +115,7 @@ async def http_exception_handler(request: Request, exception: StarletteHTTPExcep
         return JSONResponse(
             status_code=exception.status_code,
             content={
-                "error_code": f"HTTP_{exception.status_code}",
+                "errorCode": exception.status_code,
                 "message": str(exception.detail),
                 "timestamp": datetime.now(timezone.utc).isoformat()
             }
@@ -141,8 +141,8 @@ async def validation_exception_handler(request: Request, exception: RequestValid
     ]
 
     payload = ClientValidationError(
-        error_code = "INVALID_INPUT_PAYLOAD",
-        message = "Internal server data configuration error",
+        error_code = status.HTTP_422_UNPROCESSABLE_CONTENT,
+        message = "Client data validation error: request unprocessable",
         details = details,
         timestamp= datetime.now(timezone.utc)
     )
@@ -155,7 +155,7 @@ async def validation_exception_handler(request: Request, exception: RequestValid
 @app.exception_handler(ResponseValidationError)
 async def response_validation_exception_handler(request: Request, exception: ResponseValidationError):
     payload = ServerContractViolation(
-        error_code="SERVER_CONTRACT_VIOLATION",
+        error_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         message="Internal server data configuration error.",
         timestamp=datetime.now(timezone.utc)
     )
@@ -171,7 +171,7 @@ async def global_exception_handler(request: Request, exception: Exception):
     logger.error(f"Unhandled system error: {exception}", exc_info=True)
 
     payload = ServerContractViolation(
-        error_code="SERVER_CONTRACT_VIOLATION",
+        error_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         message="An unexpected system error occurred on our end.",
         timestamp=datetime.now(timezone.utc)
     )
