@@ -1,8 +1,3 @@
-#
-# WARNING: CONTAINS PLACEHOLDERS FOR TESTING
- # TODO: Implement localized title via web scraping
-#
-
 import os
 import re
 import requests
@@ -193,9 +188,6 @@ def create_string_map(
 
 
 
-
-
-
 def label_idml_strings(
         crowdin_project_id: int, 
         labeled_string_data: list[StringMapItem]
@@ -211,18 +203,25 @@ def label_idml_strings(
     client = create_crowdin_client(token)
 
     for item in labeled_string_data:
-        if not item.map.label_text:
+        user_label = item.map.label_text or None
+        if not user_label:
             continue
         else:
-            label_text = item.map.label_text
-
-        if item.map.label_text:
             try:
-                add_req = client.labels.add_label(
-                    title=label_text,
+                labels_res = client.labels.list_labels(
                     projectId=crowdin_project_id
                 )
-                label_id = add_req['data']['id']
+                for item in labels_res['data']:
+                    title: str = item['data']['title']
+                    if title.lower() == user_label.lower(): # label exists
+                        label_id = item['data']['id'] or None
+                
+                if label_id is None:
+                    add_label_res = client.labels.add_label(
+                        title=user_label,
+                        projectId=crowdin_project_id
+                    )
+                    label_id = add_label_res['data'][ 'id']
 
             except Exception as e:
                 raise HTTPException(
