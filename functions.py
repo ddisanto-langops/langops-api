@@ -203,6 +203,7 @@ def label_idml_strings(
     client = create_crowdin_client(token)
 
     for item in labeled_string_data:
+        label_id = None
         user_label = item.map.label_text or None
         if not user_label:
             continue
@@ -211,10 +212,10 @@ def label_idml_strings(
                 labels_res = client.labels.list_labels(
                     projectId=crowdin_project_id
                 )
-                for item in labels_res['data']:
-                    title: str = item['data']['title']
+                for crowdin_label in labels_res['data']:
+                    title: str = crowdin_label['data']['title']
                     if title.lower() == user_label.lower(): # label exists
-                        label_id = item['data']['id'] or None
+                        label_id = crowdin_label['data']['id']
                 
                 if label_id is None:
                     add_label_res = client.labels.add_label(
