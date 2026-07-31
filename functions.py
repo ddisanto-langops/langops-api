@@ -5,6 +5,8 @@
 
 import os
 import re
+import requests
+from bs4 import BeautifulSoup as Scraper
 from datetime import datetime, timedelta, timezone
 from re import Match
 from collections import defaultdict
@@ -238,6 +240,24 @@ def label_idml_strings(
 
 
 
+def get_localized_title(url: str):
+    if not url:
+        raise ValueError({"error": "URL for localized title cannot be null"})
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+
+        html = Scraper(response.text, "html.parser")
+        title = html.find("h1").get_text()
+
+        return title
+
+    except Exception as e:
+        raise Exception({"error": f"Error getting localized title: {e}"})
+
+    
+
 def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOpsProduct]:
     
     wordcount_pattern =                 r"(?<=-)(?:[A-Z+]*)([0-9]{1,})(?=_)"
@@ -353,6 +373,10 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
                 if youtube_match:
                     youtube_url = url
 
+        if article_url:
+            localized_tile = get_localized_title(article_url)
+        else:
+            localized_tile = None
 
         magazine = re.search(magazine_pattern, name)
 
@@ -451,7 +475,7 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
             id=product.id,
             url=product.url,
             title=name,
-            localized_title="test",
+            localized_title=localized_tile,
             product_code=product_code,
             target_language=target_language,
             due_date=product.due,
