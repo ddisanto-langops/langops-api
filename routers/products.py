@@ -366,12 +366,12 @@ async def add_products(
     try:
         db.add_all([new_product_to_orm(product) for product in new_products])
         await db.commit()
-        
+
     except IntegrityError:
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="User add product: conflicting key"
+            detail="Add product: conflicting key"
         )
     
     return AddProductResponse(
