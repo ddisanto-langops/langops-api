@@ -1,6 +1,8 @@
 import os
 import re
 import requests
+import logging
+from requests.exceptions import HTTPError
 from bs4 import BeautifulSoup as Scraper
 from datetime import datetime, timedelta, timezone
 from re import Match
@@ -18,6 +20,9 @@ from schemas.data_schemas import (
     YouTubeData,
 )       
 from enums import CustomFields, ProductCodes, Languages, MediaGroups, ProductStatus, CROWDIN_PROJECT_IDS
+
+logger = logging.getLogger("uvicorn.error")
+
 
 def create_crowdin_client(token: str) -> CrowdinClient:
     return CrowdinClient(
@@ -253,8 +258,8 @@ def get_localized_title(url: str):
 
         return title
 
-    except Exception as e:
-        raise Exception({"error": f"Error getting localized title: {e}"})
+    except HTTPError as e:
+        logger.error(f"Error: unable to get localized title: {e}")
 
     
 
@@ -374,9 +379,12 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
                     youtube_url = url
 
         if article_url:
-            localized_tile = get_localized_title(article_url)
+            try:
+                localized_title = get_localized_title(article_url)
+            except Exception:
+                localized_title = None
         else:
-            localized_tile = None
+            localized_title = None
 
         magazine = re.search(magazine_pattern, name)
 
@@ -475,7 +483,7 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
             id=product.id,
             url=product.url,
             title=name,
-            localized_title=localized_tile,
+            localized_title=localized_title,
             product_code=product_code,
             target_language=target_language,
             due_date=product.due,
