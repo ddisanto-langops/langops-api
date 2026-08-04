@@ -389,9 +389,9 @@ async def add_product(
 async def user_add_product(
     product: Annotated[NewLangOpsProduct, Body()],
     db: AsyncSession = Depends(get_db)      
-):  
+):
+    orm_product = new_product_to_orm(product)
 
-    orm_product = LangOpsProductORM(**product.model_dump(exclude_none=False))
     db.add(orm_product)
     await db.commit()
     
