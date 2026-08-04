@@ -352,7 +352,7 @@ async def get_product_by_id(
         status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
     }
 )
-async def add_product(
+async def add_products(
     products: Annotated[list[RawTrelloCard], Body(description="The combined, extracted JSON from each service which is to be evaluated in order to create a product or products")],
     db: AsyncSession = Depends(get_db)      
 ):  
@@ -362,9 +362,17 @@ async def add_product(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Add product: validation failed"
         )
-    
-    db.add_all([new_product_to_orm(product) for product in new_products])
-    await db.commit()
+
+    try:
+        db.add_all([new_product_to_orm(product) for product in new_products])
+        await db.commit()
+        
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User add product: conflicting key"
+        )
     
     return AddProductResponse(
         total_products_added= len(new_products),
@@ -390,15 +398,23 @@ async def user_add_product(
     product: Annotated[NewLangOpsProduct, Body()],
     db: AsyncSession = Depends(get_db)      
 ):
-    orm_product = new_product_to_orm(product)
 
-    db.add(orm_product)
-    await db.commit()
-    
-    return AddProductResponse(
-        total_products_added= 1,
-        data=[product]
-    )
+    try:
+        orm_product = new_product_to_orm(product)
+        db.add(orm_product)
+        await db.commit()
+
+        return AddProductResponse(
+                total_products_added= 1,
+                data=[product]
+            )
+
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User add product: conflicting key"
+        )
 
 
 @router.patch(
