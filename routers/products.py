@@ -129,8 +129,8 @@ async def get_products(
         if words:
             fts_query = " & ".join([f"{w}:*" for w in words])
             
-            vector_title = func.to_tsvector('simple', LangOpsProductORM.trello_title)
-            vector_loc_title = func.to_tsvector('simple', LangOpsProductORM.trello_localized_title)
+            vector_title = func.to_tsvector('simple', func.coalesce(LangOpsProductORM.trello_title, ''))
+            vector_loc_title = func.to_tsvector('simple', func.coalesce(LangOpsProductORM.trello_localized_title, ''))
             combined_vector = vector_title.op('||')(vector_loc_title)
                             
             statement = statement.where(
