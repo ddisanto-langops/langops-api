@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Depends, Query, Path, Body
-from sqlalchemy import asc, func, or_, update, delete
+from sqlalchemy import asc, func, or_, update, delete, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.future import select
@@ -139,7 +139,10 @@ async def get_products(
 
     if status:
         statement = statement.where(LangOpsProductORM.product_status.in_(status))
-    
+
+    # apply default sort: most recent first (descending)
+    statement = statement.order_by(desc(LangOpsProductORM.trello_date_last_activity))
+
     result = await db.execute(statement)
     rows = result.scalars().all()
     count = len(rows)
