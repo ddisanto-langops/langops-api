@@ -31,7 +31,7 @@ class LangOpsProductORM(Base):
     media_groups: Mapped[list[str]] = mapped_column(ARRAY(String))
     product_status: Mapped[str]
 
-    trello_id: Mapped[str]
+    trello_id: Mapped[str] = mapped_column(nullable=False, unique=True)
     trello_url: Mapped[str]
     trello_title: Mapped[str]
     trello_localized_title: Mapped[str | None]
