@@ -50,11 +50,13 @@ def label_misc_strings(
         labels_res = client.labels.list_labels(
             projectId=crowdin_project_id
         )
-        for item in labels_res['data']:
-            title = item['data']['title'].lower()
-            if title == "miscellaneous": # label exists
-                label_id = item['data']['id']
-        
+
+        if labels_res:
+            for item in labels_res['data']:
+                title = item['data']['title'].lower()
+                if title == "miscellaneous": # label exists
+                    label_id = item['data']['id']
+            
         if label_id is None:
             add_label_res = client.labels.add_label(
                 title="miscellaneous",
@@ -62,26 +64,22 @@ def label_misc_strings(
             )
             label_id = add_label_res['data'][ 'id']
 
+        if not label_id:
+            raise Exception("Unable to find label ID for misc strings. Exiting process.")
+
     except Exception as e:
-        print(f"Error adding label. Check if label already exists. Message: {e}")
+        print(f"Error creating misc. label in Crowdin: {e}")
 
     misc_strings = []
     misc_strings_count = 0
 
     for item in string_data:
-        if len(item.map.string_ids) < 10:
+        if len(item.map.string_ids) <= 10:
             for id in item.map.string_ids:
                 misc_strings.append(int(id))
                 misc_strings_count +=1
 
     try:
-        add_label_res = client.labels.add_label(
-            title="Miscellaneous",
-            projectId=crowdin_project_id
-        )
-        
-
-
         client.labels.assign_label_to_strings(
             labelId=label_id,
             stringIds=misc_strings,
@@ -92,7 +90,7 @@ def label_misc_strings(
         print(f"Failed to lable misc. strings: {e}")
             
     return {
-        "status": "OK",
+        "status": status.HTTP_201_CREATED,
         "Misc. string count": misc_strings_count,
         "ids": misc_strings
     }
