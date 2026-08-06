@@ -104,7 +104,7 @@ async def get_products(
     # NOTE: Excludes deleted products by default, unless exclude_deleted is set to True
     statement = (
         select(LangOpsProductORM)
-        .order_by(asc(LangOpsProductORM.date_created))
+        .order_by(desc(LangOpsProductORM.trello_date_last_activity))
         .limit(limit)
         .offset(offset)
     )
@@ -139,9 +139,6 @@ async def get_products(
 
     if status:
         statement = statement.where(LangOpsProductORM.product_status.in_(status))
-
-    # apply default sort: most recent first (descending)
-    statement = statement.order_by(desc(LangOpsProductORM.trello_date_last_activity))
 
     result = await db.execute(statement)
     rows = result.scalars().all()
