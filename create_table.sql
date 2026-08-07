@@ -36,3 +36,10 @@ CREATE TABLE langops_products (
     crowdin_approval_progress       FLOAT,
     crowdin_url                     TEXT
 );
+
+CREATE TABLE webhook_failures (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    date_created    TIMESTAMPTZ,
+    operation       TEXT,
+    data            JSONB NOT NULL
+);

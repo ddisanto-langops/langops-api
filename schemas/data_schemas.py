@@ -1,7 +1,8 @@
 from uuid import UUID
+from typing import Dict, Any
 from datetime import datetime
 from enums import MediaGroups, ProductStatus
-from pydantic import HttpUrl
+from pydantic import HttpUrl, ConfigDict
 
 from schemas.base import CamelModel
 from schemas.sub_schemas import (
@@ -91,3 +92,17 @@ class EditingLangOpsProduct(CamelModel):
     trello_data: EditingTrelloData
     youtube_data: EditingYouTubeData | None = None 
     crowdin_data:  EditingCrowdinData | None = None
+
+
+class NewWebhookFailure(CamelModel):
+    operation: str | None = None
+    data: Dict[str, Any]
+
+
+class WebhookFailure(CamelModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    date_created: datetime
+    operation: str | None = None
+    data: Dict[str, Any]

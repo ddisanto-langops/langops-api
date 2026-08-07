@@ -1,8 +1,9 @@
 import uuid
+from typing import Dict, Any
 from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_column
 from sqlalchemy import ARRAY, String, DateTime, text
-from sqlalchemy.dialects.postgresql import UUID as SA_UUID
+from sqlalchemy.dialects.postgresql import UUID as SA_UUID, JSONB
 
 from schemas.data_schemas import (
     LangOpsProduct,
@@ -10,7 +11,8 @@ from schemas.data_schemas import (
     EditingLangOpsProduct,
     TrelloData,
     YouTubeData,
-    CrowdinData
+    CrowdinData,
+    WebhookFailure
 )
 
 class Base(DeclarativeBase, MappedAsDataclass):
@@ -157,3 +159,25 @@ def new_product_to_orm(product: NewLangOpsProduct | EditingLangOpsProduct) -> La
         youtube_localized_title=getattr(product.youtube_data, 'localized_title', None),
         youtube_duration_seconds=getattr(product.youtube_data, 'duration_seconds', None),
 )
+
+
+class WebhookFailureORM(Base):
+    __tablename__ = "webhook_failures"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+            SA_UUID(as_uuid=True), 
+            primary_key=True, 
+            server_default=text("gen_random_uuid()"),
+            init=False # Do not require ID on object creation since server assigns it
+        )
+    date_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    operation: Mapped[str]
+    data: Mapped[Dict[str, Any]] = mapped_column(JSONB)
+
+def webhook_failure_orm_to_response(row: WebhookFailureORM):
+    return WebhookFailure(
+        id = row.id,
+        date_created= row.date_created,
+        operation=row.operation if row.operation else None,
+        data=row.data
+    )

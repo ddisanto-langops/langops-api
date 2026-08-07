@@ -1,9 +1,10 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Depends, Query, Path, Body
-from sqlalchemy import asc, func, or_, update, delete, desc
+from sqlalchemy import func, or_, update, delete, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.future import select
+from pydantic import ValidationError
 from typing import Annotated
 
 from schemas.response_schemas import (
@@ -21,10 +22,12 @@ from schemas.data_schemas import (
     NewLangOpsProduct,
     EditingLangOpsProduct,
     RawTrelloCard,
-    ProductCodeCount
+    ProductCodeCount,
+    WebhookFailure,
+    NewWebhookFailure
 )
 from schemas.error_schemas import ErrorResponses
-from models import LangOpsProductORM, orm_to_langops_product, new_product_to_orm
+from models import LangOpsProductORM, orm_to_langops_product, new_product_to_orm, WebhookFailureORM, webhook_failure_orm_to_response
 from enums import MediaGroups, ProductCodes, ProductStatus
 from constants import PRODUCT_CODE_MAX_LEN
 from db import get_db
@@ -339,6 +342,50 @@ async def get_product_by_id(
         )
 
 
+@router.get(
+        "/webhooks/failures",
+        description="Get webhooks which were logged as failed via POST /products/webhooks/failures",
+        responses={
+            status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+            status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
+            status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+            status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
+        }
+)
+async def get_failed_webhooks(
+    limit: Annotated[int, Query(
+        title="Limit",
+        alias="limit",
+        ge=1,
+        le=500
+    )] = 500,
+    offset: Annotated[int, Query(
+        title="Offset",
+        alias="offset",
+        description="Number of records to skip",
+        ge=0
+    )] = 0,
+    db: AsyncSession = Depends(get_db)
+):
+    if limit > 500 or limit < 1:
+        raise HTTPException(status_code=400, detail="Limit must be between 1 and 500.")
+
+    try:
+        statement = select(WebhookFailureORM).limit(limit).offset(offset).order_by(desc(WebhookFailureORM.date_created))
+        result = await db.execute(statement)
+        rows = result.scalars().all()
+        
+        if not rows:
+            raise HTTPException(status_code=404, detail="No records found")
+
+        return [webhook_failure_orm_to_response(row) for row in rows]
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=e
+        )
+
 @router.post(
     "/add",
     description="Endpoint for LangOps Gateway to add a product or multiple products to the database. <span style='color:red'>To avoid duplicates and unpredictable behavior, end users are not allowed to add products directly. All add product requests should be handled via the source of truth.</span>",
@@ -416,6 +463,47 @@ async def user_add_product(
             detail="User add product: conflicting key"
         )
 
+
+@router.post(
+        "/webhooks/failures",
+        description="If a webhook sends a request (e.g. create product) and it fails validation, add it to the failures table for manual processing.",
+        status_code=201,
+        responses={
+            status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+            status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
+            status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
+            status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
+        }
+)
+async def log_webhook_failure(
+    payload: Annotated[NewWebhookFailure, Body(description="The webhook payload wrapped in a WebhookFailure class")],
+    db: AsyncSession = Depends(get_db)
+):
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Error logging webhook failure: must provide a payload"
+        )
+    try:
+        db.add(WebhookFailureORM(
+            date_created=datetime.now(timezone.utc),
+            operation=payload.operation if payload else None,
+            data=payload.data
+        ))
+        await db.commit()
+        return status.HTTP_201_CREATED
+
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=e
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error logging webhook failure: {e}"
+        )
 
 @router.patch(
         "/edit/{id}",
@@ -670,3 +758,26 @@ async def permanently_delete_product(
         id=id,
         deleted_at=datetime.now(timezone.utc)
     )
+
+
+@router.delete(
+    "/webhooks/failures/{id}",
+    description="Delete a record of a failed webhook",
+    responses={
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
+        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
+    }
+)
+async def delete_failed_webhook(
+    id: Annotated[str, Path(description="The unique ID of the webhook record")],
+    db: AsyncSession = Depends(get_db)
+):
+    statement = delete(WebhookFailureORM).where(WebhookFailureORM.id == id).returning(WebhookFailureORM.id)
+    result = await db.execute(statement)
+    await db.commit()
+    
+    if result.scalar_one_or_none() is None:
+        raise HTTPException(status_code=404, detail="Unable to permanently delete product: not found")
+
+    return {"status": "success", "id": id}
