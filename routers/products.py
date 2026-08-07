@@ -145,7 +145,8 @@ async def get_products(
 
     result = await db.execute(statement)
     rows = result.scalars().all()
-    count = len(rows)
+    count_statement = select(func.count()).select_from(LangOpsProductORM)
+    count = await db.scalar(count_statement)
 
     if not rows:
         raise HTTPException(status_code=404, detail="No records found")
@@ -345,6 +346,7 @@ async def get_product_by_id(
 @router.get(
         "/webhooks/failures",
         description="Get webhooks which were logged as failed via POST /products/webhooks/failures",
+        response_class=list[WebhookFailure],
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
             status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
