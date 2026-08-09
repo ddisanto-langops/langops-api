@@ -145,9 +145,7 @@ async def get_products(
 
     result = await db.execute(statement)
     rows = result.scalars().all()
-    count_statement = select(func.count()).select_from(LangOpsProductORM)
-    count = await db.scalar(count_statement)
-
+    count = len(rows)
     if not rows:
         raise HTTPException(status_code=404, detail="No records found")
     
