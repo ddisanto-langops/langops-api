@@ -346,7 +346,7 @@ async def get_product_by_id(
 @router.get(
         "/webhooks/failures",
         description="Get webhooks which were logged as failed via POST /products/webhooks/failures",
-        response_class=list[WebhookFailure],
+        response_model=list[WebhookFailure],
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
             status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
