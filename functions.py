@@ -355,26 +355,33 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
         if product.attachments:
             attachments = product.attachments
             for attachment in attachments:
-                url = str(attachment.url) 
-                
-                editor_match = re.search(editor_pattern, url)
-                if editor_match:
-                    editor_url = url
+                try:
+                    url = str(attachment.url) 
                     
-                
-                article_match = re.search(article_pattern, url)
-                if article_match:
-                    article_url = url
+                    editor_match = re.search(editor_pattern, url)
+                    if editor_match:
+                        editor_url = url
+                        
                     
+                    article_match = re.search(article_pattern, url)
+                    if article_match:
+                        article_url = url
+                        
+                        
+                    crowdin_match = re.search(crowdin_link_pattern, url)
+                    if crowdin_match:
+                        crowdin_url = url
+
+                    if attachment.name.lower() == "crowdin":
+                        crowdin_url = url
+                        
                     
-                crowdin_match = re.search(crowdin_link_pattern, url)
-                if crowdin_match:
-                    crowdin_url = url
-                    
-                
-                youtube_match = re.search(youTube_link_pattern, url)
-                if youtube_match:
-                    youtube_url = url
+                    youtube_match = re.search(youTube_link_pattern, url)
+                    if youtube_match:
+                        youtube_url = url
+
+                except:
+                    pass
 
         if article_url:
             try:
