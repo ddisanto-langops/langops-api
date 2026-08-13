@@ -405,14 +405,14 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
                 media_groups.append(MediaGroups.LITERATURE)
             
             case "LT":
-                media_groups.extend(MediaGroups.AUDIO_VIDEO, MediaGroups.WEBSITE)
+                media_groups.extend([MediaGroups.AUDIO_VIDEO, MediaGroups.WEBSITE])
 
             case "PCD" | "PN":
                 media_groups.append(MediaGroups.EMAILS)
             
             case "KOD":
                 if article_url:
-                    media_groups.extend(MediaGroups.AUDIO_VIDEO, MediaGroups.WEBSITE)
+                    media_groups.extend([MediaGroups.AUDIO_VIDEO, MediaGroups.WEBSITE])
                 else:
                     media_groups.append(MediaGroups.AUDIO_VIDEO)
             
@@ -424,7 +424,7 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
             
             case "POD" | "PTVID":
                 if youtube_url:
-                    media_groups.extend(MediaGroups.AUDIO_VIDEO, MediaGroups.WEBSITE)
+                    media_groups.extend([MediaGroups.AUDIO_VIDEO, MediaGroups.WEBSITE])
                 else:
                     media_groups.append(MediaGroups.WEBSITE)
             
