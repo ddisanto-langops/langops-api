@@ -171,13 +171,13 @@ class WebhookFailureORM(Base):
             init=False # Do not require ID on object creation since server assigns it
         )
     date_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    operation: Mapped[str]
+    status_code: Mapped[str]
     data: Mapped[Dict[str, Any]] = mapped_column(JSONB)
 
 def webhook_failure_orm_to_response(row: WebhookFailureORM):
     return WebhookFailure(
         id = row.id,
         date_created= row.date_created,
-        operation=row.operation if row.operation else None,
+        status_code=row.status_code if row.status_code else None,
         data=row.data
     )

@@ -40,6 +40,6 @@ CREATE TABLE langops_products (
 CREATE TABLE webhook_failures (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     date_created    TIMESTAMPTZ,
-    operation       TEXT,
+    status_code     TEXT,
     data            JSONB NOT NULL
 );

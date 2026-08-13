@@ -95,7 +95,7 @@ class EditingLangOpsProduct(CamelModel):
 
 
 class NewWebhookFailure(CamelModel):
-    operation: str | None = None
+    status_code: str | None = None
     data: Dict[str, Any]
 
 
@@ -104,5 +104,5 @@ class WebhookFailure(CamelModel):
 
     id: UUID
     date_created: datetime
-    operation: str | None = None
+    status_code: str | None = None
     data: Dict[str, Any]
