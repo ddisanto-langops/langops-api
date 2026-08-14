@@ -15,7 +15,7 @@ router = APIRouter()
 
 @router.get(
         "/failures",
-        description="Get webhooks which were logged as failed via POST /products/webhooks/failures",
+        description="Get webhooks which were logged as failed via POST webhooks/failures",
         response_model=list[WebhookFailure],
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
@@ -83,7 +83,7 @@ async def log_webhook_failure(
     try:
         db.add(WebhookFailureORM(
             date_created=datetime.now(timezone.utc),
-            operation=payload.operation if payload else None,
+            status_code=payload.status_code if payload else None,
             data=payload.data
         ))
         await db.commit()
@@ -101,6 +101,8 @@ async def log_webhook_failure(
             detail=f"Error logging webhook failure: {e}"
         )
 
+
+
 @router.delete(
     "/failures/delete/{id}",
     description="Delete the record of a failed webhook",
@@ -116,7 +118,7 @@ async def delete_failed_webhook(
     id: str,
     db: AsyncSession = Depends(get_db)
 ):
-    statement = delete(WebhookFailureORM).where(WebhookFailureORM.id == id)
+    statement = delete(WebhookFailureORM).where(WebhookFailureORM.id == id).returning(WebhookFailureORM.id)
     result = await db.execute(statement)
     await db.commit()
         
