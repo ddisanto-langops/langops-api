@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Depends, Query, Body
-from sqlalchemy import desc
+from sqlalchemy import desc, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import Annotated
@@ -100,3 +100,27 @@ async def log_webhook_failure(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error logging webhook failure: {e}"
         )
+
+@router.delete(
+    "/failures/delete/{id}",
+    description="Delete the record of a failed webhook",
+    responses={
+        status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
+        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
+        status.HTTP_422_UNPROCESSABLE_CONTENT: ErrorResponses._422_VALIDATION_ERROR,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
+    }
+)
+async def delete_failed_webhook(
+    id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    statement = delete(WebhookFailureORM).where(WebhookFailureORM.id == id)
+    result = await db.execute(statement)
+    await db.commit()
+        
+    if result.scalar_one_or_none() is None:
+        raise HTTPException(status_code=404, detail="Unable to permanently delete product: not found")
+
+    return {"status": "success", "id": id}

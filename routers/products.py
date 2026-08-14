@@ -670,26 +670,3 @@ async def permanently_delete_product(
         id=id,
         deleted_at=datetime.now(timezone.utc)
     )
-
-
-@router.delete(
-    "/webhooks/failures/{id}",
-    description="Delete a record of a failed webhook",
-    responses={
-        status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,
-        status.HTTP_404_NOT_FOUND: ErrorResponses._404_NOT_FOUND,
-        status.HTTP_500_INTERNAL_SERVER_ERROR: ErrorResponses._500_INTERNAL_SERVER_ERROR
-    }
-)
-async def delete_failed_webhook(
-    id: Annotated[str, Path(description="The unique ID of the webhook record")],
-    db: AsyncSession = Depends(get_db)
-):
-    statement = delete(WebhookFailureORM).where(WebhookFailureORM.id == id).returning(WebhookFailureORM.id)
-    result = await db.execute(statement)
-    await db.commit()
-    
-    if result.scalar_one_or_none() is None:
-        raise HTTPException(status_code=404, detail="Unable to permanently delete product: not found")
-
-    return {"status": "success", "id": id}
