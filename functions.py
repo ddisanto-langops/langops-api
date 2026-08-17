@@ -457,6 +457,13 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
             status = ProductStatus.PUBLISHED
             translation_progress = 100.0
             approval_progress = 100.0
+
+
+        if product.date_last_activity:
+            last_activity = product.date_last_activity
+            now = datetime.now()
+            if (last_activity + timedelta(days=7)) >= now:
+                status = ProductStatus.PENDING
         elif crowdin_url and crowdin_file_id and crowdin_project_id:
             try:
                 client = create_crowdin_client(token=os.getenv("CROWDIN_API_TOKEN"))
@@ -475,12 +482,6 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
                
             except Exception as e:
                 print(e)
-        
-        elif product.date_last_activity:
-            last_activity = product.date_last_activity
-            now = datetime.now(timezone.utc)
-            if (last_activity + timedelta(days=7) >= now):
-                status = ProductStatus.PENDING
         
 
 
