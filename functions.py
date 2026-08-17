@@ -461,7 +461,7 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
 
         if product.date_last_activity:
             last_activity = product.date_last_activity
-            now = datetime.now()
+            now = datetime.now(timezone.utc)
             if (last_activity + timedelta(days=7)) >= now:
                 status = ProductStatus.PENDING
         elif crowdin_url and crowdin_file_id and crowdin_project_id:
