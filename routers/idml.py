@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get(
     "/map/{crowdin_project_id}/{crowdin_file_id}",
-    description="Get the context identifier, string IDs and text of each IDML story file to facilitate labeling, e.g. via a frontend service. Stories with less than 10 strings will be automatically labelled as miscellaneous and will not be shown to the caller.",
+    description="Returns JSON containing the context identifier, string IDs and strings of each XML story file from a specified IDML file. Intended to facilitate labeling of strings for translation assignments. Note that stories with less than 10 strings will be automatically labelled as 'miscellaneous' and will not be returned to the caller.",
     response_model=GetStringMapResponse,
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
@@ -40,7 +40,7 @@ def get_string_map(
 
 @router.post(
     "/label/{crowdin_project_id}",
-    description="Label articles and miscellaneous strings of an .idml file in Crowdin. Requires the `label_id` property of the schema to be filled in by the caller.",
+    description="Label articles of an IDML file in Crowdin. Expects the 'label_id' property of the schema to be filled in by the caller.",
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
         status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,

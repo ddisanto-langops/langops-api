@@ -15,7 +15,7 @@ router = APIRouter()
 
 @router.get(
         "/failures",
-        description="Get webhooks which were logged as failed via POST webhooks/failures",
+        description="Get status and content for webhooks which were logged as failed",
         response_model=list[WebhookFailure],
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
@@ -62,7 +62,7 @@ async def get_failed_webhooks(
 
 @router.post(
         "/failures",
-        description="If a webhook sends a request (e.g. create product) and it fails validation, add it to the failures table for manual processing.",
+        description="Log the status code text and raw JSON of webhooks which were rejected by this API, e.g. on creation or edit, to enable manual processing.",
         status_code=201,
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
@@ -105,7 +105,7 @@ async def log_webhook_failure(
 
 @router.delete(
     "/failures/delete/{id}",
-    description="Delete the record of a failed webhook",
+    description="Permanently delete the record of a failed webhook",
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
         status.HTTP_401_UNAUTHORIZED: ErrorResponses._401_UNAUTHORIZED,

@@ -4,7 +4,6 @@ from sqlalchemy import func, or_, update, delete, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.future import select
-from pydantic import ValidationError
 from typing import Annotated
 
 from schemas.response_schemas import (
@@ -22,9 +21,7 @@ from schemas.data_schemas import (
     NewLangOpsProduct,
     EditingLangOpsProduct,
     RawTrelloCard,
-    ProductCodeCount,
-    WebhookFailure,
-    NewWebhookFailure
+    ProductCodeCount
 )
 from schemas.error_schemas import ErrorResponses
 from models import LangOpsProductORM, orm_to_langops_product, new_product_to_orm, WebhookFailureORM, webhook_failure_orm_to_response
@@ -160,8 +157,7 @@ async def get_products(
 
 @router.get(
         "/wordcount",
-        description="""Gets the sum of all word counts in LangOps products, 
-        for published products only. Ignores unpublished and deletions.""",
+        description="""Gets the total word count across all LangOps products where date published is not null.""",
         response_model=WordcountResponse,
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
@@ -233,7 +229,7 @@ async def get_word_count(
 
 @router.get(
         "/productcount",
-        description="Gets the count of each product code in LangOps products for published products only. Ignores unpublished and deletions.",
+        description="Gets the count of each product code across all LangOps products where date published is not null.",
         response_model=ProductCodeCountResponse,
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
@@ -342,7 +338,7 @@ async def get_product_by_id(
 
 @router.post(
     "/add",
-    description="Endpoint for LangOps Gateway to add a product or multiple products to the database. <span style='color:red'>To avoid duplicates and unpredictable behavior, end users are not allowed to add products directly. All add product requests should be handled via the source of truth.</span>",
+    description="Intended for <strong>LangOps Gateway</strong> to add a product or multiple products to the database using raw Trello card JSON.",
     response_model=AddProductResponse,
     status_code=201,
     responses={
@@ -354,7 +350,7 @@ async def get_product_by_id(
     }
 )
 async def add_products(
-    products: Annotated[list[RawTrelloCard], Body(description="The combined, extracted JSON from each service which is to be evaluated in order to create a product or products")],
+    products: Annotated[list[RawTrelloCard], Body(description="The Trello card JSON which will be evaluated to create product(s)")],
     db: AsyncSession = Depends(get_db)      
 ):  
     new_products = build_new_langops_products(products)
@@ -384,7 +380,7 @@ async def add_products(
 
 @router.post(
     "/user-add",
-    description="Endpoint to manually add a LangOps product to the database, e.g. via a frontend. <span style='color:red'>Warning: This is a fully manual endpoint, which bypasses the product creation factory function. Use it only if you intend to manually add a product which was missed by automation.</span> **Note: as this bypasses the automation, the caller should consider supplying values which are normally created automatically.**",
+    description="Intended for <strong>front-end applications</strong>, allows adding a LangOps product to the database. <span style='color:red'><strong>Warning: This endpoint bypasses the product creation factory function. It is intended for edge cases where a product card is unreachable via automation, e.g. no longer exists.</strong></span>.",
     response_model=AddProductResponse,
     status_code=201,
     responses={
@@ -419,7 +415,7 @@ async def user_add_product(
 
 @router.patch(
         "/edit/{id}",
-        description="Edit an existing product",
+        description="Edit an existing product by supplying the updated JSON of a raw Trello card",
         response_model=EditProductResponse,
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
@@ -467,7 +463,7 @@ async def edit_product(
 
 @router.patch(
         "/user-edit/{id}",
-        description="Manually edit an existing product, e.g. via a frontend. <span style='color:red'>Warning: This is a fully manual endpoint, which bypasses the product creation factory function. Use it only if you intend to manually edit a product which was missed by automation.</span> **Note: as this bypasses the automation, the caller should consider supplying values which are normally created automatically.**",
+        description="Intended for <strong>front-end applications</strong>, allows editing of an existing product. <span style='color:red'><strong>Warning: This endpoint bypasses the product creation factory function. It is intended for edge cases where a product card is unreachable via automation, e.g. no longer exists.</strong></span>.",
         response_model=EditProductResponse,
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
@@ -571,7 +567,7 @@ async def user_edit_product(
 
 @router.patch(
     "/restore/{id}",
-    description="Restore a soft-deleted product",
+    description="Restore a soft-deleted product, giving it status of 'archived.'",
     response_model=RestoreProductResponse,
     responses={
         status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,
@@ -589,6 +585,7 @@ async def restore_product(
         update(LangOpsProductORM)
             .where(LangOpsProductORM.trello_id == id)
             .values(date_deleted=None)
+            .values(product_status=ProductStatus.ARCHIVED)
             .returning(LangOpsProductORM.trello_id)
         )
     result = await db.execute(statement)
