@@ -453,13 +453,12 @@ def build_new_langops_products(products: list[RawTrelloCard]) -> list[NewLangOps
         if product.date_closed:
             status = ProductStatus.ARCHIVED
 
-        if date_published:
+        elif date_published:
             status = ProductStatus.PUBLISHED
             translation_progress = 100.0
             approval_progress = 100.0
 
-
-        if product.date_last_activity:
+        elif product.date_last_activity:
             last_activity = product.date_last_activity
             now = datetime.now(timezone.utc)
             if (last_activity + timedelta(days=7)) >= now:
