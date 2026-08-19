@@ -25,12 +25,16 @@ logger = logging.getLogger("uvicorn.error")
 
 
 def create_crowdin_client(token: str) -> CrowdinClient:
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="CROWDIN_API_TOKEN is not configured.",
+        )
     return CrowdinClient(
         token=token,
         timeout=30,
         max_retries=2
     )
-
 
 
 def label_misc_strings(
@@ -42,7 +46,7 @@ def label_misc_strings(
         Only context labels which own 10 strings or more will be exposed to the user
         for labelling.
     """
-    
+
     try:
         client = create_crowdin_client(token=os.getenv("CROWDIN_API_TOKEN"))
 
@@ -95,16 +99,58 @@ def label_misc_strings(
         "ids": misc_strings
     }
 
+def get_paginated_strings(crowdin_project_id: int, crowdin_file_id: int, limit: int, offset: int):
+    token = os.getenv("CROWDIN_API_TOKEN")
+    client = create_crowdin_client(token)
+    fetch_more = True
+    found_strings = []
 
+    while fetch_more:
+        try:
+            res = client.source_strings.list_strings(
+                projectId=int(crowdin_project_id),
+                fileId=int(crowdin_file_id),
+                limit=limit,
+                offset=offset,
+            )
+            res_length = len(res["data"])
+            if res_length == 0:
+                break
 
-def create_string_map(
-    crowdin_project_id: int,
-    crowdin_file_id: int
-) -> list[StringMapItem]:
-    context_regex = r"(^[A-Z0-9]{1,})-"
+            offset += res_length
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="Failed to retrieve file strings from Crowdin.",
+            ) from e
+
+        for item in res["data"]:
+            context_unfiltered = item["data"]["context"]
+            context_regex = r"(^[A-Z0-9]{1,})-"
+            context_match = re.search(context_regex, context_unfiltered)
+            if not context_match:
+                continue
+            context = context_match.group(1)
+            id = item["data"]["id"]
+            text = item["data"]["text"]
+
+            found_strings.append({
+                "context": context,
+                "id": id,
+                "text": text
+            })
+
+        if res_length < limit:
+            fetch_more = False
+
+    return found_strings
+
+    
+
+def create_string_map(crowdin_project_id: int, crowdin_file_id: int) -> list[StringMapItem]:
     limit = 500
     offset = 0
-    has_more = True
 
     grouped: dict[str, dict[str, list[int] | list[str] | None]] = defaultdict(
         lambda: {
@@ -114,59 +160,11 @@ def create_string_map(
         }
     )
 
-    token = os.getenv("CROWDIN_API_TOKEN")
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="CROWDIN_API_TOKEN is not configured.",
-        )
-
-    client = create_crowdin_client(token)
-
-    try:
-        res = client.source_strings.list_strings(
-            projectId=int(crowdin_project_id),
-            fileId=int(crowdin_file_id),
-            limit=limit,
-            offset=offset,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Failed to retrieve file strings from Crowdin.",
-        ) from e
-
-    res_length = len(res["data"])
-
-    while res_length > 0 and has_more:
-        for string in res["data"]:
-            identifier = string["data"]["identifier"]
-            context_match = re.search(context_regex, identifier)
-            if not context_match:
-                continue
-
-            context = context_match.group(1)
-            grouped[context]["ids"].append(string["data"]["id"])
-            grouped[context]["strings"].append(string["data"]["text"])
-
-        offset += res_length
-
-        try:
-            res = client.source_strings.list_strings(
-                projectId=int(crowdin_project_id),
-                fileId=int(crowdin_file_id),
-                limit=limit,
-                offset=offset,
-            )
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Failed to retrieve additional file strings from Crowdin: {e}.",
-            ) from e
-
-        res_length = len(res["data"])
-        if res_length < limit:
-            has_more = False
+    strings = get_paginated_strings(crowdin_project_id, crowdin_file_id, limit, offset)
+    for string in strings:
+        context = string["context"]
+        grouped[context]["ids"].append(string["id"])
+        grouped[context]["strings"].append(string["text"])
 
     mapped_strings = [
         StringMapItem(

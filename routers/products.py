@@ -380,7 +380,7 @@ async def add_products(
 
 @router.post(
     "/user-add",
-    description="Intended for <strong>front-end applications</strong>, allows adding a LangOps product to the database. <span style='color:red'><strong>Warning: This endpoint bypasses the product creation factory function. It is intended for edge cases where a product card is unreachable via automation, e.g. no longer exists.</strong></span>.",
+    description="Intended for <strong>front-end applications</strong>, allows adding a LangOps product to the database. <span style='color:red'><strong>Warning: This endpoint bypasses the product creation factory function. It is intended for edge cases where a product card is unreachable via automation, e.g. no longer exists.</strong></span>",
     response_model=AddProductResponse,
     status_code=201,
     responses={
@@ -463,7 +463,7 @@ async def edit_product(
 
 @router.patch(
         "/user-edit/{id}",
-        description="Intended for <strong>front-end applications</strong>, allows editing of an existing product. <span style='color:red'><strong>Warning: This endpoint bypasses the product creation factory function. It is intended for edge cases where a product card is unreachable via automation, e.g. no longer exists.</strong></span>.",
+        description="Intended for <strong>front-end applications</strong>, allows editing of an existing product. <span style='color:red'><strong>Warning: This endpoint bypasses the product creation factory function. It is intended for edge cases where a product card is unreachable via automation, e.g. no longer exists.</strong></span>",
         response_model=EditProductResponse,
         responses={
             status.HTTP_400_BAD_REQUEST: ErrorResponses._400_BAD_REQUEST,

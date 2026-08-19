@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import HTTPException, APIRouter, status, Body
+from fastapi import HTTPException, APIRouter, status, Body, Query
 
 from schemas.error_schemas import ErrorResponses
 from schemas.response_schemas import GetStringMapResponse
@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/map/{crowdin_project_id}/{crowdin_file_id}",
+    "/map",
     description="Returns JSON containing the context identifier, string IDs and strings of each XML story file from a specified IDML file. Intended to facilitate labeling of strings for translation assignments. Note that stories with less than 10 strings will be automatically labelled as 'miscellaneous' and will not be returned to the caller.",
     response_model=GetStringMapResponse,
     responses={
@@ -22,8 +22,16 @@ router = APIRouter()
     }
 )
 def get_string_map(
-    crowdin_project_id: int,
-    crowdin_file_id: int
+    crowdin_project_id: Annotated[int, Query(
+        title="Crowdin project ID",
+        alias="projectId",
+        description="The numeric ID of the Crowdin project containing the IDML file (can be found on Crowdin 'dashboard' tab)"
+    )],
+    crowdin_file_id: Annotated[int, Query(
+        title="Crowdin file ID",
+        alias="fileId",
+        description="The numeric ID of the desired IDML file in Crowdin (can be found in file URL)"
+    )]
 ):
     try:
         string_map = create_string_map(crowdin_project_id, crowdin_file_id)

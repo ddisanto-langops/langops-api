@@ -42,11 +42,6 @@ class RawCrowdinData(CamelModel):
     translation_progress: int
     approval_progress: int
 
-
-
-
-
-
 # --------------------------------------
 # Product data classes, used in responses
 # --------------------------------------
@@ -106,3 +101,4 @@ class WebhookFailure(CamelModel):
     date_created: datetime
     status_code: str | None = None
     data: Dict[str, Any]
+
