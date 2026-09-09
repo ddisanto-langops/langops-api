@@ -42,22 +42,15 @@ async def get_failed_webhooks(
     if limit > 500 or limit < 1:
         raise HTTPException(status_code=400, detail="Limit must be between 1 and 500.")
 
-    try:
-        statement = select(WebhookFailureORM).limit(limit).offset(offset).order_by(desc(WebhookFailureORM.date_created))
-        result = await db.execute(statement)
-        rows = result.scalars().all()
+
+    statement = select(WebhookFailureORM).limit(limit).offset(offset).order_by(desc(WebhookFailureORM.date_created))
+    result = await db.execute(statement)
+    rows = result.scalars().all()
         
-        if not rows:
-            raise HTTPException(status_code=404, detail="No records found")
+    if not rows:
+        raise HTTPException(status_code=404, detail="No records found")
 
-        return [webhook_failure_orm_to_response(row) for row in rows]
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=e
-        )
-
+    return [webhook_failure_orm_to_response(row) for row in rows]
 
 
 @router.post(
