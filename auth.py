@@ -44,9 +44,6 @@ async def verify_jwt(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Missing CF-Access-Client-Id or CF-Access-Client-Secret for DEV environment",
             )
-        # Mock production behavior
-        request.state.user_email = "dev-user@local.internal"
-        return {"email": "dev-user@local.internal", "mocked": True}
 
     # 2. PRODUCTION JWT CHECK
     if not token:
@@ -74,8 +71,6 @@ async def verify_jwt(
             issuer=CF_TEAM_URL,
             options={"require": ["aud"]}
         )
-
-        request.state.user_email = payload.get("email", "unknown")
         return payload
     
     except  jwt.InvalidAudienceError:
