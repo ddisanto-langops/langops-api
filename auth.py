@@ -44,6 +44,7 @@ async def verify_jwt(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Missing CF-Access-Client-Id or CF-Access-Client-Secret for DEV environment",
             )
+        return
 
     # 2. PRODUCTION JWT CHECK
     if environment == "PROD" and not token:
