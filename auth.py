@@ -46,7 +46,7 @@ async def verify_jwt(
             )
 
     # 2. PRODUCTION JWT CHECK
-    if not token:
+    if environment == "PROD" and not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing Cf-Access-Jwt-Assertion header for PROD environment",
