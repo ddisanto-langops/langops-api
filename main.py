@@ -1,4 +1,5 @@
 import time
+import os
 import logging
 from datetime import datetime, timezone
 from fastapi import FastAPI, status, Request, Depends
@@ -80,9 +81,10 @@ async def log(request: Request, call_next):
 
     process_time = (time.time() - start_time) * 1000
 
+    environment = os.getenv("ENVIRONMENT")
+    
     logger.info(
-        f"{datetime.now(timezone.utc)} | Method: {request.method} | Path: {request.url.path} "
-        f"| Status: {response.status_code} | Duration: {process_time:.2f}ms"
+        f"{datetime.now(timezone.utc)} | Method: {request.method} | Path: {request.url.path} | Status: {response.status_code} | Duration: {process_time:.2f}ms | ENV: {environment}"
     )
     
     return response
