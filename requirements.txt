@@ -1,7 +1,7 @@
 bs4
 pydantic
 fastapi[standard]
-sqlalchemy
+sqlalchemy[asyncio]
 starlette
 crowdin-api-client
 asyncpg
