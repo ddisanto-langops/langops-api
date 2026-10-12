@@ -12,6 +12,8 @@ services:
       - .:/app
     environment:
       - WATCHFILES_FORCE_POLLING=true # make sure it hot-reloads on edits
+    networks:
+      - shared-network
 
   db:
     image: cloudflare/cloudflared:latest
@@ -24,3 +26,8 @@ services:
       --header "CF-Access-Client-Secret: ${DB_CF_ACCESS_CLIENT_SECRET}"
 
 # Using 0.0.0.0 so it listens on all interfaces, not just insinde its own container
+
+networks:
+  shared-network:
+    external: true
+    name: dev-bridge-network
