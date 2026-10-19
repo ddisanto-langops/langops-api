@@ -10,6 +10,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    #env_file:
-     # - /etc/langops-api/secrets.env
+    env_file:
+      - /etc/langops-api/secrets.env
     restart: unless-stopped
