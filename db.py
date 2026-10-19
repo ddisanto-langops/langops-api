@@ -15,7 +15,7 @@ else:
 DB_NAME = os.environ.get("DB_NAME")
 PORT = os.environ.get("DB_PORT")
 
-DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
+DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:5432/{DB_NAME}"
 
 engine = create_async_engine(
     DATABASE_URL,

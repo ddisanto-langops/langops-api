@@ -29,7 +29,6 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
-      - DB_PORT=5432
       - DB_HOST=langops-db
     ports:
       - "127.0.0.1:8000:8000"
