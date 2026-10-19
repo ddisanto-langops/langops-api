@@ -1,35 +1,35 @@
 services:
-  core:
+  api-dev:
     build:
       context: .
       target: development
     ports:
       - "8000:8000"
     env_file:
-      - /etc/langops-api/secrets.env
+      - .env
     restart: unless-stopped
     volumes:
       - .:/app
     environment:
       - WATCHFILES_FORCE_POLLING=true # make sure it hot-reloads on edits
     networks:
-      - shared-network
+      - langops-network
 
-  db:
+  db-dev:
     image: cloudflare/cloudflared:latest
     env_file:
-      - /etc/langops-api/secrets.env
+      - .env
     command: > 
       access tcp --hostname db-dev.pcglangops.com
       --url 0.0.0.0:5432
       --header "CF-Access-Client-Id: ${DB_CF_ACCESS_CLIENT_ID}"
       --header "CF-Access-Client-Secret: ${DB_CF_ACCESS_CLIENT_SECRET}"
     networks:
-      - shared-network
+      - langops-network
 
 # Using 0.0.0.0 so it listens on all interfaces, not just insinde its own container
 
 networks:
-  shared-network:
+  langops-network:
     external: true
-    name: dev-bridge-network
+    name: langops-network

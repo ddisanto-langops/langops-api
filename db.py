@@ -2,10 +2,16 @@ import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
 
+environment = os.getenv("ENVIRONMENT")
 
 USER = os.environ.get("DB_USER")
 PASSWORD = os.environ.get("DB_PASSWORD")
-HOST = os.environ.get("DB_HOST")
+
+if environment == "PROD":
+    HOST = os.environ.get("DB_HOST")
+else:
+    HOST = os.environ.get("DB_HOST_DEV")
+
 DB_NAME = os.environ.get("DB_NAME")
 PORT = os.environ.get("DB_PORT")
 

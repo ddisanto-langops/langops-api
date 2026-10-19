@@ -1,15 +1,54 @@
 services:
-  core:
+  # ----------------------------------------------------
+  # DATABASE 
+  # ----------------------------------------------------
+  langops-db:
+    image: postgres:16-alpine
+    container_name: langops-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - langops-network
+
+  # ----------------------------------------------------
+  # API
+  # ----------------------------------------------------
+  langops-api:
     build:
       context: .
       target: production
+    container_name: langops-api
+    restart: unless-stopped
+    environment:
+      - ENVIRONMENT=PROD
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=5432
+      - DB_HOST=langops-db
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     logging:
       driver: "json-file"
       options:
-        max-size: "10m"
+        max-size: "1m"
         max-file: "3"
-    #env_file:
-     # - /etc/langops-api/secrets.env
-    restart: unless-stopped
+    depends_on:
+      - langops-db # Ensures the DB boots up before the API tries to connect
+    networks:
+      - langops-network
+
+# ----------------------------------------------------
+# INFRASTRUCTURE
+# ----------------------------------------------------
+networks:
+  langops-network:
+    driver: bridge # Creates a private network box for these two containers to talk in
+
+volumes:
+  db_data:
