@@ -27,9 +27,30 @@ services:
     networks:
       - langops-network
 
-# Using 0.0.0.0 so it listens on all interfaces, not just insinde its own container
+
+  # ----------------------------------------------------
+  # PGAdmin
+  # ----------------------------------------------------
+  pg-admin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin-dev
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USERNAME}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PSWD}
+    ports:
+      - "9050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - db-dev
+    networks:
+      - langops-network
 
 networks:
   langops-network:
     external: true
     name: langops-network
+
+volumes:
+  pgadmin-data:

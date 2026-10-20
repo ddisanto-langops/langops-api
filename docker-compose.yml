@@ -42,6 +42,25 @@ services:
     networks:
       - langops-network
 
+  # ----------------------------------------------------
+  # PGAdmin
+  # ----------------------------------------------------
+  pg-admin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USERNAME}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PSWD}
+    ports:
+      - "9050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - langops-db
+    networks:
+          - langops-network
+
 # ----------------------------------------------------
 # INFRASTRUCTURE
 # ----------------------------------------------------
@@ -51,3 +70,4 @@ networks:
 
 volumes:
   db_data:
+  pgadmin-data:
