@@ -15,15 +15,16 @@ services:
     networks:
       - shared-network
 
-  db:
+  db-dev:
     image: cloudflare/cloudflared:latest
-    env_file:
-      - /etc/langops-api/secrets.env
+    environment:
+      - TUNNEL_SERVICE_TOKEN_ID=${DB_CF_ACCESS_CLIENT_ID}
+      - TUNNEL_SERVICE_TOKEN_SECRET=${DB_CF_ACCESS_CLIENT_SECRET}
+    ports:
+      - "5432:5432"
     command: > 
       access tcp --hostname db-dev.pcglangops.com
       --url 0.0.0.0:5432
-      --header "CF-Access-Client-Id: ${DB_CF_ACCESS_CLIENT_ID}"
-      --header "CF-Access-Client-Secret: ${DB_CF_ACCESS_CLIENT_SECRET}"
     networks:
       - shared-network
 
