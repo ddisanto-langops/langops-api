@@ -12,6 +12,9 @@ services:
       - .:/app
     environment:
       - WATCHFILES_FORCE_POLLING=true # make sure it hot-reloads on edits
+      - DB_HOST=${DB_HOST_DEV}
+    depends_on:
+      - db-dev
     networks:
       - shared-network
 
